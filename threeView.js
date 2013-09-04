@@ -133,6 +133,8 @@ function initSea3DMesh() {
 	loader.onComplete = function( e ) {
 		for (i=0; i < loader.meshes.length; i++){
 			meshs[i] = loader.meshes[i];
+			if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3") 
+				meshs[i].material = new THREE.MeshPhongMaterial( { color: 0x808080, shininess:100, specular:0xffffff });;
 		}
 	    addSea3DMesh();
 	};
@@ -147,9 +149,9 @@ function addSea3DMesh() {
 	players[0].play('idle');
 	scene.add(players[0]);
 
-	players[1] = meshs[27+7];
+	players[1] = meshs[27+2];
 	players[1].scale.set( 10, 10, -10 );
-	players[1].position.set(-100, 250, 0);
+	players[1].position.set(-100, 220, 0);
 	players[1].material = new THREE.MeshPhongMaterial( { color: 0x808080, shininess:100, specular:0xffffff, skinning:true });
 	players[1].play('idle');
 	scene.add(players[1]);

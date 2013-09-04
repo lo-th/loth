@@ -1,16 +1,21 @@
 package {
+	import away3d.animators.AnimationSetBase;
+	import away3d.animators.data.Skeleton;
+	import away3d.animators.SkeletonAnimationSet;
 	import away3d.animators.SkeletonAnimator;
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.entities.Mesh;
+	import away3d.events.AnimatorEvent;
 	import away3d.lights.DirectionalLight;
 	import away3d.lights.PointLight;
 	import away3d.lights.shadowmaps.DirectionalShadowMapper;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.materials.methods.FilteredShadowMapMethod;
 	import away3d.materials.methods.FogMethod;
+	import away3d.events.AnimationStateEvent;
 	import away3d.materials.TextureMaterial;
 	import away3d.primitives.PlaneGeometry;
 	import away3d.primitives.SphereGeometry;
@@ -32,6 +37,7 @@ package {
 	import flash.text.TextFormat;
 	import flash.utils.ByteArray;
 	import sunag.events.SEAEvent;
+	//import sunag.events.AnimationEvent;
 	import sunag.sea3d.config.DefaultConfig;
 	import sunag.sea3d.SEA3D;
 	import com.Stats;
@@ -57,7 +63,8 @@ package {
 		
 		private var meshs:Array = [];
 		private var materials:Array = [];
-		private var animators:Array = [];
+		//private var animators:Array = [];
+		private const animators:Vector.<SkeletonAnimator> = new Vector.<SkeletonAnimator>(2, true);
 		private var players:Array = [];
 		private var currentPlay:String;
 		
@@ -96,7 +103,7 @@ package {
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			
 			stage.addEventListener(Event.RESIZE, onResize);
-			stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			//stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			
 			onChangeView(45, 60, 1000);
 			
@@ -211,9 +218,14 @@ package {
 		}
 		
 		private function addSea3DMesh(e:SEAEvent):void {
+            var cubeMat0:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
+            cubeMat0.lightPicker = lightPicker;
+			cubeMat0.shadowMethod = softShadowMethod;
+			cubeMat0.addMethod(fogMethod);
 			var sea3d:SEA3D = e.target as SEA3D;
 			for (var i:int = 0; i < sea3d.meshes.length; i++) {
 				meshs[i] = sea3d.meshes[i];
+                if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3") meshs[i].material = cubeMat0;
 			}
 			var cubeMat:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
 			cubeMat.shadowMethod = softShadowMethod;
@@ -234,17 +246,28 @@ package {
 			cubeMat2.shadowMethod = softShadowMethod;
 			cubeMat2.addMethod(fogMethod);
 			cubeMat2.lightPicker = lightPicker;
-			players[1] = meshs[27 + 7];
+			players[1] = meshs[27 + 2];
 			players[1].scale(10);
 			players[1].material = cubeMat2;
 			players[1].rotationY = 180;
-			players[1].position = new Vector3D(-100, 250, 0);
+			players[1].position = new Vector3D(-100, 220, 0);
+			scene.addChild(players[1]);
 			animators[1] = players[1].animator as SkeletonAnimator;
-			animators[1].updatePosition = false;
+			//animators[1] = new SkeletonAnimator(sea3d.getSkeletonAnimationSet(players[1].name) as SkeletonAnimationSet, sea3d.getSkeleton(players[1].name) as Skeleton, true);
 			animators[1].play("idle");
 			animators[1].playbackSpeed = 0.5;
-			scene.addChild(players[1]);
-			currentPlay = "idle"
+			
+			this.addEventListener(Event.ENTER_FRAME, testSqueleton);
+			currentPlay = "idle";
+		}
+		
+		private function testSqueleton(e:Event):void {
+			if (animators[1].globalPose.numJointPoses == 14) {
+				scene.addChild(players[1]);
+				this.removeEventListener(Event.ENTER_FRAME, testSqueleton);
+				startRender();
+			}
+		
 		}
 		
 		private function changeAnimation():void {
@@ -252,10 +275,10 @@ package {
 				if (currentPlay == "idle") {
 					currentPlay = "walk";
 					players[0].position = new Vector3D(100, 185, -100);
-					players[1].position = new Vector3D(-100, 240, 0);
+					players[1].position = new Vector3D(-100, 220, 0);
 				} else {
 					players[0].position = new Vector3D(100, 45, -100);
-					players[1].position = new Vector3D(-100, 250, 0);
+					players[1].position = new Vector3D(-100, 220, 0);
 					currentPlay = "idle";
 				}
 				animators[0].play(currentPlay);
@@ -268,7 +291,15 @@ package {
 		//  EVENT
 		//-----------------------------------------------------
 		
-		private function onResize(e:Event = null):void {
+        private function startRender():void {
+			stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+		}
+		
+		private function onEnterFrame(e:Event):void {
+			view.render();
+		}
+        
+        private function onResize(e:Event = null):void {
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			if (debug) {
@@ -277,10 +308,6 @@ package {
 				stats.y = stage.stageHeight - 27;
 				stats.x = stage.stageWidth - 100;
 			}
-		}
-		
-		private function onEnterFrame(e:Event):void {
-			view.render();
 		}
 		
 		//-----------------------------------------------------

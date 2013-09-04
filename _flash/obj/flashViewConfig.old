@@ -31,18 +31,18 @@
     <optimize>true</optimize>
     <verbose-stacktraces>false</verbose-stacktraces>
     <source-path append="true">
-      <path-element>F:\A3d_Three\_flash\src</path-element>
-      <path-element>F:\A3d_Three\_flash\lib</path-element>
+      <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\src</path-element>
+      <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\lib</path-element>
       <path-element>E:\Program Files (x86)\FlashDevelop4-4-2\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>F:\A3d_Three\_flash\lib\AwayPhysics.swc</path-element>
-      <path-element>F:\A3d_Three\_flash\lib\SEA3D.swc</path-element>
-      <path-element>F:\A3d_Three\_flash\lib\SEA3D_Away3D_Lite.swc</path-element>
+      <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\lib\AwayPhysics.swc</path-element>
+      <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\lib\SEA3D.swc</path-element>
+      <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\lib\SEA3D_Away3D_Lite.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>F:\A3d_Three\_flash\src\flashView.as</path-element>
+    <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\src\flashView.as</path-element>
   </file-specs>
   <default-background-color>#000000</default-background-color>
   <default-frame-rate>60</default-frame-rate>
