@@ -104,6 +104,7 @@
 		    var vsize = {};
 		    var swf;
 		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		    var currentView = 0;
 		    
 
 		    function init() {
@@ -127,11 +128,17 @@
 				onThreeResize(vsize.w, vsize.h-5);
 			}
 
-			function moveView(n) {
+			function moveView() {
+				var n = currentView;
 				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
 				
 				if (swf && typeof swf['onFlashChangeView'] != "undefined")
 					swf['onFlashChangeView'](vSet[n].h, vSet[n].v, vSet[n].d);
+
+				document.getElementById("bview").innerHTML = "VIEW " + n;
+
+				currentView++;
+				if(currentView == vSet.length)currentView = 0;
 			}
 
 			function changeAnimation() {
@@ -155,11 +162,7 @@
 		<div id="myThreeText"><b>THREE JS</b> r 61 - WebGl</div>
 		<div id="button">
 			<button type="button" class="mini" onclick="changeAnimation()">ANIMATION</button>
-			<button type="button" class="mini" onclick="moveView(0)">VIEW 00</button>
-			<button type="button" class="mini" onclick="moveView(1)">VIEW 01</button>
-			<button type="button" class="mini" onclick="moveView(2)">VIEW 02</button>
-			<button type="button" class="mini" onclick="moveView(3)">VIEW 03</button>
-			<button type="button" class="mini" onclick="moveView(4)">VIEW 04</button>
+			<button type="button" class="mini" onclick="moveView()" id="bview">VIEW</button>
 			
 		</div>
 		<div id="ribbon" style="position: absolute; top: 0; right: 0; border: 0;">
