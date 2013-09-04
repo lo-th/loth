@@ -12,12 +12,14 @@ var meshs = [];
 var materials = [];
 var players = [];
 var currentPlay;
+var character=0;
 
 //-----------------------------------------------------
 //  INIT VIEW
 //-----------------------------------------------------
 
-function initThree(canvasName) {
+function initThree(canvasName, n) {
+	character = n;
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize( vsize.x, vsize.y );
 	document.getElementById( canvasName ).appendChild( renderer.domElement );
@@ -149,13 +151,13 @@ function addSea3DMesh() {
 	players[0].play('idle');
 	scene.add(players[0]);
 
-	players[1] = meshs[27+2];
+	players[1] = meshs[27+character];
 	players[1].scale.set( 10, 10, -10 );
 	players[1].position.set(-100, 220, 0);
 	players[1].material = new THREE.MeshPhongMaterial( { color: 0x808080, shininess:100, specular:0xffffff, skinning:true });
 	players[1].play('idle');
 	scene.add(players[1]);
-	currentPlay = 'idle'
+	currentPlay = 'idle';
 }
 
 

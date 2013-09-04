@@ -87,7 +87,9 @@
 		<script type="text/javascript" src="threeView.js"></script>
 
 		<script type="text/javascript">
-			var flashvars = {};
+		    var currentCharacter = (Math.round(Math.random()*4)-1);
+
+			var flashvars = {character:currentCharacter};
 	        var params = {};
 	        params.quality = "high";
 	        params.bgcolor = "#161616";
@@ -102,12 +104,13 @@
 		    var vsize = {};
 		    var swf;
 		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		    
 
 		    function init() {
 		    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
 		        window.addEventListener( 'resize', onWindowResize, false );
 		        
-		        initThree("myThree");
+		        initThree("myThree", currentCharacter);
 
 		        onWindowResize();
 		        swf.style.display = "block";

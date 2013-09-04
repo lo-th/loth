@@ -67,6 +67,7 @@ package {
 		private const animators:Vector.<SkeletonAnimator> = new Vector.<SkeletonAnimator>(2, true);
 		private var players:Array = [];
 		private var currentPlay:String;
+		private var character:Number = 0
 		
 		public function flashView() {
 			addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
@@ -114,6 +115,9 @@ package {
 				ExternalInterface.marshallExceptions = true;
 				ExternalInterface.addCallback("onFlashChangeView", onChangeView);
 				ExternalInterface.addCallback("onFlashChangeAnimation", changeAnimation);
+				
+				var flashVars:Object = this.root.loaderInfo.parameters;
+				character = flashVars["character"];
 			}
 		}
 		
@@ -218,14 +222,15 @@ package {
 		}
 		
 		private function addSea3DMesh(e:SEAEvent):void {
-            var cubeMat0:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
-            cubeMat0.lightPicker = lightPicker;
+			var cubeMat0:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
+			cubeMat0.lightPicker = lightPicker;
 			cubeMat0.shadowMethod = softShadowMethod;
 			cubeMat0.addMethod(fogMethod);
 			var sea3d:SEA3D = e.target as SEA3D;
 			for (var i:int = 0; i < sea3d.meshes.length; i++) {
 				meshs[i] = sea3d.meshes[i];
-                if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3") meshs[i].material = cubeMat0;
+				if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3")
+					meshs[i].material = cubeMat0;
 			}
 			var cubeMat:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
 			cubeMat.shadowMethod = softShadowMethod;
@@ -246,7 +251,7 @@ package {
 			cubeMat2.shadowMethod = softShadowMethod;
 			cubeMat2.addMethod(fogMethod);
 			cubeMat2.lightPicker = lightPicker;
-			players[1] = meshs[27 + 2];
+			players[1] = meshs[27 + character];
 			players[1].scale(10);
 			players[1].material = cubeMat2;
 			players[1].rotationY = 180;
@@ -284,22 +289,21 @@ package {
 				animators[0].play(currentPlay);
 				animators[1].play(currentPlay);
 			}
-		
 		}
 		
 		//-----------------------------------------------------
 		//  EVENT
 		//-----------------------------------------------------
 		
-        private function startRender():void {
+		private function startRender():void {
 			stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 		
 		private function onEnterFrame(e:Event):void {
 			view.render();
 		}
-        
-        private function onResize(e:Event = null):void {
+		
+		private function onResize(e:Event = null):void {
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			if (debug) {
