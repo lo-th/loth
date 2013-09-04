@@ -229,9 +229,11 @@ package {
 			var sea3d:SEA3D = e.target as SEA3D;
 			for (var i:int = 0; i < sea3d.meshes.length; i++) {
 				meshs[i] = sea3d.meshes[i];
-				if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3")
+				//if (meshs[i].name == "weapon0" || meshs[i].name == "weapon1" || meshs[i].name == "weapon2" || meshs[i].name == "weapon3")
+				if (meshs[i].name == ("weapon" + character).toString())
 					meshs[i].material = cubeMat0;
 			}
+			
 			var cubeMat:TextureMaterial = new TextureMaterial(new BitmapTexture(new BitmapData(128, 128, false, 0x808080)));
 			cubeMat.shadowMethod = softShadowMethod;
 			cubeMat.addMethod(fogMethod);
