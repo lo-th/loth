@@ -302,6 +302,7 @@ package {
 		}
 		
 		private function onEnterFrame(e:Event):void {
+            if (players[1]) players[1].position.y = 220;
 			view.render();
 		}
 		
