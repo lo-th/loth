@@ -58,8 +58,8 @@ package {
 		private var meshs:Array = [];
 		private var materials:Array = [];
 		private var animators:Array = [];
-        private var players:Array = [];
-        private var currentPlay:String;
+		private var players:Array = [];
+		private var currentPlay:String;
 		
 		public function flashView() {
 			addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
@@ -106,7 +106,7 @@ package {
 			if (ExternalInterface.available) {
 				ExternalInterface.marshallExceptions = true;
 				ExternalInterface.addCallback("onFlashChangeView", onChangeView);
-                ExternalInterface.addCallback("onFlashChangeAnimation", changeAnimation);
+				ExternalInterface.addCallback("onFlashChangeAnimation", changeAnimation);
 			}
 		}
 		
@@ -225,7 +225,7 @@ package {
 			players[0].rotationY = 180;
 			players[0].position = new Vector3D(100, 45, -100);
 			animators[0] = players[0].animator as SkeletonAnimator;
-            animators[0].updatePosition = false;
+			animators[0].updatePosition = false;
 			animators[0].play("idle");
 			animators[0].playbackSpeed = 0.5;
 			scene.addChild(players[0]);
@@ -240,7 +240,7 @@ package {
 			players[1].rotationY = 180;
 			players[1].position = new Vector3D(-100, 250, 0);
 			animators[1] = players[1].animator as SkeletonAnimator;
-            animators[1].updatePosition = false;
+			animators[1].updatePosition = false;
 			animators[1].play("idle");
 			animators[1].playbackSpeed = 0.5;
 			scene.addChild(players[1]);
@@ -251,15 +251,15 @@ package {
 			if (animators.length > 0) {
 				if (currentPlay == "idle") {
 					currentPlay = "walk";
-                    players[0].position = new Vector3D(100, 185, -100);
-                    players[1].position = new Vector3D(-100, 240, 0);
+					players[0].position = new Vector3D(100, 185, -100);
+					players[1].position = new Vector3D(-100, 240, 0);
 				} else {
-                    players[0].position = new Vector3D(100, 45, -100);
-                    players[1].position = new Vector3D(-100, 250, 0);
+					players[0].position = new Vector3D(100, 45, -100);
+					players[1].position = new Vector3D(-100, 250, 0);
 					currentPlay = "idle";
 				}
-                animators[0].play(currentPlay);
-                animators[1].play(currentPlay);
+				animators[0].play(currentPlay);
+				animators[1].play(currentPlay);
 			}
 		
 		}
@@ -293,7 +293,6 @@ package {
 			mouse.h = cameraPosition.horizontal;
 			mouse.v = cameraPosition.vertical;
 			mouse.down = true;
-            changeAnimation()
 		}
 		
 		private function onMouseUp(e:MouseEvent):void {
