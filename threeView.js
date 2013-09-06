@@ -13,6 +13,9 @@ var materials = [];
 var players = [];
 var currentPlay;
 var character=0;
+var currentPlayer = 1;
+var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
+var controls = { rotation: 0, speed: 0, vx: 0, vz: 0, maxSpeed: 275, acceleration: 600, angularSpeed: 2.5};
 
 //-----------------------------------------------------
 //  INIT VIEW
@@ -55,8 +58,15 @@ function initThree(canvasName, n) {
 	stats.domElement.style.left = '20px';
 	document.getElementById( "stats" ).appendChild(stats.domElement);
 
+	document.addEventListener( 'keydown', onKeyDown, false );
+	document.addEventListener( 'keyup', onKeyUp, false );
+
 	//animate();
     startRender();
+}
+
+function controlPlayer(n) {
+	currentPlayer = n;
 }
 
 //-----------------------------------------------------
@@ -172,6 +182,7 @@ function threeChangeAnimation(){
 		players[1].play(currentPlay);
 	}
 }
+
 //-----------------------------------------------------
 //  EVENT
 //-----------------------------------------------------
@@ -188,7 +199,7 @@ function stopRender() {
 function animate() {
 	delta = clock.getDelta();
 	THREE.AnimationHandler.update( delta*0.5 );
-	//requestAnimationFrame( animate );
+	updatePlayerMove();
 	renderer.render( scene, camera );
 	stats.update();
 }
@@ -199,6 +210,77 @@ function onThreeResize(x, y) {
 	renderer.setSize( x, y );
 	
 	animate();
+}
+
+//-----------------------------------------------------
+//  PLAYER MOVE
+//-----------------------------------------------------
+
+function updatePlayerMove() {
+	var n = currentPlayer;
+	
+	if ( key.front ) controls.speed = clamp( controls.speed + delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+	if ( key.back ) controls.speed = clamp( controls.speed - delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+	if ( key.left ) controls.rotation += delta * controls.angularSpeed;
+	if ( key.right ) controls.rotation -= delta * controls.angularSpeed;
+	if ( key.right || key.left) controls.speed = clamp( controls.speed + 1 * delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+
+	// speed decay
+	if ( ! ( key.front || key.back) ) {
+		if ( controls.speed > 0 ) {
+			var k = exponentialEaseOut( controls.speed / controls.maxSpeed );
+			controls.speed = clamp( controls.speed - k * delta * controls.acceleration, 0, controls.maxSpeed );
+		} else {
+			var k = exponentialEaseOut( controls.speed / (-controls.maxSpeed) );
+			controls.speed = clamp( controls.speed + k * delta * controls.acceleration, -controls.maxSpeed, 0 );
+		}
+	}
+
+	// displacement
+	var forwardDelta = controls.speed * delta;
+	controls.vx = Math.sin( controls.rotation ) * forwardDelta;
+	controls.vz = Math.cos( controls.rotation ) * forwardDelta;
+
+	if(players[n]){
+		players[n].rotation.y = controls.rotation;
+		players[n].position.x += controls.vx;
+		players[n].position.z += controls.vz;
+		// animation
+		if (key.front){ if (players[n].currentAnimation.name == "idle") players[n].play("walk");}
+		else if (key.back){ if (players[n].currentAnimation.name == "idle") players[n].play("walk");}
+		else{ if(players[n].currentAnimation.name == "walk") players[n].play("idle");}
+		// camera follow
+		center.copy(players[n].position);
+	    moveCamera();
+	}
+}
+
+
+
+//-----------------------------------------------------
+//  KEYBOARD
+//-----------------------------------------------------
+
+function onKeyDown ( event ) {
+	switch ( event.keyCode ) {
+	    case 38: case 87: case 90: key.front = true; break; // up, W, Z
+		case 40: case 83: key.back = true; break;           // down, S
+		case 37: case 65: case 81: key.left = true; break;  // left, A, Q
+		case 39: case 68: key.right = true; break;          // right, D
+		case 17: case 67: key.crouch = false; break;        // ctrl, c
+		case 32: key.jump = false; break;                   // space
+	}
+}
+
+function onKeyUp ( event ) {
+	switch( event.keyCode ) {
+		case 38: case 87: case 90: key.front = false; break; // up, W, Z
+		case 40: case 83: key.back = false; break;           // down, S
+		case 37: case 65: case 81: key.left = false; break;  // left, A, Q
+		case 39: case 68: key.right = false; break;          // right, D
+		case 17: case 67: key.crouch = false; break;         // ctrl, c
+		case 32: key.jump = false; break;                    // space
+	}
 }
 
 //-----------------------------------------------------
@@ -250,6 +332,12 @@ function onThreeChangeView(h, v, d) {
 //  MATH
 //-----------------------------------------------------
 
+function exponentialEaseOut( v ) { return v === 1 ? 1 : - Math.pow( 2, - 10 * v ) + 1; };
+
+function clamp(a,b,c) { return Math.max(b,Math.min(c,a)); }
+
+function degToRad(v) { return v * Math.PI / 180; }
+
 function Orbit(origine, horizontal, vertical, distance) {
 	var p = new THREE.Vector3();
 	var phi = degToRad( unwrapDegrees(vertical) );
@@ -260,15 +348,9 @@ function Orbit(origine, horizontal, vertical, distance) {
 	return p;
 }
 
-function degToRad(Value) {
-	return Value * Math.PI / 180;
-}
-
-function unwrapDegrees(r){
+function unwrapDegrees(r) {
 	r = r % 360;
-	if (r > 180) 
-		r -= 360;
-	if (r < -180) 
-		r += 360;
+	if (r > 180) r -= 360;
+	if (r < -180) r += 360;
 	return r;
 }

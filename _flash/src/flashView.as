@@ -26,6 +26,7 @@ package {
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.external.ExternalInterface;
 	import flash.geom.Vector3D;
@@ -36,8 +37,8 @@ package {
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.ByteArray;
+    import flash.utils.getTimer;
 	import sunag.events.SEAEvent;
-	//import sunag.events.AnimationEvent;
 	import sunag.sea3d.config.DefaultConfig;
 	import sunag.sea3d.SEA3D;
 	import com.Stats;
@@ -60,14 +61,19 @@ package {
 		
 		private var debug:TextField;
 		private var stats:Stats;
-		
+		private var key:Object = { front: false, back: false, left: false, right: false, jump: false, crouch: false };
+        private var controls:Object = { rotation: 0, speed: 0, vx: 0, vz: 0, maxSpeed: 275, acceleration: 600, angularSpeed: 2.5};
+        private var currentPlayer:uint = 1;
 		private var meshs:Array = [];
 		private var materials:Array = [];
-		//private var animators:Array = [];
 		private const animators:Vector.<SkeletonAnimator> = new Vector.<SkeletonAnimator>(2, true);
-		private var players:Array = [];
+		private const players:Vector.<Mesh> = new Vector.<Mesh>(2, true);
 		private var currentPlay:String;
-		private var character:Number = 0
+		private var character:Number = 0;
+        
+        private var delta:Number = 0;
+        private var time:Number = 0;
+        private var oldTime:Number = 0;
 		
 		public function flashView() {
 			addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
@@ -102,6 +108,10 @@ package {
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			stage.addEventListener(MouseEvent.MOUSE_OUT, onMouseUp);
+			
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			
 			stage.addEventListener(Event.RESIZE, onResize);
 			//stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -114,12 +124,16 @@ package {
 			if (ExternalInterface.available) {
 				ExternalInterface.marshallExceptions = true;
 				ExternalInterface.addCallback("onFlashChangeView", onChangeView);
-				ExternalInterface.addCallback("onFlashChangeAnimation", changeAnimation);
+                ExternalInterface.addCallback("onFlashControlPlayer", controlPlayer);
 				
 				var flashVars:Object = this.root.loaderInfo.parameters;
 				character = flashVars["character"];
 			}
 		}
+        
+        private function controlPlayer(n:uint):void {
+            currentPlayer = n;
+        }
 		
 		//-----------------------------------------------------
 		//  LIGHT
@@ -277,22 +291,6 @@ package {
 		
 		}
 		
-		private function changeAnimation():void {
-			if (animators.length > 0) {
-				if (currentPlay == "idle") {
-					currentPlay = "walk";
-					players[0].position = new Vector3D(100, 185, -100);
-					players[1].position = new Vector3D(-100, 220, 0);
-				} else {
-					players[0].position = new Vector3D(100, 45, -100);
-					players[1].position = new Vector3D(-100, 220, 0);
-					currentPlay = "idle";
-				}
-				animators[0].play(currentPlay);
-				animators[1].play(currentPlay);
-			}
-		}
-		
 		//-----------------------------------------------------
 		//  EVENT
 		//-----------------------------------------------------
@@ -302,8 +300,11 @@ package {
 		}
 		
 		private function onEnterFrame(e:Event):void {
-            if (players[1]) players[1].position.y = 220;
+            time = getTimer();
+            delta = 0.001 * (time-oldTime);
+            updatePlayerMove();
 			view.render();
+            oldTime = time;
 		}
 		
 		private function onResize(e:Event = null):void {
@@ -315,6 +316,89 @@ package {
 				stats.y = stage.stageHeight - 27;
 				stats.x = stage.stageWidth - 100;
 			}
+		}
+		
+		//-----------------------------------------------------
+        //  PLAYER MOVE
+        //-----------------------------------------------------
+
+        private function updatePlayerMove():void {
+            var n:uint = currentPlayer;
+            var k:Number;
+            if ( key.front ) controls.speed = clamp( controls.speed + delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+            if ( key.back ) controls.speed = clamp( controls.speed - delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+            if ( key.left ) controls.rotation -= delta * controls.angularSpeed;
+            if ( key.right ) controls.rotation += delta * controls.angularSpeed;
+            if ( key.right || key.left) controls.speed = clamp( controls.speed + 1 * delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
+            
+            // speed decay
+            if ( ! ( key.front || key.back) ) {
+                if ( controls.speed > 0 ) {
+                    k = exponentialEaseOut( controls.speed / controls.maxSpeed );
+                    controls.speed = clamp( controls.speed - k * delta * controls.acceleration, 0, controls.maxSpeed );
+                } else {
+                    k = exponentialEaseOut( controls.speed / ( -controls.maxSpeed) );
+                    controls.speed = clamp( controls.speed + k * delta * controls.acceleration, -controls.maxSpeed, 0 );
+                }
+            }
+            
+            // displacement
+            var forwardDelta:Number = controls.speed * delta;
+            controls.vx = Math.sin( controls.rotation ) * forwardDelta;
+            controls.vz = Math.cos( controls.rotation ) * forwardDelta;
+            
+            if (players[n]) {
+                players[n].rotationY = radToDeg(controls.rotation)+180;
+                players[n].x += controls.vx;
+                players[n].z += controls.vz;
+                // animation
+                if (key.front) { if (animators[n].activeAnimationName == "idle"){ animators[n].play("walk"); animators[n].playbackSpeed = 0.5;} }
+                else if (key.back) { if (animators[n].activeAnimationName == "idle"){ animators[n].play("walk"); animators[n].playbackSpeed = -0.5;}}
+                else { if (animators[n].activeAnimationName == "walk"){ animators[n].play("idle"); animators[n].playbackSpeed = 0.5;} }
+                
+                if (animators[n].activeAnimationName == "idle"){ if (n == 0) players[n].y = 45 else players[n].y = 220;}
+                else {if (n == 0) players[n].y = 185 else players[n].y = 220;}
+                // camera follow
+                center = players[n].position;
+                moveCamera();
+            }
+        }
+		
+		//-----------------------------------------------------
+		//  KEYBOARD
+		//-----------------------------------------------------
+        
+        private function changeKey(k:Object):void {
+			key = k;
+		}
+        
+		private function sendKeytoHtml():void {
+            if (ExternalInterface.available)
+				ExternalInterface.call("getKeyFromFlash", key);
+		}
+        
+		private function onKeyDown(event:KeyboardEvent):void {
+			switch (event.keyCode) {
+				case 38: case 87: case 90: key.front = true; break; // up, W, Z
+				case 40: case 83: key.back = true; break; // down, S
+				case 37: case 65: case 81: key.left = true; break; // left, A, Q
+				case 39: case 68: key.right = true; break; // right, D
+				case 17: case 67: key.crouch = false; break; // ctrl, c
+				case 32: key.jump = false; break; // space
+			}
+            sendKeytoHtml();
+		}
+		
+		private function onKeyUp(event:KeyboardEvent):void {
+			switch (event.keyCode) {
+				case 38: case 87: case 90: key.front = false; break; // up, W, Z
+				case 40: case 83: key.back = false; break; // down, S
+				case 37: case 65: case 81: key.left = false; break; // left, A, Q
+				case 39: case 68: key.right = false; break; // right, D
+				case 17: case 67: key.crouch = false; break; // ctrl, c
+				case 32: key.jump = false; break; // space
+			}
+            sendKeytoHtml();
 		}
 		
 		//-----------------------------------------------------
@@ -331,6 +415,8 @@ package {
 		
 		private function onMouseUp(e:MouseEvent):void {
 			mouse.down = false;
+			//if (ExternalInterface.available)
+			//	ExternalInterface.call("changeFocus");
 		}
 		
 		private function onMouseMove(e:MouseEvent):void {
@@ -364,6 +450,10 @@ package {
 		//-----------------------------------------------------
 		//  MATH
 		//-----------------------------------------------------
+        
+        private function exponentialEaseOut( v:Number ):Number { return v === 1 ? 1 : - Math.pow( 2, - 10 * v ) + 1; };
+        
+        private function clamp(a:Number,b:Number,c:Number):Number { return Math.max(b,Math.min(c,a)); }
 		
 		private function Orbit(origine:Vector3D, horizontal:Number, vertical:Number, distance:Number):Vector3D {
 			var p:Vector3D = new Vector3D(0, 0, 0);
@@ -375,8 +465,12 @@ package {
 			return p;
 		}
 		
-		private function degToRad(Value:Number):Number {
-			return Value * Math.PI / 180;
+		private function degToRad(v:Number):Number {
+			return v * Math.PI / 180;
+		}
+        
+        private function radToDeg(v:Number):Number {
+			return v * 180 / Math.PI;
 		}
 		
 		private function unwrapDegrees(r:Number):Number {

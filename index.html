@@ -66,7 +66,7 @@
             	border-color: #9d9d9d;
                 font-size: 10px;
                 height: 30px;
-                width: 70px;
+                width: 80px;
                 display:block-inline;
                 margin: 2px 2px;
                 cursor: pointer;
@@ -87,10 +87,13 @@
 		<script type="text/javascript" src="threeView.js"></script>
 
 		<script type="text/javascript">
+		    var swf;
+		    var vsize = { x:window.innerWidth, y:window.innerHeight, w:(window.innerWidth*0.5)-20, h:window.innerHeight-200 };
 		    var currentCharacter = Math.floor(Math.random()*4);
-
+		    var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
 			var flashvars = {character:currentCharacter};
 	        var params = {};
+	        var playerSelect = 1;
 	        params.quality = "high";
 	        params.bgcolor = "#161616";
 	        params.allowscriptaccess = "always";
@@ -98,35 +101,52 @@
 	        var attributes = {};
             attributes.id = "myFlash";
             attributes.name = "myFlash";
-            attributes.align = "middle";
-			swfobject.embedSWF("flashView.swf", "myFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes);
-
-		    var vsize = {};
-		    var swf;
-		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
-		    var currentView = 0;
+            //attributes.align = "middle";
+            //swfobject.switchOffAutoHideShow();
+			swfobject.embedSWF("flashView.swf", "myFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, onFlashloaded);
 		    
+		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		   
+		    var currentView = 0;
 
+		   
+		    
 		    function init() {
-		    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
+		    	initThree("myThree", currentCharacter);
+		        onThreeResize(vsize.w, vsize.h-5);
+
+		    	/*swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
+			    swf.style.width = vsize.w+"px";
+				swf.style.height = vsize.h+"px";
+			    swf.style.display = "block";
+			    swf.tabIndex = "1";
+			    swf.focus();*/
+		       
 		        window.addEventListener( 'resize', onWindowResize, false );
-		        
-		        swf.style.display = "block";
+		    }
 
-		        initThree("myThree", currentCharacter);
-		        onWindowResize();
-
-		        
+		    function onFlashloaded(e) {
+		    	 if(e.success){
+			    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
+			    	swf.style.width = vsize.w+"px";
+				    swf.style.height = vsize.h+"px";
+			    	swf.style.display = "block";
+			    	swf.tabIndex = "1";
+			    	swf.focus();
+		        }
 		    }
 
 			function onWindowResize() {
 				vsize = { x:window.innerWidth, y:window.innerHeight, w:(window.innerWidth*0.5)-20, h:window.innerHeight-200 };
 				if(vsize.w<100 || vsize.h<100)return;
-
+				onThreeResize(vsize.w, vsize.h-5);
 				swf.style.width = vsize.w+"px";
 				swf.style.height = vsize.h+"px";
-				onThreeResize(vsize.w, vsize.h-5);
 			}
+
+			//-----------------------------------------------------
+			//  VIEW
+			//-----------------------------------------------------
 
 			function moveView() {
 				var n = currentView;
@@ -141,13 +161,27 @@
 				if(currentView == vSet.length)currentView = 0;
 			}
 
-			function changeAnimation() {
-				threeChangeAnimation();
+			//-----------------------------------------------------
+			//  PLAYER CONTROL
+			//-----------------------------------------------------
+			
+			function switchPlayer() {
+				if(playerSelect == 1) playerSelect = 0;
+				else playerSelect=1;
 
-				if (swf && typeof swf['onFlashChangeAnimation'] != "undefined") 
-					swf['onFlashChangeAnimation']();
+				controlPlayer(playerSelect);
+				if (swf && typeof swf['onFlashControlPlayer'] != "undefined") 
+					swf['onFlashControlPlayer'](playerSelect);
+				document.getElementById("bcontrol").innerHTML = "CONTROL " + playerSelect;
 			}
 
+			//-----------------------------------------------------
+			//  KEYBOARD
+			//-----------------------------------------------------
+
+			function getKeyFromFlash(k) {
+			    key = k;
+			}
 
 			window.onload = init;
 
@@ -161,9 +195,11 @@
 		<div id="myFlashText"><b>AWAY 3D</b> r 4.1.4 - Flash Player</div>
 		<div id="myThreeText"><b>THREE JS</b> r 61 - WebGl</div>
 		<div id="button">
-			<button type="button" class="mini" onclick="changeAnimation()">ANIMATION</button>
+			<button type="button" class="mini" onclick="switchPlayer()" id="bcontrol">CONTROL 1</button>
 			<button type="button" class="mini" onclick="moveView()" id="bview">VIEW</button>
-			
+		</div>
+		<div id="help" style="position: absolute; bottom: 0; width:100%; border: 0;">
+			click on flash view and use key to control player
 		</div>
 		<div id="ribbon" style="position: absolute; top: 0; right: 0; border: 0;">
 			<a href="https://github.com/lo-th/loth/tree/gh-pages"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
