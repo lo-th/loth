@@ -258,17 +258,6 @@ package {
 			stat.x = stage.stageWidth - 125;
 		}
 		
-		private function autoMorph(e:Event):void {
-			if (isAutoMorph) {
-				isAutoMorph = false;
-				morph("anger", 0);
-				morph("surprise", 0);
-			} else {
-				isAutoMorph = true;
-			}
-		
-		}
-		
 		//-----------------------------------------------------
 		//  TEST MORPH EXIST FOR ALL MORPHER
 		//-----------------------------------------------------
@@ -285,6 +274,16 @@ package {
 		private function blink(weight:Number):void {
 			morph("blinkLeft", weight);
 			morph("blinkRight", weight);
+		}
+		
+		private function autoMorph(e:Event):void {
+			if (isAutoMorph) {
+				isAutoMorph = false;
+				morph("anger", 0);
+				morph("surprise", 0);
+			} else {
+				isAutoMorph = true;
+			}
 		}
 		
 		//-----------------------------------------------------
@@ -472,7 +471,6 @@ package {
 			
 			for (i = 0; i < Morpher.length; ++i) {
 				MorphAnims[i] = Morpher[i].animationSet as MorphAnimationSet;
-				
 			}
 			
 			var pb:HSlider;
@@ -499,8 +497,7 @@ package {
 			Morpher[0].setWeight("lookfront", 1);
 			info.text = txt;
 			
-			var pb2:CheckBox = new CheckBox(this, 10, 28, " Auto Morph", autoMorph);
-			pb2.enabled = isAutoMorph;
+			var pb2:CheckBox = new CheckBox(this, 10, 480, "Auto Morph", autoMorph);
 			
 			stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
