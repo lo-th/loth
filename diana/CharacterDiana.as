@@ -331,8 +331,9 @@ package {
 			for (i = 0; i < Textures.length; ++i) {
 				Materials[i] = new TextureMaterial(new BitmapTexture(Textures[i]));
 			}
-			Materials[2].alphaBlending = true;
-			// Materials[2].bothSides = true;
+			//Materials[2].alphaBlending = true;
+            Materials[2].alphaThreshold = 0.8
+			Materials[2].bothSides = true;
 			Materials[4].alphaBlending = true;
 			Materials[6].alphaBlending = true;
 			Materials[7].alphaBlending = true;
