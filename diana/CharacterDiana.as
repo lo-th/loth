@@ -470,22 +470,28 @@ package {
 			neck = sea.getMesh("Neck");
 			neck.material = Materials[9];
 			
-			var pb:HSlider;
-			
 			for (i = 0; i < Morpher.length; ++i) {
 				MorphAnims[i] = Morpher[i].animationSet as MorphAnimationSet;
 				
 			}
 			
+			var pb:HSlider;
+			var name:String;
 			// List Morph
 			for (i = 0; i < MorphAnims[0].morphs.length; i++) {
-				txt += "                   " + MorphAnims[0].morphs[i].name + '\n';
+				name = MorphAnims[0].morphs[i].name;
+				txt += "                   " + name + '\n';
 				
 				pb = new HSlider(this, 10, 71 + i * 14, function(e:Event):void {
 						morph(e.target.name, e.target.value);
 					});
-				pb.name = MorphAnims[0].morphs[i].name;
-				pb.setSliderParams(0, 1, 0);
+				pb.name = name;
+				if (name == "neck")
+					pb.setSliderParams(0, 1, 0.8);
+				else if (name == "lookfront")
+					pb.setSliderParams(0, 1, 1);
+				else
+					pb.setSliderParams(0, 1, 0);
 				pb.setSize(50, 8);
 				Sliders[i] = pb;
 			}
