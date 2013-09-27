@@ -26,6 +26,7 @@ package {
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.ColorMaterial;
 	import away3d.textures.BitmapTexture;
+	import flash.events.ProgressEvent;
 	
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -101,12 +102,12 @@ package {
 		private var info:TextField;
 		private var txt:String = 'DIANA 1.6 \n\n';
 		private var stat:AwayStats;
-        
-        /*[Embed (source="../assets/diana/body.sea",mimeType="application/octet-stream")]
-		private var Body:Class;
-        
-        [Embed (source="../assets/diana/head.sea",mimeType="application/octet-stream")]
-		private var Head:Class;*/
+		
+		/*[Embed (source="../assets/diana/body.sea",mimeType="application/octet-stream")]
+		   private var Body:Class;
+		
+		   [Embed (source="../assets/diana/head.sea",mimeType="application/octet-stream")]
+		 private var Head:Class;*/
 		
 		public function CharacterDiana() {
 			stage.stageFocusRect = false;
@@ -277,6 +278,7 @@ package {
 			var loader:URLLoader = new URLLoader();
 			loader.dataFormat = URLLoaderDataFormat.BINARY;
 			loader.addEventListener(Event.COMPLETE, parseBitmap);
+			loader.addEventListener(ProgressEvent.PROGRESS, loadProgress, false, 0, true);
 			loader.load(new URLRequest(AssetsPath + url));
 		}
 		
@@ -298,6 +300,15 @@ package {
 				n = 0;
 				initMaterials();
 				initObjects();
+			}
+		}
+		
+		private function loadProgress(e:ProgressEvent):void {
+			var P:int = int(e.bytesLoaded / e.bytesTotal * 100);
+			if (P != 100)
+				info.text = 'Load texture: ' + P + ' % | ' + int((e.bytesLoaded / 1024) << 0) + ' ko\n';
+			else {
+				info.text = txt;
 			}
 		}
 		
@@ -354,7 +365,7 @@ package {
 			var sea3d:SEA3D = new SEA3D(new DefaultConfig());
 			sea3d.addEventListener(SEAEvent.COMPLETE, onBodyComplete);
 			sea3d.load(new URLRequest(AssetsPath + "body_d.sea"));
-            //sea3d.loadBytes(new Body());
+			//sea3d.loadBytes(new Body());
 		}
 		
 		//-----------------------------------------------------
@@ -385,7 +396,7 @@ package {
 			var sea3d2:SEA3D = new SEA3D(config);
 			sea3d2.addEventListener(SEAEvent.COMPLETE, onHeadComplete);
 			sea3d2.load(new URLRequest(AssetsPath + "head_d.sea"));
-            //sea3d2.loadBytes(new Head());
+			//sea3d2.loadBytes(new Head());
 		
 		}
 		
