@@ -18,7 +18,8 @@
         
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
-		var file = 'diana.swf';
+        var id = Math.floor(Math.random()*1000);
+        var file = 'diana.swf?uniq='+id;
 		// For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection.
 		var swfVersionStr = "11.3.0";
         // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
