@@ -53,6 +53,8 @@ package {
 	import sunag.sea3d.SEA3D;
 	import sunag.utils.TimeStep;
 	
+	import com.bit101.components.*;
+	
 	[SWF(width="1024",height="632",backgroundColor="0x2f3032",frameRate="60")]
 	
 	public class CharacterDiana extends Sprite {
@@ -98,10 +100,12 @@ package {
 		
 		private const Morpher:Vector.<MorphAnimator> = new Vector.<MorphAnimator>();
 		private const MorphAnims:Vector.<MorphAnimationSet> = new Vector.<MorphAnimationSet>();
+		private const Sliders:Vector.<HSlider> = new Vector.<HSlider>();
 		
 		private var info:TextField;
 		private var txt:String = 'DIANA 1.6 \n\n';
 		private var stat:AwayStats;
+		private var isAutoMorph:Boolean = false;
 		
 		/*[Embed (source="../assets/diana/body.sea",mimeType="application/octet-stream")]
 		   private var Body:Class;
@@ -201,8 +205,10 @@ package {
 			}
 			
 			// test some morph
-			morph("anger", stage.mouseX / stage.stageWidth);
-			morph("surprise", (stage.stageHeight - stage.mouseY) / stage.stageHeight);
+			if (isAutoMorph) {
+				morph("anger", stage.mouseX / stage.stageWidth);
+				morph("surprise", (stage.stageHeight - stage.mouseY) / stage.stageHeight);
+			}
 			
 			var running:Boolean = false;
 			animator.playbackSpeed = 1;
@@ -250,6 +256,17 @@ package {
 			view.width = stage.stageWidth;
 			view.height = stage.stageHeight;
 			stat.x = stage.stageWidth - 125;
+		}
+		
+		private function autoMorph(e:Event):void {
+			if (isAutoMorph) {
+				isAutoMorph = false;
+				morph("anger", 0);
+				morph("surprise", 0);
+			} else {
+				isAutoMorph = true;
+			}
+		
 		}
 		
 		//-----------------------------------------------------
@@ -332,7 +349,7 @@ package {
 				Materials[i] = new TextureMaterial(new BitmapTexture(Textures[i]));
 			}
 			//Materials[2].alphaBlending = true;
-            Materials[2].alphaThreshold = 0.8
+			Materials[2].alphaThreshold = 0.8
 			Materials[2].bothSides = true;
 			Materials[4].alphaBlending = true;
 			Materials[6].alphaBlending = true;
@@ -453,17 +470,31 @@ package {
 			neck = sea.getMesh("Neck");
 			neck.material = Materials[9];
 			
+			var pb:HSlider;
+			
 			for (i = 0; i < Morpher.length; ++i) {
 				MorphAnims[i] = Morpher[i].animationSet as MorphAnimationSet;
+				
 			}
 			
 			// List Morph
-			for (i = 0; i < MorphAnims[0].morphs.length; i++)
-				txt += "Morph : " + MorphAnims[0].morphs[i].name + '\n';
-			
+			for (i = 0; i < MorphAnims[0].morphs.length; i++) {
+				txt += "                   " + MorphAnims[0].morphs[i].name + '\n';
+				
+				pb = new HSlider(this, 10, 71 + i * 14, function(e:Event):void {
+						morph(e.target.name, e.target.value);
+					});
+				pb.name = MorphAnims[0].morphs[i].name;
+				pb.setSliderParams(0, 1, 0);
+				pb.setSize(50, 8);
+				Sliders[i] = pb;
+			}
 			Morpher[0].setWeight("neck", 0.8);
 			Morpher[0].setWeight("lookfront", 1);
 			info.text = txt;
+			
+			var pb2:CheckBox = new CheckBox(this, 10, 28, " Auto Morph", autoMorph);
+			pb2.enabled = isAutoMorph;
 			
 			stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
@@ -473,11 +504,13 @@ package {
 		//-----------------------------------------------------
 		
 		private function onMouseDown(e:MouseEvent):void {
-			mouse.ox = stage.mouseX;
-			mouse.oy = stage.mouseY;
-			mouse.h = cameraPosition.horizontal;
-			mouse.v = cameraPosition.vertical;
-			mouse.down = true;
+			if (stage.mouseX > 100) {
+				mouse.ox = stage.mouseX;
+				mouse.oy = stage.mouseY;
+				mouse.h = cameraPosition.horizontal;
+				mouse.v = cameraPosition.vertical;
+				mouse.down = true;
+			}
 		}
 		
 		private function onMouseUp(e:MouseEvent):void {
