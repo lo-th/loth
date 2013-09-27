@@ -111,6 +111,7 @@ package {
 		private var txt:String = 'DIANA - SEA3D 1.6 \n\n';
 		private var stat:AwayStats;
 		private var isAutoMorph:Boolean = false;
+		private var bgColor:uint = 0x8E9FAF //789DC9;
 		
 		/*[Embed (source="../assets/diana/body.sea",mimeType="application/octet-stream")]
 		   private var Body:Class;
@@ -127,7 +128,7 @@ package {
 			scene = new Scene3D();
 			
 			view = new View3D(scene);
-			view.backgroundColor = 0x808080;
+			view.backgroundColor = bgColor;
 			view.antiAlias = 4;
 			addChild(view);
 			
@@ -141,9 +142,9 @@ package {
 			initInfo();
 			
 			light = new DirectionalLight();
-			light.color = 0xffeedd //0xffffff;
-			light.ambientColor = 0x808080;
-			light.ambient = 1;
+			light.color = 0xfffffe;
+			light.ambientColor = bgColor;
+			light.ambient = 0.5;
 			light.specular = 1;
 			light.castsShadows = true;
 			DirectionalShadowMapper(light.shadowMapper).lightOffset = 1000;
@@ -152,32 +153,30 @@ package {
 			
 			var pointLight1:PointLight = new PointLight();
 			pointLight1.position = new Vector3D(100, -200, -400);
-			pointLight1.color = 0x4080ff;
-			pointLight1.diffuse = 0.3 //0.5;
-			pointLight1.specular = 0.8 //0.5;
-			pointLight1.ambient = 0;
+			pointLight1.color = 0x46576B;
+			pointLight1.diffuse = 0.5;
+			pointLight1.specular = 1;
+			pointLight1.ambient = 0.01;
 			pointLight1.radius = 2000;
 			scene.addChild(pointLight1);
 			
 			var pointLight2:PointLight = new PointLight();
 			pointLight2.position = new Vector3D(-100, 400, 400);
-			pointLight2.color = 0xffaa80;
-			pointLight2.diffuse = 0.3;
-			pointLight2.specular = 0.8;
-			pointLight2.ambient = 0;
+			pointLight2.color = 0xFFF0CF;
+			pointLight2.diffuse = 0.5;
+			pointLight2.specular = 1;
+			pointLight2.ambient = 0.01;
 			pointLight2.radius = 2000;
 			scene.addChild(pointLight2);
 			
 			lightPicker = new StaticLightPicker([light, pointLight1, pointLight2]);
-			//lightPicker = new StaticLightPicker([ pointLight]);
-			
-			//softShadowMethod = new FilteredShadowMapMethod(light);
+            
 			softShadowMethod = new SoftShadowMapMethod(light, 10);
 			softShadowMethod.range = 3;
 			softShadowMethod.alpha = 0.5;
 			softShadowMethod.epsilon = 0.3;
 			
-			fogMethod = new FogMethod(0, 300, 0x808080);
+			fogMethod = new FogMethod(0, 300, bgColor);
 			
 			load(TextureFiles[n]);
 			
@@ -380,14 +379,17 @@ package {
 			Materials[10] = new TextureMaterial(new BitmapTexture(groundmap));
 			Materials[10].addMethod(fogMethod);
 			Materials[10].repeat = true;
-			Materials[10].specular = 0.5;
-			Materials[10].gloss = 6;
+			Materials[10].specular = 0.4;
+			Materials[10].gloss = 20;
 			
 			for (i = 0; i < Materials.length; ++i) {
 				Materials[i].lightPicker = lightPicker;
 				Materials[i].shadowMethod = softShadowMethod;
 				if (i < 10) {
-					Materials[i].gloss = 30;
+					if (i == 3)
+						Materials[i].gloss = 120;
+					else
+						Materials[i].gloss = 30;
 					Materials[i].specular = 3;
 					Materials[i].specularMethod = fresnelMethod;
 				}
