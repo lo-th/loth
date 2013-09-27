@@ -11,31 +11,22 @@
             body { margin:0; padding:0; overflow:auto; font-family:tahoma, geneva, sans-serif;font-size:79%; }   
             object:focus { outline:none; }
 			#flashContent {  width:100%; height:666px; position: relative; top:50px; }
-			#menu {  width:96%;  color:#666; font-size:16px; font-family: Sans-Serif; letter-spacing:1px; text-align:center; absolute;  position: relative; top:20px; }
-			#info {  width:96%;  color:#666; font-size:14px; font-family: Sans-Serif; letter-spacing:1px; text-align:right; position: relative; top:720px; text-align:center; }
 			#progress {  width:100%;  color:#666; font-size:11px; font-family: Sans-Serif; letter-spacing:1px; text-align:center;  position: relative; top:750px;}
 		    img {  vertical-align:middle;}
 			a { color:#a5c63b; text-decoration:none; }
         </style>
         
-        <!-- Enable Browser History by replacing useBrowserHistory tokens with two hyphens -->
-        <!-- BEGIN Browser History required section -->
-        <link rel="stylesheet" type="text/css" href="history/history.css" />
-        <script type="text/javascript" src="history/history.js"></script>
-        <!-- END Browser History required section -->
-        
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
-		var id = Math.floor(Math.random()*1000);
-		var file = 'Diana.swf?uniq='+id;
+		var file = 'Diana.swf';
 		// For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection.
 		var swfVersionStr = "11.3.0";
         // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
         var xiSwfUrlStr = "js/playerProductInstall.swf";
-        var flashvars = { id:id };
+        var flashvars = {};
         var params = {};
         params.quality = "high";
-        params.bgcolor = "#000000";
+        params.bgcolor = "#808080";
         params.allowscriptaccess = "sameDomain";
         params.allowfullscreen = "true";
 		params.allowFullScreenInteractive = "true";
@@ -66,7 +57,7 @@
             <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="600" height="600" id="Diana">
                 <param name="movie" value="Diana.swf" />
                 <param name="quality" value="high" />
-                <param name="bgcolor" value="#000000" />
+                <param name="bgcolor" value="#808080" />
 				<param name="wmode" value="direct" />
                 <param name="allowScriptAccess" value="sameDomain" />
 				<param name="allowFullScreenInteractive" value="true" />
@@ -74,7 +65,7 @@
                 <!--[if !IE]>-->
                 <object type="application/x-shockwave-flash" data="Diana.swf" width="600" height="600">
                     <param name="quality" value="high" />
-                    <param name="bgcolor" value="#000000" />
+                    <param name="bgcolor" value="#808080" />
 					<param name="wmode" value="direct" />
                     <param name="allowScriptAccess" value="sameDomain" />
 					<param name="allowFullScreenInteractive" value="true" />
