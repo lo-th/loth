@@ -479,12 +479,15 @@ package {
 			
 			eyeL = sea.getMesh("Eye_L");
 			eyeL.material = Materials[3];
+			eyeL.castsShadows = false;
 			
 			eyeR = sea.getMesh("Eye_R");
 			eyeR.material = Materials[3];
+			eyeR.castsShadows = false;
 			
 			eyeTop = sea.getMesh("eye_top");
 			eyeTop.material = Materials[4];
+			eyeTop.castsShadows = false;
 			Morpher[1] = eyeTop.animator as MorphAnimator;
 			
 			tongue = sea.getMesh("tongue");
@@ -501,6 +504,7 @@ package {
 			
 			troat = sea.getMesh("sock");
 			troat.material = Materials[8];
+			troat.castsShadows = false;
 			Morpher[5] = troat.animator as MorphAnimator;
 			
 			neck = sea.getMesh("Neck");
