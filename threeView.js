@@ -295,11 +295,11 @@ function onMouseDown(e) {
 	mouse.v = cameraPosition.vertical;
 	mouse.down = true;
 }
-		
+
 function onMouseUp(e) {
 	mouse.down = false;
 }
-		
+
 function onMouseMove(e) {
 	if (mouse.down && !cameraPosition.automove ) {
 		mouse.x = e.clientX;
@@ -318,7 +318,7 @@ function moveCamera() {
 	camera.position.copy(Orbit(center, cameraPosition.horizontal, cameraPosition.vertical, cameraPosition.distance));
 	camera.lookAt(center);
 }
-		
+
 function endMove() {
 	cameraPosition.automove = false;
 }
@@ -337,6 +337,7 @@ function exponentialEaseOut( v ) { return v === 1 ? 1 : - Math.pow( 2, - 10 * v 
 function clamp(a,b,c) { return Math.max(b,Math.min(c,a)); }
 
 function degToRad(v) { return v * Math.PI / 180; }
+
 
 function Orbit(origine, horizontal, vertical, distance) {
 	var p = new THREE.Vector3();
