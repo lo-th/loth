@@ -103,7 +103,7 @@ package {
 		private const Sliders:Vector.<HSlider> = new Vector.<HSlider>();
 		
 		private var info:TextField;
-		private var txt:String = 'DIANA 1.6 \n\n';
+		private var txt:String = 'DIANA - SEA3D 1.6 \n\n';
 		private var stat:AwayStats;
 		private var isAutoMorph:Boolean = false;
 		
