@@ -97,6 +97,7 @@ package {
 		private var troat:Mesh;
 		
 		private var headContainer:ObjectContainer3D;
+		private var eyesTarget:ObjectContainer3D;
 		
 		private var animator:SkeletonAnimator;
 		
@@ -170,7 +171,7 @@ package {
 			scene.addChild(pointLight2);
 			
 			lightPicker = new StaticLightPicker([light, pointLight1, pointLight2]);
-            
+			
 			softShadowMethod = new SoftShadowMapMethod(light, 10);
 			softShadowMethod.range = 3;
 			softShadowMethod.alpha = 0.5;
@@ -410,6 +411,10 @@ package {
 			headContainer = new ObjectContainer3D()
 			scene.addChild(headContainer);
 			
+			eyesTarget = new ObjectContainer3D();
+			eyesTarget.position = new Vector3D(0, 0, 50);
+			headContainer.addChild(eyesTarget);
+			
 			// Init loader body
 			var sea3d:SEA3D = new SEA3D(new DefaultConfig());
 			sea3d.addEventListener(SEAEvent.COMPLETE, onBodyComplete);
@@ -553,6 +558,15 @@ package {
 		}
 		
 		private function onMouseMove(e:MouseEvent):void {
+			if (eyeR && eyeL && eyesTarget) {
+				eyesTarget.position = new Vector3D((stage.mouseX - stage.stageWidth * 0.5) * 0.1, -(stage.mouseY - stage.stageHeight * 0.5) * 0.1, 50);
+				var pos:Vector3D = new Vector3D(-eyesTarget.y + 100, eyesTarget.x + 0.2, eyesTarget.z);
+				var pos2:Vector3D = new Vector3D(-eyesTarget.y + 100, eyesTarget.x - 0.2, eyesTarget.z);
+				
+				eyeR.lookAt(pos);
+				eyeL.lookAt(pos2);
+			}
+			
 			if (mouse.down) {
 				mouse.x = stage.mouseX;
 				mouse.y = stage.mouseY;
