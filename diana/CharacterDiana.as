@@ -1,5 +1,6 @@
 package {
 	import away3d.cameras.lenses.PerspectiveLens;
+	import away3d.lights.shadowmaps.DirectionalShadowMapper;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	import away3d.lights.PointLight;
 	import away3d.lights.DirectionalLight;
@@ -21,7 +22,9 @@ package {
 	import away3d.sea3d.animation.MeshAnimation;
 	import away3d.sea3d.animation.MorphAnimation;
 	import away3d.containers.ObjectContainer3D;
+	import away3d.materials.methods.FresnelSpecularMethod;
 	import away3d.materials.methods.FilteredShadowMapMethod;
+	import away3d.materials.methods.SoftShadowMapMethod;
 	import away3d.materials.methods.FogMethod;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.ColorMaterial;
@@ -73,7 +76,9 @@ package {
 		
 		private var lightPicker:StaticLightPicker;
 		private var light:DirectionalLight;
-		private var softShadowMethod:FilteredShadowMapMethod;
+		
+		private var fresnelMethod:FresnelSpecularMethod;
+		private var softShadowMethod:SoftShadowMapMethod;
 		private var fogMethod:FogMethod;
 		
 		private var player:Mesh;
@@ -136,30 +141,41 @@ package {
 			initInfo();
 			
 			light = new DirectionalLight();
-			light.color = 0xffffff;
+			light.color = 0xffeedd //0xffffff;
 			light.ambientColor = 0x808080;
-			light.ambient = 0.4;
-			light.specular = 0.5;
+			light.ambient = 1;
+			light.specular = 1;
 			light.castsShadows = true;
+			DirectionalShadowMapper(light.shadowMapper).lightOffset = 1000;
 			view.scene.addChild(light);
 			light.position = Orbit(center, 35, 45, 1000);
 			
-			var pointLight:PointLight = new PointLight();
-			pointLight.position = new Vector3D(0, 50, -400);
-			pointLight.color = 0x603020;
-			pointLight.diffuse = 0.5;
-			pointLight.specular = 0.5;
-			pointLight.ambient = 0;
-			pointLight.radius = 2000;
-			//pointLight.fallOff = 400;
-			scene.addChild(pointLight);
-			//light.lookAt(center);
+			var pointLight1:PointLight = new PointLight();
+			pointLight1.position = new Vector3D(100, -200, -400);
+			pointLight1.color = 0x4080ff;
+			pointLight1.diffuse = 0.3 //0.5;
+			pointLight1.specular = 0.8 //0.5;
+			pointLight1.ambient = 0;
+			pointLight1.radius = 2000;
+			scene.addChild(pointLight1);
 			
-			lightPicker = new StaticLightPicker([light, pointLight]);
+			var pointLight2:PointLight = new PointLight();
+			pointLight2.position = new Vector3D(-100, 400, 400);
+			pointLight2.color = 0xffaa80;
+			pointLight2.diffuse = 0.3;
+			pointLight2.specular = 0.8;
+			pointLight2.ambient = 0;
+			pointLight2.radius = 2000;
+			scene.addChild(pointLight2);
 			
-			softShadowMethod = new FilteredShadowMapMethod(light);
-			softShadowMethod.alpha = 0.7;
-			softShadowMethod.epsilon = 0.7;
+			lightPicker = new StaticLightPicker([light, pointLight1, pointLight2]);
+			//lightPicker = new StaticLightPicker([ pointLight]);
+			
+			//softShadowMethod = new FilteredShadowMapMethod(light);
+			softShadowMethod = new SoftShadowMapMethod(light, 10);
+			softShadowMethod.range = 3;
+			softShadowMethod.alpha = 0.5;
+			softShadowMethod.epsilon = 0.3;
 			
 			fogMethod = new FogMethod(0, 300, 0x808080);
 			
@@ -334,8 +350,11 @@ package {
 		
 		private function initMaterials():void {
 			var ground:Sprite = new Sprite();
-			ground.graphics.beginFill(0x808080);
+			ground.graphics.beginFill(0x505050);
 			ground.graphics.drawRect(0, 0, 64, 64);
+			ground.graphics.endFill();
+			ground.graphics.beginFill(0x808080);
+			ground.graphics.drawRect(0, 0, 63, 63);
 			ground.graphics.endFill();
 			ground.graphics.beginFill(0xbbbbbb);
 			ground.graphics.drawRect(0, 0, 62, 62);
@@ -343,11 +362,15 @@ package {
 			var groundmap:BitmapData = new BitmapData(64, 64, false, 0x000000);
 			groundmap.draw(ground);
 			
+			//create fresnel specular method
+			fresnelMethod = new FresnelSpecularMethod(true);
+			fresnelMethod.fresnelPower = 3;
+			
 			var i:uint
 			for (i = 0; i < Textures.length; ++i) {
 				Materials[i] = new TextureMaterial(new BitmapTexture(Textures[i]));
 			}
-			//Materials[2].alphaBlending = true;
+			
 			Materials[2].alphaThreshold = 0.8
 			Materials[2].bothSides = true;
 			Materials[4].alphaBlending = true;
@@ -357,10 +380,17 @@ package {
 			Materials[10] = new TextureMaterial(new BitmapTexture(groundmap));
 			Materials[10].addMethod(fogMethod);
 			Materials[10].repeat = true;
+			Materials[10].specular = 0.5;
+			Materials[10].gloss = 6;
 			
 			for (i = 0; i < Materials.length; ++i) {
 				Materials[i].lightPicker = lightPicker;
 				Materials[i].shadowMethod = softShadowMethod;
+				if (i < 10) {
+					Materials[i].gloss = 30;
+					Materials[i].specular = 3;
+					Materials[i].specularMethod = fresnelMethod;
+				}
 			}
 		}
 		
@@ -373,7 +403,7 @@ package {
 			plane.rotationX = 90;
 			plane.castsShadows = false;
 			scene.addChild(plane);
-			plane.geometry.scaleUV(500, 500);
+			plane.geometry.scaleUV(1000, 1000);
 			
 			headContainer = new ObjectContainer3D()
 			scene.addChild(headContainer);
