@@ -62,7 +62,7 @@ package {
 	
 	public class CharacterDiana2 extends Sprite {
 		private const AssetsPath:String = "assets/diana/";
-		private const TextureFiles:Array = ['body.jpg', 'head.jpg', 'hair.png', 'eye.jpg', 'eye_cont.png', 'tongue.jpg', 'teethUp.png', 'teethLow.png', 'sock.jpg'];
+		private const TextureFiles:Array = ['body.jpg', 'head.jpg', 'hair.png', 'eye.jpg', 'eye_cont.png', 'tongue.jpg', 'teethUp.png', 'teethLow.png', 'sock.jpg', 'suit.jpg'];
 		private var n:Number = 0;
 		private var bn:Number = 0;
 		private var view:View3D;
@@ -82,7 +82,7 @@ package {
 		private var fogMethod:FogMethod;
 		
 		private var player:Mesh;
-        private var suit:Mesh;
+		private var suit:Mesh;
 		private var axe:Mesh;
 		
 		private var fake_neck:Mesh;
@@ -101,7 +101,7 @@ package {
 		private var eyesTarget:ObjectContainer3D;
 		
 		private var animator:SkeletonAnimator;
-        private var animator1:SkeletonAnimator;
+		private var animator1:SkeletonAnimator;
 		
 		private const Materials:Vector.<TextureMaterial> = new Vector.<TextureMaterial>();
 		private const Textures:Vector.<BitmapData> = new Vector.<BitmapData>();
@@ -224,40 +224,40 @@ package {
 			
 			var running:Boolean = false;
 			animator.playbackSpeed = 1;
-            animator1.playbackSpeed = 1;
+			animator1.playbackSpeed = 1;
 			
 			if (animator.activeAnimationName == "walk" || animator.activeAnimationName == "idle") {
 				if (getKeyState(Keyboard.UP)) {
 					running = true;
 					player.moveBackward(1 * timeStep.delta);
-                    suit.moveBackward(1 * timeStep.delta);
+					suit.moveBackward(1 * timeStep.delta);
 				}
 				if (getKeyState(Keyboard.DOWN)) {
 					running = true;
 					player.moveForward(1 * timeStep.delta);
-                    suit.moveForward(1 * timeStep.delta);
+					suit.moveForward(1 * timeStep.delta);
 					animator.playbackSpeed = -1;
-                    animator1.playbackSpeed = -1;
+					animator1.playbackSpeed = -1;
 				}
 				
 				if (getKeyState(Keyboard.LEFT)) {
 					player.rotationY -= 5 * timeStep.delta;
-                    suit.rotationY -= 5 * timeStep.delta;
+					suit.rotationY -= 5 * timeStep.delta;
 				}
 				if (getKeyState(Keyboard.RIGHT)) {
 					player.rotationY += 5 * timeStep.delta;
-                    suit.rotationY += 5 * timeStep.delta;
+					suit.rotationY += 5 * timeStep.delta;
 				}
 				
 				if (running) {
 					if (animator.activeAnimationName != "walk") {
 						animator.play("walk", new CrossfadeTransition(.3));
-                        animator1.play("walk", new CrossfadeTransition(.3));
+						animator1.play("walk", new CrossfadeTransition(.3));
 					}
 				} else {
 					if (animator.activeAnimationName != "idle") {
 						animator.play("idle", new CrossfadeTransition(.3));
-                        animator1.play("idle", new CrossfadeTransition(.3));
+						animator1.play("idle", new CrossfadeTransition(.3));
 					}
 				}
 				
@@ -371,7 +371,7 @@ package {
 			fresnelMethod.fresnelPower = 3;
 			
 			var i:uint
-			for (i = 0; i < Textures.length; ++i) {
+			for (i = 0; i < Textures.length - 1; ++i) {
 				Materials[i] = new TextureMaterial(new BitmapTexture(Textures[i]));
 			}
 			
@@ -386,8 +386,8 @@ package {
 			Materials[10].repeat = true;
 			Materials[10].specular = 0.4;
 			Materials[10].gloss = 20;
-            Materials[11] = new TextureMaterial(new BitmapTexture(new BitmapData(64, 64, false, 0x333333)));
-            Materials[11].specular = 2;
+			Materials[11] = new TextureMaterial(new BitmapTexture(Textures[9]));
+			Materials[11].specular = 2;
 			Materials[11].gloss = 200;
 			
 			for (i = 0; i < Materials.length; ++i) {
@@ -436,18 +436,18 @@ package {
 		private function onBodyComplete(e:SEAEvent):void {
 			var sea:SEA3D = e.target as SEA3D;
 			player = sea.getMesh("Body");
-            suit = sea.getMesh("Suite");
-            suit.material = Materials[11];
+			suit = sea.getMesh("Suit");
+			suit.material = Materials[11];
 			player.material = Materials[0];
 			player.position = new Vector3D(0, 37, 0);
-            suit.position = new Vector3D(0, 37, 0);
+			suit.position = new Vector3D(0, 37, 0);
 			animator = player.animator as SkeletonAnimator;
-            animator1 = suit.animator as SkeletonAnimator;
+			animator1 = suit.animator as SkeletonAnimator;
 			animator.updatePosition = false;
-            animator1.updatePosition = false;
+			animator1.updatePosition = false;
 			animator.play("idle");
 			animator1.play("idle");
-            
+			
 			axe = sea.getMesh("AXE");
 			
 			scene.addChild(player);
