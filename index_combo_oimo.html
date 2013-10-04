@@ -107,35 +107,51 @@
 
 			   }*/
 
-
+			   var mesh;
 			   var mtx;
+			   var p;
+			   var r;
+			   var sleep;
+
 			    document.getElementById("info").innerHTML ="body:"+ max+ "<br>"+debugListe;/// +"///"+bodys[n].type+"///"+bodys[n].shape;//+"/"+bodys[n].pos.y+"/"+bodys[n].pos.z+" __ "+bodys[n].rot.x+"/"+bodys[n].rot.y+"/"+bodys[n].rot.z;
 			    for ( i = 0; i < max; i++ ) {
 			    	
 			    	if(content.children[i]) {
-			    		var mesh = content.children[i];
+			    		 mesh = content.children[i];
+			    		 r = bodys[i].rot;
+			    		 p = bodys[i].pos;
+			    		 sleep = bodys[i].sleep;
 
-			    		if(bodys[i].pos != null){
-				    		var p = bodys[i].pos;
-				    		mesh.position.x = -bodys[i].pos.x*100;
-				    		mesh.position.y = bodys[i].pos.y*100;
-				    		mesh.position.z = -bodys[i].pos.z*100;
-				    	}
+				    	mesh.position.x = -bodys[i].pos.x*100;
+				    	mesh.position.y = bodys[i].pos.y*100;
+				    	mesh.position.z = -bodys[i].pos.z*100;
+				    	
 
 			    		//meshs[i].rotation.setFromRotationMatrix( bodys[i].rot );
-			    		if(bodys[i].rot != null){
-                        var r = bodys[i].rot;
-			    		//mtx = new THREE.Matrix4(r.e00, r.e10, r.e20, 0, r.e01, r.e11, r.e21, 0, r.e02, r.e12, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
-			    		mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, 0, r.e10, r.e11, r.e12, 0, r.e20, r.e21, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
 			    		
-			    		/*meshs[i].rotation.x = -bodys[i].rot.e00;//z;//*ToRad;
-			    		meshs[i].rotation.y = bodys[i].rot.e11;//y;//*ToRad;
-			    		meshs[i].rotation.z = bodys[i].rot.e22;//x;//*ToRad;*/
-			    		//meshs[i].rotation.w = bodys[i].rot.w;//*ToRad;
-			    		//meshs[i].position.getPositionFromMatrix( mtx );
-			    		mesh.rotation.setFromRotationMatrix( mtx );	
-			    	}
-			    		//meshs[i].scale.getScaleFromMatrix( mtx );
+                        
+				    		//mtx = new THREE.Matrix4(r.e00, r.e10, r.e20, 0, r.e01, r.e11, r.e21, 0, r.e02, r.e12, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
+				    	mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, 0, r.e10, r.e11, r.e12, 0, r.e20, r.e21, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
+					    		
+				    		/*meshs[i].rotation.x = -bodys[i].rot.e00;//z;//*ToRad;
+				    		meshs[i].rotation.y = bodys[i].rot.e11;//y;//*ToRad;
+				    		meshs[i].rotation.z = bodys[i].rot.e22;//x;//*ToRad;*/
+				    		//meshs[i].rotation.w = bodys[i].rot.w;//*ToRad;
+				    		//meshs[i].position.getPositionFromMatrix( mtx );
+				    	mesh.rotation.setFromRotationMatrix( mtx );	
+
+				    	//material
+				    	if(sleep){
+				    		if(mesh.material.name == "mat01"){ mesh.material = mat01sleep;}
+				    		if(mesh.material.name == "mat02"){ mesh.material = mat02sleep;}
+				    	} else {
+				    		if(mesh.material.name == "mat01sleep") mesh.material = mat01;
+				    		if(mesh.material.name == "mat02sleep") mesh.material = mat02;
+				    	}
+				    	
+
+
+			    		
 
 			    	}else{
 				    	if (bodys[i].shape == 1) addSphere(75);

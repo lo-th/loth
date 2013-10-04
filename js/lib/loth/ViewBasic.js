@@ -24,8 +24,16 @@ var cursor, cursorUp, cursorDown;
 
 var ToRad = Math.PI / 180;
 
-var mat01 = new THREE.MeshPhongMaterial( { color: 0xff9930, shininess:100, specular:0xffffff } )
-var mat02 = new THREE.MeshPhongMaterial( { color: 0x3099ff, shininess:100, specular:0xffffff } )
+var mat01 = new THREE.MeshPhongMaterial( { color: 0xff9933, shininess:100, specular:0xffffff } );
+var mat02 = new THREE.MeshPhongMaterial( { color: 0x3399ff, shininess:100, specular:0xffffff } );
+var mat01sleep = new THREE.MeshPhongMaterial( { color: 0xffd9b2, shininess:100, specular:0xffffff } );
+var mat02sleep = new THREE.MeshPhongMaterial( { color: 0xb2d9ff, shininess:100, specular:0xffffff } );
+
+mat01.name = "mat01";
+mat02.name = "mat02";
+mat01sleep.name = "mat01sleep";
+mat02sleep.name = "mat02sleep";
+
 var geo01 = new THREE.CubeGeometry( 1, 1, 1 );
 var geo02 = new THREE.SphereGeometry( 1 );
 

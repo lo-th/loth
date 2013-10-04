@@ -295,7 +295,8 @@ package com.element.oimo.physics.demo {
                     pos: body.position, // position
                     rot: body.rotation, //.orientation
 					//type: body.type, 
-                    shape: t
+                    shape: t,
+                    sleep: body.sleeping
                    // size: body.
                 }
 				n++;
