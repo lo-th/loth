@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three labs</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+	</head>
+	<body>
+		<div id="container" class="unselectable"></div>
+		<div id="myFlash" class="unselectable"></div>
+		<div id="titre" class="unselectable">3d labs</div>
+		<div id="fps" class="unselectable"></div>
+		<div id="info" class="unselectable">
+			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
+			- <a href="http://threejs.org" target="_blank">three.js 61</a>
+			- <a href="https://code.google.com/p/sea3d/" target="_blank">sea3d 1.6.0.2</a>
+		</div>
+		<div id="cursor" class="unselectable">
+			<img id="cursorUp" class="unselectable" src="images/cursor0.png">
+			<img id="cursorDown" class="unselectable" src="images/cursor01.png">
+		</div>
+
+		<div id="menu" class="unselectable">
+			<button type="button" onclick="switchPlayer()" id="bcontrol">DOG</button>
+			<button type="button" onclick="moveView()" id="bview">VIEW</button>
+		</div>
+
+		<script type="text/javascript" src="js/lib/three.min.js"></script>
+		<script type="text/javascript" src="js/lib/Mirror.js"></script>
+		<script type="text/javascript" src="js/lib/tweenLite.min.js"></script>
+		<script type="text/javascript" src="js/lib/loaders/sea3d/SEA3D.js"></script>
+		<script type="text/javascript" src="js/lib/loaders/sea3d/SEA3DLoader.js"></script>
+		<script type="text/javascript" src="js/lib/loaders/sea3d/SEA3DDeflate.js"></script>
+		<script type="text/javascript" src="js/lib/loaders/sea3d/SEA3DLZMA.js"></script>
+		<script type="text/javascript" src="js/lib/loth/ViewBasic.js"></script>
+		<script type="text/javascript" src="js/swfobject.js"></script>
+		<script type="text/javascript">
+		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		    var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
+		    var bodys = {};
+		    var currentView = 0;
+		    var playerSelect = 1;
+		    var maxcube = 218;
+		    var sizecube = 50;
+
+		    function init() {
+			    initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
+			    addCubes(maxcube, sizecube);
+            }
+
+		    function switchPlayer() {
+		    	var sel;
+				if(playerSelect == 1){ playerSelect = 0; sel = "HUMAN";}
+				else{ playerSelect=1; sel = "DOG";}
+				document.getElementById("bcontrol").innerHTML = sel;
+				controlPlayer(playerSelect);
+			}
+
+			function moveView() {
+				var n = currentView;
+				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
+
+				document.getElementById("bview").innerHTML = "VIEW " + n;
+
+				currentView++;
+				if(currentView == vSet.length)currentView = 0;
+			}
+
+            var swf;
+			var flashvars = {scale:100, num:maxcube, cubeSize:sizecube};
+	        var params = {};
+	        params.quality = "low";
+	        params.bgcolor = "#161616";
+	        params.allowscriptaccess = "always";
+	        params.wmode = "direct";
+	        var attributes = {};
+            attributes.id = "myFlash";
+            attributes.name = "myFlash";
+            //attributes.align = "middle";
+            //swfobject.switchOffAutoHideShow();
+			swfobject.embedSWF("oimo.swf", "myFlash", "100", "50", "11.0.0", "expressInstall.swf", flashvars, params, attributes, onFlashloaded);
+
+
+		    /*function addRigid() {
+		    	if (swf && typeof swf['onFlashaddRigid'] != "undefined")
+					swf['onFlashaddRigid'](100);//("plane", {x:0, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:0}, 2);
+		    }*/
+
+		    function getBodyFromFlash(k) {
+
+			    bodys = k;
+			    var max = bodys.length;
+			   // n = 1;
+			   //
+			   var mtx;
+			    document.getElementById("info").innerHTML ="body:"+ max +"///"+bodys[10].rot//+"/"+bodys[n].pos.y+"/"+bodys[n].pos.z+" __ "+bodys[n].rot.x+"/"+bodys[n].rot.y+"/"+bodys[n].rot.z;
+			    for ( var i = 0; i < max; i++ ) {
+			    	if(meshs[i]){
+			    		var r = bodys[i].rot;
+			    		var p = bodys[i].pos;
+			    		//mtx = new THREE.Matrix4(r.e00, r.e10, r.e20, 0, r.e01, r.e11, r.e21, 0, r.e02, r.e12, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
+			    		mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, 0, r.e10, r.e11, r.e12, 0, r.e20, r.e21, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
+			    		
+			    		meshs[i].position.x = -bodys[i].pos.x*100;
+			    		meshs[i].position.y = bodys[i].pos.y*100;
+			    		meshs[i].position.z = -bodys[i].pos.z*100;
+
+			    		//meshs[i].rotation.setFromRotationMatrix( bodys[i].rot );
+
+			    		/*meshs[i].rotation.x = -bodys[i].rot.e00;//z;//*ToRad;
+			    		meshs[i].rotation.y = bodys[i].rot.e11;//y;//*ToRad;
+			    		meshs[i].rotation.z = bodys[i].rot.e22;//x;//*ToRad;*/
+			    		//meshs[i].rotation.w = bodys[i].rot.w;//*ToRad;
+			    		//meshs[i].position.getPositionFromMatrix( mtx );
+			    		meshs[i].rotation.setFromRotationMatrix( mtx );	
+			    		//meshs[i].scale.getScaleFromMatrix( mtx );	
+			    	}
+
+			    }
+			}
+
+			function getKeyFromFlash(k) {
+			   key = k;
+			   document.getElementById("info").innerHTML ="key press:"+ key.front;
+			}
+
+			function onFlashloaded(e) {
+		    	 if(e.success){
+			    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
+			    	swf.style.width = 400+"px";
+				    swf.style.height = 400+"px";
+				    swf.style.top = 10+"px";
+				    swf.style.left = 10+"px";
+			    	swf.style.display = "block";
+			    	swf.style.position = "absolute";
+			    	swf.tabIndex = "1";
+			    	swf.focus();
+		        }
+		    }
+
+		    window.onload = init;
+		</script>
+	</body>
+</html>
