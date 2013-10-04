@@ -20,9 +20,18 @@ var key = { front:false, back:false, left:false, right:false, jump:false, crouch
 var controls = { rotation: 0, speed: 0, vx: 0, vz: 0, maxSpeed: 275, acceleration: 600, angularSpeed: 2.5};
 var cursor, cursorUp, cursorDown;
 
-var meshs = [];
+//var meshs = [];
 
 var ToRad = Math.PI / 180;
+
+var mat01 = new THREE.MeshPhongMaterial( { color: 0xff9930, shininess:100, specular:0xffffff } )
+var mat02 = new THREE.MeshPhongMaterial( { color: 0x3099ff, shininess:100, specular:0xffffff } )
+var geo01 = new THREE.CubeGeometry( 1, 1, 1 );
+var geo02 = new THREE.SphereGeometry( 1 );
+
+ var isOnClear = false; 
+
+var content;
 
 //-----------------------------------------------------
 //  INIT VIEW
@@ -70,7 +79,8 @@ function initThree(option) {
 	mirrorGround();
 	onThreeChangeView(45,60,1000);
 
-	
+	content = new THREE.Object3D();
+	scene.add(content);
 
 
 	fpstxt = document.getElementById( "fps" );
@@ -100,16 +110,52 @@ function controlPlayer(n) {
 //-----------------------------------------------------
 
 
-function addCubes(n, s) {
-	var mat = new THREE.MeshPhongMaterial( { color: 0xff9930, shininess:100, specular:0xffffff } )
+function clearContent(){
+	var obj, i;
+	//isOnClear = true;
+    for ( i = content.children.length - 1; i >= 0 ; i -- ) {
+			obj = content.children[ i ];
+			content.remove(obj);
+	}
+
+}
+
+function addCube(s) {
+	if(s==null) s = {x:50, y:50, z:50}; 
+	var mesh = new THREE.Mesh(geo01, mat01);
+	mesh.scale.set( s.x, s.y, s.z );
+	/*mesh.scale.x = s.x;
+	mesh.scale.y = s.y;
+	mesh.scale.z = s.z;*/
+	content.add( mesh );
+	/*var mat = new THREE.MeshPhongMaterial( { color: 0xff9930, shininess:100, specular:0xffffff } )
 	var geo = new THREE.CubeGeometry( s, s, s );
 	for ( var i = 0; i < n; i++ ) {
 		meshs[i] = new THREE.Mesh( geo, mat );
 		//meshs[i].useQuaternion = true;
 		//meshs[i].useQuaternion = true;
 		//meshs[i].position.y = 2;
-		scene.add( meshs[i] );
-	}
+		
+	}*/
+}
+
+function addSphere(r) {
+	if(r==null) r = 25;
+	var mesh = new THREE.Mesh(geo02, mat02);
+	mesh.scale.x = r;
+	mesh.scale.y = r;
+	mesh.scale.z = r;
+	content.add( mesh );
+	/* 
+	//var mat = new THREE.MeshPhongMaterial( { color: 0xff9930, shininess:100, specular:0xffffff } )
+	var geo = new THREE.SphereGeometry( r );
+	for ( var i = 0; i < n; i++ ) {
+		meshs[i] = new THREE.Mesh( geo, mat );
+		//meshs[i].useQuaternion = true;
+		//meshs[i].useQuaternion = true;
+		//meshs[i].position.y = 2;
+		content.add( meshs[i] );
+	}*/
 }
 
 
@@ -276,6 +322,7 @@ function stopRender() {
 
 function update() {
 	//requestAnimationFrame( update );
+	//if( isOnClear && content.children.length == 0)isOnClear=false;
 
 	delta = clock.getDelta();
 	THREE.AnimationHandler.update( delta*0.5 );
