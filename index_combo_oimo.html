@@ -122,9 +122,11 @@
 			    		 p = bodys[i].pos;
 			    		 sleep = bodys[i].sleep;
 
-				    	mesh.position.x = -bodys[i].pos.x*100;
+			    		 mesh.position.set(p.x*100, p.y*100, p.z*100);
+
+				    	/*mesh.position.x = -bodys[i].pos.x*100;
 				    	mesh.position.y = bodys[i].pos.y*100;
-				    	mesh.position.z = -bodys[i].pos.z*100;
+				    	mesh.position.z = -bodys[i].pos.z*100;*/
 				    	
 
 			    		//meshs[i].rotation.setFromRotationMatrix( bodys[i].rot );
