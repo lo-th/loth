@@ -22,7 +22,8 @@
 		</div>
 
 		<div id="menu" class="unselectable">
-			<button type="button" onclick="switchPlayer()" id="bcontrol">DOG</button>
+			<button type="button" onclick="prevDemo()" id="bcontrol">PREV DEMO</button>
+			<button type="button" onclick="nextDemo()" id="bcontrol">NEXT DEMO</button>
 			<button type="button" onclick="moveView()" id="bview">VIEW</button>
 		</div>
 
@@ -45,17 +46,19 @@
 		    var sizecube = 50;
 		   
 		    function init() {
-			    initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
-			    //addCubes(maxcube, sizecube);
-			     //addCube(200);
+			    initThree({ mouse:true, autoSize:true });
             }
 
-		    function switchPlayer() {
-		    	var sel;
-				if(playerSelect == 1){ playerSelect = 0; sel = "HUMAN";}
-				else{ playerSelect=1; sel = "DOG";}
-				document.getElementById("bcontrol").innerHTML = sel;
-				controlPlayer(playerSelect);
+            function prevDemo() {
+            	//clearContent();
+            	debugListe = "";
+		    	if (swf && typeof swf['onHtmlPrev'] != "undefined") swf['onHtmlPrev']();
+			}
+
+		    function nextDemo() {
+		    	//clearContent();
+		    	debugListe = "";
+		    	if (swf && typeof swf['onHtmlNext'] != "undefined") swf['onHtmlNext']();
 			}
 
 			function moveView() {
@@ -69,7 +72,7 @@
 			}
 
             var swf;
-			var flashvars = {scale:100, num:maxcube, cubeSize:sizecube};
+			var flashvars = {stage3D:0};
 	        var params = {};
 	        params.quality = "low";
 	        params.bgcolor = "#161616";
@@ -92,19 +95,13 @@
 		    function resetFromFlash() {
 		    	clearContent();
 		    }
-
-		    function getBodyFromFlash(k) {
-		    	//if(isOnClear)return;
+var debugListe = "";
+		    function getBodyFromFlash(bodys, info) {
 		    	var i;
-
-			    bodys = k;
 			    var max = bodys.length ;
-			   // n = 0;
-			   //shape type = 2:Box, 1:Shpere
-			   var debugListe = "";
-			   /*for (  i = 0; i < max; i++ ) {
-			   	debugListe += " / " + bodys[i].shape;
-
+			    
+			  /* for (  i = 0; i < max; i++ ) {
+			   	debugListe += " / " + bodys[i].t;
 			   }*/
 
 			   var mesh;
@@ -113,33 +110,17 @@
 			   var r;
 			   var sleep;
 
-			    document.getElementById("info").innerHTML ="body:"+ max+ "<br>"+debugListe;/// +"///"+bodys[n].type+"///"+bodys[n].shape;//+"/"+bodys[n].pos.y+"/"+bodys[n].pos.z+" __ "+bodys[n].rot.x+"/"+bodys[n].rot.y+"/"+bodys[n].rot.z;
+			    document.getElementById("info").innerHTML = "Info from Flash<br>"+info+"<br><br>"+debugListe;//"body:"+ max+ "<br>"+debugListe;
 			    for ( i = 0; i < max; i++ ) {
 			    	
 			    	if(content.children[i]) {
-			    		 mesh = content.children[i];
-			    		 r = bodys[i].rot;
-			    		 p = bodys[i].pos;
-			    		 sleep = bodys[i].sleep;
+			    		mesh = content.children[i];
+			    		r = bodys[i].rot;
+			    		p = bodys[i].pos;
+			    		sleep = bodys[i].sleep;
 
-			    		 mesh.position.set(p.x*100, p.y*100, p.z*100);
-
-				    	/*mesh.position.x = -bodys[i].pos.x*100;
-				    	mesh.position.y = bodys[i].pos.y*100;
-				    	mesh.position.z = -bodys[i].pos.z*100;*/
-				    	
-
-			    		//meshs[i].rotation.setFromRotationMatrix( bodys[i].rot );
-			    		
-                        
-				    		//mtx = new THREE.Matrix4(r.e00, r.e10, r.e20, 0, r.e01, r.e11, r.e21, 0, r.e02, r.e12, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
-				    	mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, 0, r.e10, r.e11, r.e12, 0, r.e20, r.e21, r.e22, 0, p.x * 100, p.y * 100, p.z * 100, 1)
-					    		
-				    		/*meshs[i].rotation.x = -bodys[i].rot.e00;//z;//*ToRad;
-				    		meshs[i].rotation.y = bodys[i].rot.e11;//y;//*ToRad;
-				    		meshs[i].rotation.z = bodys[i].rot.e22;//x;//*ToRad;*/
-				    		//meshs[i].rotation.w = bodys[i].rot.w;//*ToRad;
-				    		//meshs[i].position.getPositionFromMatrix( mtx );
+					    mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, p.x*100, r.e10, r.e11, r.e12, p.y*100, r.e20, r.e21, r.e22, p.z*100, 100, 100, 100, 1);
+				        mesh.position.getPositionFromMatrix( mtx );
 				    	mesh.rotation.setFromRotationMatrix( mtx );	
 
 				    	//material
@@ -150,14 +131,10 @@
 				    		if(mesh.material.name == "mat01sleep") mesh.material = mat01;
 				    		if(mesh.material.name == "mat02sleep") mesh.material = mat02;
 				    	}
-				    	
-
-
-			    		
-
-			    	}else{
-				    	if (bodys[i].shape == 1) addSphere(75);
-				    	else if (bodys[i].shape == 2) addCube();
+			    	}else{ // create object
+			    		//debugListe += " / " + bodys[i].t;
+				    	if (bodys[i].t == 1) addSphere(75);
+				    	else if (bodys[i].t == 2) addCube();
 				    	else  addCube();
 			    	}
 
@@ -170,10 +147,12 @@
 			}
 
 			function onFlashloaded(e) {
+				var size = {x:400, y:400}
 		    	 if(e.success){
 			    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
-			    	swf.style.width = 400+"px";
-				    swf.style.height = 400+"px";
+			    	if(flashvars.stage3D==0) size = {x:120, y:20}
+			    	swf.style.width = size.x+"px";
+				    swf.style.height = size.y+"px";
 				    swf.style.top = 10+"px";
 				    swf.style.left = 10+"px";
 			    	swf.style.display = "block";

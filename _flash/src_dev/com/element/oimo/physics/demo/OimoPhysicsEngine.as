@@ -20,6 +20,7 @@ package com.element.oimo.physics.demo {
 	import com.element.oimo.physics.collision.shape.BoxShape;
 	import com.element.oimo.physics.collision.shape.ShapeConfig;
 	import com.element.oimo.physics.dynamics.RigidBody;
+	import com.element.oimo.physics.collision.shape.Shape;
 	import com.element.oimo.physics.dynamics.World;
 	import com.element.oimo.physics.util.DebugDraw;
 	import flash.display.Sprite;
@@ -30,11 +31,13 @@ package com.element.oimo.physics.demo {
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.ui.Keyboard;
+	import flash.utils.getTimer;
 	
 	import flash.external.ExternalInterface;
 	import flash.system.Security;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	
-	import com.Stats;
 	/**
 	 * OimoPhysics demos.
 	 * @author saharan
@@ -61,8 +64,17 @@ package com.element.oimo.physics.demo {
 		private var control:RigidBody;
 		private var demo:DemoBase;
 		private var bodysInfo:Vector.<Object>;
-		private var isWithRender:Boolean = true;
+		
 		private var txt:TextField
+		
+		private var ffps:Number;
+		private var time:Number = 0;
+		private var time_prev:Number = 0;
+		private var fpsTxt:String;
+		
+		private var isWithStage3D:Boolean = true;
+		private var isWithRender:Boolean = true;
+		private var isExternal:Boolean = false;
 		
 		public function OimoPhysicsEngine() {
 			if (stage)
@@ -73,23 +85,26 @@ package com.element.oimo.physics.demo {
 		
 		private function init(e:Event = null):void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
 			
 			//loth transphere
 			Security.allowDomain("*");
 			if (ExternalInterface.available) {
+				isExternal = true;
 				// get html variable
 				var flashVars:Object = this.root.loaderInfo.parameters;
-				/*scale = flashVars["scale"];
-				   num = flashVars["num"];
-				 cubeSize =  flashVars["cubeSize"];*/
+				if (flashVars["stage3D"] == 0)
+					isWithStage3D = false;
+				else
+					isWithStage3D = true;
+				// get javascript function
 				ExternalInterface.marshallExceptions = true;
-					// ExternalInterface.addCallback("onFlashChangeView", onChangeView);
-					//ExternalInterface.addCallback("onFlashaddRigid", addRigid);
+				ExternalInterface.addCallback("onHtmlKeyChange", onKeyChange);
+				ExternalInterface.addCallback("onHtmlNext", nextDemo);
+				ExternalInterface.addCallback("onHtmlPrev", prevDemo);
 			}
 			
-			var debug:Stats = new Stats();
-			debug.x = 300;
-			addChild(debug);
 			tf = new TextField();
 			tf.selectable = false;
 			tf.mouseEnabled = false;
@@ -99,16 +114,21 @@ package com.element.oimo.physics.demo {
 			tf.width = 400;
 			tf.height = 400;
 			addChild(tf);
-			
-			addOffButton();
+			tf.text = "Flash Oimo Engine";
 			
 			fps = 0;
 			pmouseX = 0;
 			pmouseY = 0;
 			
-			s3d = stage.stage3Ds[0];
-			s3d.addEventListener(Event.CONTEXT3D_CREATE, onContext3DCreated);
-			s3d.requestContext3D();
+			if (isWithStage3D) {
+				s3d = stage.stage3Ds[0];
+				s3d.addEventListener(Event.CONTEXT3D_CREATE, onContext3DCreated);
+				s3d.requestContext3D();
+				addOffButton();
+			} else {
+				isWithRender = false;
+			}
+			
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void {
 					press = true;
 				});
@@ -180,14 +200,34 @@ package com.element.oimo.physics.demo {
 				});
 			
 			world = new World();
-			draw = new DebugDraw(400, 400);
-			draw.setWorld(world);
-			draw.drawJoints = true;
-			
+			if (isWithRender) {
+				draw = new DebugDraw(400, 400);
+				draw.setWorld(world);
+				draw.drawJoints = true;
+			}
 			registerDemos(new BasicDemo(), new ShapesDemo(), new FrictionDemo(), new RestitutionDemo(), new CollisionFilteringDemo(), new DistanceJointDemo(), new BallAndSocketJointDemo(), new HingeJointDemo(), new PyramidDemo(), new BridgeDemo(), new VehicleDemo());
 			
 			reset();
 			addEventListener(Event.ENTER_FRAME, frame);
+		}
+		
+		private function onKeyChange(k:Object):void {
+			if (k.front)
+				up |= 3;
+			else
+				up &= ~3;
+			if (k.back)
+				down |= 3;
+			else
+				down &= ~3;
+			if (k.left)
+				left |= 3;
+			else
+				left &= ~3;
+			if (k.right)
+				right |= 3;
+			else
+				right &= ~3;
 		}
 		
 		private function registerDemos(... demos:Array):void {
@@ -195,7 +235,7 @@ package com.element.oimo.physics.demo {
 			for (var i:int = 0; i < len; i++) {
 				var demo:DemoBase = DemoBase(demos[i]);
 				demo.world = world;
-				demo.draw = draw;
+				demo.draw = draw; //!!!
 				demo.prev = DemoBase(demos[(i - 1 + len) % len]);
 				demo.next = DemoBase(demos[(i + 1) % len]);
 			}
@@ -213,7 +253,7 @@ package com.element.oimo.physics.demo {
 		}
 		
 		private function reset():void {
-			if (ExternalInterface.available)
+			if (isExternal)
 				ExternalInterface.call("resetFromFlash");
 			rotX = Math.PI * 0.5;
 			rotY = Math.PI * 0.42;
@@ -221,7 +261,9 @@ package com.element.oimo.physics.demo {
 			
 			bodysInfo = new Vector.<Object>();
 			
-			draw.clearIgnoredShapes();
+			if (isWithRender)
+				draw.clearIgnoredShapes();
+			
 			var sc:ShapeConfig = new ShapeConfig();
 			var ground:RigidBody = new RigidBody(0, -0.5, 0);
 			ground.addShape(new BoxShape(sc, 128, 1, 128));
@@ -247,6 +289,14 @@ package com.element.oimo.physics.demo {
 		}
 		
 		private function frame(e:Event = null):void {
+			time = getTimer();
+			if (time - 1000 > time_prev) {
+				time_prev = time;
+				fpsTxt = "Flash fps: " + ffps;
+				ffps = 0;
+			}
+			ffps++;
+			
 			count++;
 			if (press) {
 				rotX -= (mouseX - pmouseX) * 0.01;
@@ -260,58 +310,78 @@ package com.element.oimo.physics.demo {
 			pmouseX = mouseX;
 			pmouseY = mouseY;
 			world.step();
-			demo.cameraControl(rotX, rotY);
+			if (isWithRender && isWithStage3D)
+				demo.cameraControl(rotX, rotY);
 			demo.userControl(up != 0, down != 0, left != 0, right != 0, rotX, rotY);
 			fps += (1000 / world.performance.totalTime - fps) * 0.5;
 			if (fps > 1000 || fps != fps) {
 				fps = 1000;
 			}
-			tf.text = " --- " + demo.title + " --- \n\n" + "  [Q]: previous demo\n" + "  [E]: next demo\n" + "  [WASD or Arrows]: move around\n" + "  [SPACE]: reset\n\n" + "Rigid Body Count: " + world.numRigidBodies + "\n" + "Contact Count: " + world.numContacts + "\n" + "Pair Check Count: " + world.broadPhase.numPairChecks + "\n" + "Contact Point Count: " + world.numContactPoints + "\n" + "Island Count: " + world.numIslands + "\n\n" + "Broad-Phase Time: " + world.performance.broadPhaseTime + "ms\n" + "Narrow-Phase Time: " + world.performance.narrowPhaseTime + "ms\n" + "Solving Time: " + world.performance.solvingTime + "ms\n" + "Updating Time: " + world.performance.updatingTime + "ms\n" + "Total Time: " + world.performance.totalTime + "ms\n" + "Physics FPS: " + fps.toFixed(2) + "\n"
-			;
-			if (isWithRender)
+			var info:String = engineInfo();
+			if (isWithRender && isWithStage3D) {
+				tf.text = info;
 				draw.render();
+			} 
+			
+			var n:uint = 0;
+			var tt:uint;
 			var body:RigidBody = world.rigidBodies;
 			while (body != null) {
+				if (body.type == 0x1) {
+					if (body.shapes != null)
+						tt = body.shapes.type;
+					else
+						tt = 0
+					bodysInfo[n] = {t: tt, // shape type
+							pos: body.position, // position
+							rot: body.rotation, // rotation
+							sleep: body.sleeping // sleep info
+						}
+					n++
+				}
+				
+				// replace if fall 
 				if (body.position.y < -12) {
 					body.position.init(Math.random() * 8 - 4, Math.random() * 4 + 8, Math.random() * 8 - 4);
 					body.linearVelocity.x *= 0.75;
 					body.linearVelocity.y *= 0.75;
 					body.linearVelocity.z *= 0.75;
 				}
+				// n++;
 				body = body.next;
+				
 			}
-			
-			sendBodytoHtml();
+			if (!bodysInfo.fixed)
+				bodysInfo.fixed = true;
+			if (isExternal) {
+                //ExternalInterface.call("getBodyFromFlash", bodysInfo);
+				ExternalInterface.call("getBodyFromFlash", bodysInfo, info);
+			}
 		}
 		
-		private function sendBodytoHtml():void {
-			var n:int = 0;
-			var body:RigidBody = world.rigidBodies;
-            var t:int;
-			while (body != null) {
-                if (body.shapes) t = body.shapes.type;
-                else t = 0
-				bodysInfo[n] = {
-                    pos: body.position, // position
-                    rot: body.rotation, //.orientation
-					//type: body.type, 
-                    shape: t,
-                    sleep: body.sleeping
-                   // size: body.
-                }
-				n++;
-				body = body.next;
-			}
-			bodysInfo.fixed = true;
-			if (ExternalInterface.available)
-				ExternalInterface.call("getBodyFromFlash", bodysInfo);
+		private function engineInfo():String {
+			var info:String = " --- " + demo.title + " --- \n\n";
+			info += "Rigid Body Count: " + world.numRigidBodies + "\n";
+			info += "Contact Count: " + world.numContacts + "\n";
+			info += "Pair Check Count: " + world.broadPhase.numPairChecks + "\n";
+			info += "Contact Point Count: " + world.numContactPoints + "\n";
+			info += "Island Count: " + world.numIslands + "\n\n";
+			
+			info += "Broad-Phase Time: " + world.performance.broadPhaseTime + "ms\n";
+			info += "Narrow-Phase Time: " + world.performance.narrowPhaseTime + "ms\n";
+			info += "Solving Time: " + world.performance.solvingTime + "ms\n";
+			info += "Updating Time: " + world.performance.updatingTime + "ms\n";
+			info += "Total Time: " + world.performance.totalTime + "ms\n";
+			info += "Physics FPS: " + fps.toFixed(2) + "\n";
+			info += fpsTxt;
+			return info;
 		}
 		
 		private function addOffButton():void {
 			var b:Sprite = new Sprite();
 			addChild(b);
 			b.graphics.beginFill(0x303030);
-			b.graphics.drawRoundRect(0, 0, 100, 30, 6, 6);
+			b.graphics.drawRoundRect(0, 0, 90, 30, 6, 6);
 			b.graphics.endFill();
 			b.buttonMode = true;
 			txt = new TextField();
@@ -320,11 +390,11 @@ package com.element.oimo.physics.demo {
 			txt.defaultTextFormat = new TextFormat("_sans", 11, 0x808040, null, null, null, null, null, 'center');
 			txt.x = 0;
 			txt.y = 5;
-			txt.width = 100;
+			txt.width = 90;
 			txt.height = 20;
 			b.addChild(txt);
-			txt.text = "Hide Render";
-			b.x = 200;
+			txt.text = "Stop Render";
+			b.x = 300;
 			b.y = 10;
 			b.addEventListener(MouseEvent.CLICK, offRender);
 		}
@@ -332,11 +402,10 @@ package com.element.oimo.physics.demo {
 		private function offRender(e:MouseEvent):void {
 			if (isWithRender) {
 				isWithRender = false;
-				
-				txt.text = "Show Render";
+				txt.text = "Play Render";
 			} else {
 				isWithRender = true;
-				txt.text = "Hide Render";
+				txt.text = "Stop Render";
 			}
 		}
 	

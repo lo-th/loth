@@ -76,6 +76,7 @@ function initThree(option) {
 	document.addEventListener( 'mouseup', onMouseUp, false );
 	document.addEventListener( 'mousewheel', onMouseWheel, false );
 	document.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	
 	document.addEventListener( 'keydown', onKeyDown, false );
 	document.addEventListener( 'keyup', onKeyUp, false );
 
@@ -418,6 +419,7 @@ function onKeyDown ( event ) {
 		case 17: case 67: key.crouch = false; break;        // ctrl, c
 		case 32: key.jump = false; break;                   // space
 	}
+	sendKeyToFlash();
 }
 
 function onKeyUp ( event ) {
@@ -429,11 +431,17 @@ function onKeyUp ( event ) {
 		case 17: case 67: key.crouch = false; break;         // ctrl, c
 		case 32: key.jump = false; break;                    // space
 	}
+	sendKeyToFlash ();
+}
+
+function sendKeyToFlash () {
+	if (swf && typeof swf['onHtmlKeyChange'] != "undefined") swf['onHtmlKeyChange'](key);
 }
 
 //-----------------------------------------------------
 //  MOUSE
 //-----------------------------------------------------
+
 function onMouseOut() {
 	if(cursor){
 	    document.body.style.cursor = 'auto';
@@ -534,8 +542,6 @@ function onThreeChangeView(h, v, d) {
 //-----------------------------------------------------
 //  MATH
 //-----------------------------------------------------
-
-
 
 function exponentialEaseOut( v ) { return v === 1 ? 1 : - Math.pow( 2, - 10 * v ) + 1; };
 

@@ -68,6 +68,7 @@ body {
     text-align: right;
 }
 button {
+	color: #888888;
 	border:1px solid #333333;
     font-size: 10px;
     height: 30px;
