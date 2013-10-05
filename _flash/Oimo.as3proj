@@ -5,7 +5,7 @@
     <movie outputType="Application" />
     <movie input="" />
     <movie path="..\oimo.swf" />
-    <movie fps="60" />
+    <movie fps="30" />
     <movie width="600" />
     <movie height="600" />
     <movie version="11" />

@@ -41,7 +41,7 @@
     <path-element>E:\Users\lo\Documents\GitHub\loth\_flash\src_dev\com\element\oimo\physics\demo\OimoPhysicsEngine.as</path-element>
   </file-specs>
   <default-background-color>#000000</default-background-color>
-  <default-frame-rate>60</default-frame-rate>
+  <default-frame-rate>30</default-frame-rate>
   <default-size>
     <width>600</width>
     <height>600</height>

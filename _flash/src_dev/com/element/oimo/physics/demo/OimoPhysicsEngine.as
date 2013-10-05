@@ -42,7 +42,7 @@ package com.element.oimo.physics.demo {
 	 * OimoPhysics demos.
 	 * @author saharan
 	 */
-	[SWF(width="400",height="400",frameRate="60")]
+	[SWF(width="400",height="400",frameRate="30")]
 	
 	public class OimoPhysicsEngine extends Sprite {
 		private var s3d:Stage3D;
