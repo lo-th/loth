@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three labs</title>
+		<title>Oimo labs 2013</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -9,7 +9,7 @@
 	<body>
 		<div id="container" class="unselectable"></div>
 		<div id="myFlash" class="unselectable"></div>
-		<div id="titre" class="unselectable">3d labs</div>
+		<div id="titre" class="unselectable">Oimo labs</div>
 		<div id="fps" class="unselectable"></div>
 		<div id="info" class="unselectable">
 			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
@@ -44,6 +44,8 @@
 		    var playerSelect = 1;
 		    var maxcube = 218;
 		    var sizecube = 50;
+		    var info = "";
+		    //var worker;
 		   
 		    function init() {
 			    initThree({ mouse:true, autoSize:true });
@@ -71,6 +73,8 @@
 				if(currentView == vSet.length)currentView = 0;
 			}
 
+			var debugListe = "";
+
             var swf;
 			var flashvars = {stage3D:0};
 	        var params = {};
@@ -92,11 +96,28 @@
 					swf['onFlashaddRigid'](100);//("plane", {x:0, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:0}, 2);
 		    }*/
 
+		   //worker=new Worker("flashWorker.js");
+		    // Receive a message from the worker
+		    /* worker.onmessage = function (event) {
+		        // Do something
+		        alert(event.data);
+		    };*/
+
+
 		    function resetFromFlash() {
 		    	clearContent();
 		    }
-var debugListe = "";
+
 		    function getBodyFromFlash(bodys, info) {
+		    //function getBodyFromFlash() {
+		    	//if (swf && typeof swf['onHtmlGetBody'] != "undefined" && typeof swf['onHtmlGetInfo'] != "undefined")
+		    	//else return;
+
+		    	//info=swf['onHtmlGetInfo']();
+		    	//bodys=swf['onHtmlGetBody']();
+
+		    	//if(bodys == null) return;
+
 		    	var i;
 			    var max = bodys.length ;
 			    
@@ -109,6 +130,8 @@ var debugListe = "";
 			   var p;
 			   var r;
 			   var sleep;
+
+			   
 
 			    document.getElementById("info").innerHTML = "Info from Flash<br>"+info+"<br><br>"+debugListe;//"body:"+ max+ "<br>"+debugListe;
 			    for ( i = 0; i < max; i++ ) {
@@ -146,19 +169,26 @@ var debugListe = "";
 			   document.getElementById("info").innerHTML ="key press:"+ key.front;
 			}
 
+
+
 			function onFlashloaded(e) {
 				var size = {x:400, y:400}
 		    	 if(e.success){
 			    	swf = navigator.appName.indexOf("Microsoft") != -1 ? window["myFlash"] : document["myFlash"];
-			    	if(flashvars.stage3D==0) size = {x:120, y:20}
+			    	if(flashvars.stage3D==0) size = {x:48, y:48}
 			    	swf.style.width = size.x+"px";
 				    swf.style.height = size.y+"px";
 				    swf.style.top = 10+"px";
 				    swf.style.left = 10+"px";
 			    	swf.style.display = "block";
 			    	swf.style.position = "absolute";
-			    	swf.tabIndex = "1";
-			    	swf.focus();
+			    	//swf.tabIndex = "1";
+			    	//swf.focus();
+
+			    	//setInterval( getBodyFromFlash, 1000/60);
+
+			    	
+
 		        }
 		    }
 

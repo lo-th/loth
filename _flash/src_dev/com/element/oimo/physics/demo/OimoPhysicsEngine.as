@@ -42,7 +42,7 @@ package com.element.oimo.physics.demo {
 	 * OimoPhysics demos.
 	 * @author saharan
 	 */
-	[SWF(width="400",height="400",frameRate="30")]
+	[SWF(width="400",height="400",frameRate="60")]
 	
 	public class OimoPhysicsEngine extends Sprite {
 		private var s3d:Stage3D;
@@ -75,6 +75,7 @@ package com.element.oimo.physics.demo {
 		private var isWithStage3D:Boolean = true;
 		private var isWithRender:Boolean = true;
 		private var isExternal:Boolean = false;
+        private var isFrame:Boolean = true;
 		
 		public function OimoPhysicsEngine() {
 			if (stage)
@@ -103,6 +104,9 @@ package com.element.oimo.physics.demo {
 				ExternalInterface.addCallback("onHtmlKeyChange", onKeyChange);
 				ExternalInterface.addCallback("onHtmlNext", nextDemo);
 				ExternalInterface.addCallback("onHtmlPrev", prevDemo);
+                
+                ExternalInterface.addCallback("onHtmlGetBody", getBody);
+                ExternalInterface.addCallback("onHtmlGetInfo", engineInfo);
 			}
 			
 			tf = new TextField();
@@ -251,6 +255,14 @@ package com.element.oimo.physics.demo {
 			demo = demo.next;
 			reset();
 		}
+        
+        private function getBody():Vector.<Object> {
+            //if (isFrame) return null;
+			//else 
+            return bodysInfo;
+		}
+        
+        
 		
 		private function reset():void {
 			if (isExternal)
@@ -289,6 +301,7 @@ package com.element.oimo.physics.demo {
 		}
 		
 		private function frame(e:Event = null):void {
+            isFrame = true;
 			time = getTimer();
 			if (time - 1000 > time_prev) {
 				time_prev = time;
@@ -353,10 +366,12 @@ package com.element.oimo.physics.demo {
 			}
 			if (!bodysInfo.fixed)
 				bodysInfo.fixed = true;
-			if (isExternal) {
+                
+             isFrame = false;
+			//if (isExternal) {
                 //ExternalInterface.call("getBodyFromFlash", bodysInfo);
-				ExternalInterface.call("getBodyFromFlash", bodysInfo, info);
-			}
+				//ExternalInterface.call("getBodyFromFlash", bodysInfo, info);
+			//}
 		}
 		
 		private function engineInfo():String {

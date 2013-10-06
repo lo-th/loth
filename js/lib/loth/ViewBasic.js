@@ -332,6 +332,7 @@ function stopRender() {
 function update() {
 	//requestAnimationFrame( update );
 	//if( isOnClear && content.children.length == 0)isOnClear=false;
+	//getBodyFromFlash();
 
 	delta = clock.getDelta();
 	THREE.AnimationHandler.update( delta*0.5 );
@@ -601,7 +602,7 @@ function addSkyBox() {
 //  AUTO RESIZE
 //-----------------------------------------------------
 
-var divListe= ["container", "info", "fps", "menu"];
+var divListe= ["container", "info", "fps", "titre", "menu"];
 var sizeListe = [{w:640, h:480, n:0}, {w:1024, h:680, n:1}, {w:1280, h:768, n:2}]
 var size =  1;
 
@@ -625,7 +626,7 @@ function fullResize(n){
 		div.style.width = w+"px";
 		div.style.left = "calc(50% - "+mw+"px)";
 		if(i==0)div.style.height = h+"px";
-		else if (i!==3)div.style.top = h+45+"px";
+		else if (i!==4 && i!==3)div.style.top = h+45+"px";
 	}
 	resize(w,h);
 }
