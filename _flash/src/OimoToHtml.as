@@ -112,6 +112,7 @@ package {
 				ExternalInterface.addCallback("onHtmlKeyChange", onKeyChange);
 				ExternalInterface.addCallback("onHtmlNext", nextDemo);
 				ExternalInterface.addCallback("onHtmlPrev", prevDemo);
+				//ExternalInterface.addCallback("onHtmlXrot", SetXRotation);
 				
 					//ExternalInterface.addCallback("onHtmlGetBody", getBody);
 					//ExternalInterface.addCallback("onHtmlGetInfo", engineInfo);
@@ -144,7 +145,7 @@ package {
 			} else {
 				isWithRender = false;
 			}
-			
+			if (!isExternal){
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent):void {
 					press = true;
 				});
@@ -214,7 +215,7 @@ package {
 						right &= ~3;
 					}
 				});
-			
+			}
 			world = new World();
 			if (isWithRender) {
 				draw = new DebugDraw(400, 400);
@@ -226,8 +227,11 @@ package {
 			reset();
 			addEventListener(Event.ENTER_FRAME, frame);
 		}
-		
-		private function testTimer():void {
+		private function SetXRotation(r:Number):void {
+           rotX = r;
+        }
+        
+		/*private function testTimer():void {
 			
 			timer = new Timer(50);
 			timer.addEventListener(TimerEvent.TIMER, timerHandler);
@@ -239,25 +243,26 @@ package {
 			//ExternalInterface.addCallback("setFlashLabel", setLabel);
 			//timer.removeEventListener(TimerEvent.TIMER_COMPLETE, timerHandler);
 			//timer.stop();
-		}
+		}*/
 		
 		private function onKeyChange(k:Object):void {
+            rotX = k.rotation;
 			if (k.front)
-				up |= 3;
+				up |= 1;
 			else
-				up &= ~3;
+				up &= ~1;
 			if (k.back)
-				down |= 3;
+				down |= 1;
 			else
-				down &= ~3;
+				down &= ~1;
 			if (k.left)
-				left |= 3;
+				left |= 1;
 			else
-				left &= ~3;
+				left &= ~1;
 			if (k.right)
-				right |= 3;
+				right |= 1;
 			else
-				right &= ~3;
+				right &= ~1;
 		}
 		
 		private function registerDemos(... demos:Array):void {
@@ -346,6 +351,7 @@ package {
 			ffps++;
 			
 			count++;
+            if (!isExternal) {
 			if (press) {
 				rotX -= (mouseX - pmouseX) * 0.01;
 				rotY += (mouseY - pmouseY) * 0.005;
@@ -357,7 +363,7 @@ package {
 			demo.update();
 			pmouseX = mouseX;
 			pmouseY = mouseY;
-			
+			}
 			world.step();
 			if (isWithRender && isWithStage3D)
 				demo.cameraControl(rotX, rotY);
@@ -373,7 +379,7 @@ package {
 			}
 			
 			prevTime++;
-			if (prevTime != 2)
+			if (prevTime != 3)
 				return;
 			prevTime = 0;
 			
@@ -419,6 +425,7 @@ package {
 				// if(!timer)testTimer();
 				//  ExternalInterface.call("getBodyFromFlash", bodysInfo);
 				ExternalInterface.call("getBodyFromFlash", bodysInfo, info);
+                rotX = ExternalInterface.call("getXrot");
 					//}		
 			}
 			// prevTime = getTimer();

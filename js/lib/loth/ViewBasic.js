@@ -16,7 +16,7 @@ var materials = [];
 var currentPlay;
 var character=0;
 var currentPlayer = 1;
-var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
+var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false, rotation:0 };
 var controls = { rotation: 0, speed: 0, vx: 0, vz: 0, maxSpeed: 275, acceleration: 600, angularSpeed: 2.5};
 var cursor, cursorUp, cursorDown;
 
@@ -496,7 +496,7 @@ function onMouseMove(e) {
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
 
-		setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
+		//setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
 	}
 }
 
@@ -514,7 +514,7 @@ function onTouchMove(e) {
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
 
-		setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
+		//setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
     }
 }
 
@@ -533,7 +533,7 @@ function onMouseWheel(e) {
 //-----------------------------------------------------
 
 function moveCamera() {
-	camera.position.copy(Orbit(center, camPos.horizontal, camPos.vertical, camPos.distance));
+	camera.position.copy(Orbit(center, camPos.horizontal, camPos.vertical, camPos.distance, true));
 	camera.lookAt(center);
 }
 
@@ -554,10 +554,13 @@ function exponentialEaseOut( v ) { return v === 1 ? 1 : - Math.pow( 2, - 10 * v 
 
 function clamp(a,b,c) { return Math.max(b,Math.min(c,a)); }
 
-function Orbit(origine, horizontal, vertical, distance) {
+function Orbit(origine, horizontal, vertical, distance, cam) {
 	var p = new THREE.Vector3();
-	var phi = unwrapDegrees(vertical)*ToRad;
-	var theta = unwrapDegrees(horizontal)*ToRad;
+	//var phi = unwrapDegrees(vertical)*ToRad;
+	//var theta = unwrapDegrees(horizontal)*ToRad;
+	var phi = vertical*ToRad;
+	var theta = horizontal*ToRad;
+	if(cam!=null)key.rotation = theta;
 	p.x = (distance * Math.sin(phi) * Math.cos(theta)) + origine.x;
 	p.z = (distance * Math.sin(phi) * Math.sin(theta)) + origine.z;
 	p.y = (distance * Math.cos(phi)) + origine.y;

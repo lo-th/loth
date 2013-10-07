@@ -48,12 +48,11 @@
 		    var currentDemo = 0;
 		    var boxSize = {x:50, y:50, z:50};
 		    var sphereSize = 75;
+		    var currentRotation = 0;
 		   
 		    function init() {
 			    initThree({ mouse:true, autoSize:true });
             }
-
-
 
             function prevDemo() {
             	debugListe = "";
@@ -79,11 +78,6 @@
 		    	} 
 
 			}
-
-			function setXrot(rotX) {
-            	if (swf && typeof swf['onHtmlXrot'] != "undefined") swf['onHtmlXrot'](rotX);
-            }
-
 			function moveView() {
 				var n = currentView;
 				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
@@ -103,13 +97,14 @@
 	        params.bgcolor = "#161616";
 	        params.allowscriptaccess = "always";
 	        params.allownetworking = "all";
-	        params.wmode = "direct";
+	        //params.wmode = "direct";
+	        params.wmode = "window";
 	        var attributes = {};
             attributes.id = "myFlash";
             attributes.name = "myFlash";
             //attributes.align = "middle";
             //swfobject.switchOffAutoHideShow();
-			swfobject.embedSWF("oimo.swf", "myFlash", "100", "50", "11.0.0", "expressInstall.swf", flashvars, params, attributes, onFlashloaded);
+			swfobject.embedSWF("oimo.swf", "myFlash", "100", "50", "9.0.0", "expressInstall.swf", flashvars, params, attributes, onFlashloaded);
 
 
 		    /*function addRigid() {
@@ -130,6 +125,7 @@
 		    	else boxSize = {x:50, y:50, z:50};
 
 		    	if(currentDemo==3)sphereSize = 40;
+		    	else if(currentDemo==1)sphereSize = 50;
 		    	else sphereSize = 75;
 		    }
 
@@ -140,14 +136,6 @@
 		    }
 
 		    function getBodyFromFlash(bodys, info) {
-		    //function getBodyFromFlash() {
-		    	//if (swf && typeof swf['onHtmlGetBody'] != "undefined" && typeof swf['onHtmlGetInfo'] != "undefined")
-		    	//else return;
-
-		    	//info=swf['onHtmlGetInfo']();
-		    	//bodys=swf['onHtmlGetBody']();
-
-		    	//if(bodys == null) return;
 
 		    	var i;
 			    var max = bodys.length ;
@@ -164,7 +152,7 @@
 
 			   
 
-			    document.getElementById("info").innerHTML = "Use arrow key / awsd / zqsd for move - look in the direction<br>Info from flash : "+info+"<br><br>"+debugListe;//"body:"+ max+ "<br>"+debugListe;
+			    document.getElementById("info").innerHTML = "Use arrow key / awsd / zqsd for move - look in the direction<br>Info from flash : "+info+"<br><br>"+debugListe;
 			    for ( i = 0; i < max; i++ ) {
 			    	
 			    	if(content.children[i]) {
@@ -224,13 +212,6 @@
 				    swf.style.left = 10+"px";
 			    	swf.style.display = "block";
 			    	swf.style.position = "absolute";
-			    	//swf.tabIndex = "1";
-			    	//swf.focus();
-
-			    	//setInterval( getBodyFromFlash, 1000/60);
-
-			    	
-
 		        }
 		    }
 
