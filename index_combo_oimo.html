@@ -45,22 +45,37 @@
 		    var maxcube = 218;
 		    var sizecube = 50;
 		    var info = "";
-		    //var worker;
+		    var currentDemo = 0;
+		    var boxSize = {x:50, y:50, z:50};
+		    var sphereSize = 75;
 		   
 		    function init() {
 			    initThree({ mouse:true, autoSize:true });
             }
 
             function prevDemo() {
-            	//clearContent();
             	debugListe = "";
-		    	if (swf && typeof swf['onHtmlPrev'] != "undefined") swf['onHtmlPrev']();
+		    	if (swf && typeof swf['onHtmlPrev'] != "undefined"){
+		    	 swf['onHtmlPrev']();
+		    	 if(currentDemo!==0)currentDemo--;
+		    	 else currentDemo = 10;
+		    	  demoSetting()
+
+		    	// document.getElementById("titre").innerHTML = currentDemo;
+		    	}
 			}
 
 		    function nextDemo() {
-		    	//clearContent();
 		    	debugListe = "";
-		    	if (swf && typeof swf['onHtmlNext'] != "undefined") swf['onHtmlNext']();
+		    	if (swf && typeof swf['onHtmlNext'] != "undefined"){
+		    		swf['onHtmlNext']();
+		    		if(currentDemo!==10)currentDemo++;
+		    		else currentDemo = 0;
+		    		 demoSetting()
+
+		    	//	document.getElementById("titre").innerHTML = currentDemo;
+		    	} 
+
 			}
 
 			function moveView() {
@@ -103,8 +118,18 @@
 		        alert(event.data);
 		    };*/
 
+		    function demoSetting() {
+		    	if(currentDemo==8) boxSize = {x:60, y:40, z:60};
+		    	else if (currentDemo==9)boxSize = {x:400, y:40, z:100};
+		    	else boxSize = {x:50, y:50, z:50};
+
+		    	if(currentDemo==3)sphereSize = 40;
+		    	else sphereSize = 75;
+		    }
+
 
 		    function resetFromFlash() {
+		    	
 		    	clearContent();
 		    }
 
@@ -156,8 +181,15 @@
 				    	}
 			    	}else{ // create object
 			    		//debugListe += " / " + bodys[i].t;
-				    	if (bodys[i].t == 1) addSphere(75);
-				    	else if (bodys[i].t == 2) addCube();
+				    	if (bodys[i].t == 1){
+				    		if(i == 0)addSphere(75);
+				    		else addSphere(sphereSize);
+
+				    	}
+				    	else if (bodys[i].t == 2){
+				    		if(currentDemo==9 && i==1)addCube({x:120,y:120,z:120});
+				    		else addCube(boxSize);
+				    	} 
 				    	else  addCube();
 			    	}
 
