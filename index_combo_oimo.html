@@ -53,6 +53,8 @@
 			    initThree({ mouse:true, autoSize:true });
             }
 
+
+
             function prevDemo() {
             	debugListe = "";
 		    	if (swf && typeof swf['onHtmlPrev'] != "undefined"){
@@ -77,6 +79,10 @@
 		    	} 
 
 			}
+
+			function setXrot(rotX) {
+            	if (swf && typeof swf['onHtmlXrot'] != "undefined") swf['onHtmlXrot'](rotX);
+            }
 
 			function moveView() {
 				var n = currentView;
@@ -162,7 +168,9 @@
 			    for ( i = 0; i < max; i++ ) {
 			    	
 			    	if(content.children[i]) {
+
 			    		mesh = content.children[i];
+
 			    		r = bodys[i].rot;
 			    		p = bodys[i].pos;
 			    		sleep = bodys[i].sleep;
@@ -170,6 +178,8 @@
 					    mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, p.x*100, r.e10, r.e11, r.e12, p.y*100, r.e20, r.e21, r.e22, p.z*100, 100, 100, 100, 1);
 				        mesh.position.getPositionFromMatrix( mtx );
 				    	mesh.rotation.setFromRotationMatrix( mtx );	
+
+				    	if(i==0) center.copy(mesh.position);
 
 				    	//material
 				    	if(sleep){

@@ -35,9 +35,9 @@ mat01sleep.name = "mat01sleep";
 mat02sleep.name = "mat02sleep";
 
 var geo01 = new THREE.CubeGeometry( 1, 1, 1 );
-var geo02 = new THREE.SphereGeometry( 1 );
+var geo02 = new THREE.SphereGeometry( 1, 30, 26 );
 
- var isOnClear = false; 
+var isOnClear = false; 
 
 var content;
 
@@ -257,7 +257,7 @@ function initObject() {
 
 	geometry = new THREE.SphereGeometry( 50,30,30 );
 	//var sphereA = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
-	var sphereA = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xff0000, shininess:100, specular:0xffffff } ) );
+	/*var sphereA = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xff0000, shininess:100, specular:0xffffff } ) );
 	var sphereB = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0x00ff00, shininess:100, specular:0xffffff } ) );
 	sphereA.position.z = 400;
 	sphereB.position.z = -400;
@@ -266,7 +266,7 @@ function initObject() {
 	scene.add(sphereB);
 
 	sphereA.receiveShadow = sphereB.castShadow = true;
-	sphereA.castShadow = sphereB.castShadow = true;
+	sphereA.castShadow = sphereB.castShadow = true;*/
 }
 
 //-----------------------------------------------------
@@ -334,12 +334,14 @@ function update() {
 	//if( isOnClear && content.children.length == 0)isOnClear=false;
 	//getBodyFromFlash();
 
-	delta = clock.getDelta();
-	THREE.AnimationHandler.update( delta*0.5 );
+	//delta = clock.getDelta();
+	//THREE.AnimationHandler.update( delta*0.5 );
 
 	groundMirror.renderWithMirror( verticalMirror );
 	//verticalMirror.renderWithMirror( groundMirror );
-	updatePlayerMove();
+	//updatePlayerMove();
+
+	moveCamera();
 
 	renderer.render( scene, camera );
 	fpsUpdate();
@@ -493,6 +495,8 @@ function onMouseMove(e) {
 		camPos.horizontal = ((mouse.x - mouse.ox) * 0.3) + mouse.h;
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
+
+		setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
 	}
 }
 
@@ -509,6 +513,8 @@ function onTouchMove(e) {
 		camPos.horizontal = ((mouse.x - mouse.ox) * 0.3) + mouse.h;
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
+
+		setXrot(unwrapDegrees(camPos.horizontal)*ToRad);
     }
 }
 
