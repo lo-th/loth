@@ -46,7 +46,7 @@
 
 		    function init() {
 			    initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
-			    addCubes(maxcube, sizecube);
+			    //addCubes(maxcube, sizecube);
             }
 
 		    function switchPlayer() {
@@ -94,15 +94,19 @@
 			   // n = 1;
 			   // document.getElementById("info").innerHTML ="body:"+ bodys[n].pos.x+"/"+bodys[n].pos.y+"/"+bodys[n].pos.z+" __ "+bodys[n].rot.x+"/"+bodys[n].rot.y+"/"+bodys[n].rot.z;
 			    for ( var i = 0; i < max; i++ ) {
-			    	if(meshs[i]){
-			    		meshs[i].position.x = -bodys[i].pos.z;
-			    		meshs[i].position.y = bodys[i].pos.y;
-			    		meshs[i].position.z = bodys[i].pos.x;
+			    	//if(meshs[i]){
+			    	if(content.children[i]) {
+			    		mesh = content.children[i];
+			    		mesh.position.x = -bodys[i].pos.z;
+			    		mesh.position.y = bodys[i].pos.y;
+			    		mesh.position.z = bodys[i].pos.x;
 
-			    		meshs[i].rotation.x = bodys[i].rot.z;//*ToRad;
-			    		meshs[i].rotation.y = bodys[i].rot.y;//*ToRad;
-			    		meshs[i].rotation.z = bodys[i].rot.x;//*ToRad;
+			    		mesh.rotation.x = bodys[i].rot.z;//*ToRad;
+			    		mesh.rotation.y = bodys[i].rot.y;//*ToRad;
+			    		mesh.rotation.z = bodys[i].rot.x;//*ToRad;
 			    		
+			    	}else{
+			    		addCube({x:100,y:100,z:100})
 			    	}
 
 			    }
