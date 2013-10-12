@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello World - Jangaroo</title>
+   <meta charset="utf-8">
+</head>
+<body>
+<div id="info"></div>
+<!-- a placeholder where to put the output of "HelloWorld": -->
+<h1 id="output"></h1>
+
+<!-- configure "joo" object *before* loading jangaroo-application.js: -->
+<script type="text/javascript">
+ /* joo = {
+    debug: true  // demo-mode: always start in debug mode!
+    // for other options of the "joo" object, see API documentation.
+  };*/
+</script>
+
+<!-- load the bootstrap javascript file, concatenated from all contributing modules: -->
+<script type="text/javascript"
+        src="net.jangaroo.examples.hello-world.classes.js"></script>
+
+<!-- run the application by invoking the class containg stating "main" method, adding parameters: -->
+<script type="text/javascript">
+window.document.getElementById('info').innerHTML = "hello";
+  // run "HelloWorld", hand in the ID of the DOM element where to put the output:
+  //joo.classLoader.run("net.jangaroo.example.HelloWorld", "output");
+  //var world = joo.classLoader.init("com.elementdev.oimo.physics.dynamics.World");
+  var world = new com.elementdev.oimo.physics.dynamics.World();
+  //world.numIterations = 8;
+  //world.timeStep = 1 / 60;
+
+  
+  window.setTimeout(update, 1000 / 60);
+
+  function update(){
+  	window.document.getElementById('info').innerHTML = "update"
+  	world.step();
+  //  joo.classLoader.init("com.acme.jooflash.Main.update")
+     //joo.classLoader.add();
+    //joo.classLoader.run("com.acme.jooflash.Main.update", "info");
+   //  joo.classLoader.run("com.acme.jooflash.Main", "info");
+  } 
+</script>
+
+</body>
+</html>

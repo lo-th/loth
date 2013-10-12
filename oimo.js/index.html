@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>OimoEngine labs</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+	</head>
+	<body>
+		<div id="container" class="unselectable"></div>
+		<div id="myFlash" class="unselectable"></div>
+		<div id="titre" class="unselectable">OimoEngine labs</div>
+		<div id="fps" class="unselectable"></div>
+		<div id="info" class="unselectable">
+			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
+			- <a href="http://threejs.org" target="_blank">three.js 61</a>
+			- <a href="https://code.google.com/p/sea3d/" target="_blank">sea3d 1.6.0.2</a>
+			- <a href="https://github.com/saharan/OimoPhysics" target="_blank">oimo physics a10 dev</a>
+		</div>
+		<div id="cursor" class="unselectable">
+			<img id="cursorUp" class="unselectable" src="images/cursor0.png">
+			<img id="cursorDown" class="unselectable" src="images/cursor01.png">
+		</div>
+
+		<div id="menu" class="unselectable">
+			<button type="button" onclick="resetDemo()" id="bcontrol">RESET</button>
+			<button type="button" onclick="moveView()" id="bview">VIEW</button>
+		</div>
+		<script type="text/javascript"> joo = { debug: false }; </script>
+		<script type="text/javascript" src="js/joo/jangaroo-application.js"></script>
+
+		<script type="text/javascript" src="js/three.min.js"></script>
+		<script type="text/javascript" src="js/Mirror.js"></script>
+		<script type="text/javascript" src="js/tweenLite.min.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3D.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DLoader.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DDeflate.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DLZMA.js"></script>
+		<script type="text/javascript" src="js/loth/OimoEngine.js"></script>
+		<script type="text/javascript" src="js/loth/ViewBasic.js"></script>
+		<script type="text/javascript">
+		    //joo;
+		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		    var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
+
+		    var currentView = 0;
+		    var playerSelect = 1;
+		    var maxcube = 300;
+		    var sizecube = 50;
+
+		    function init() {
+		    	initOimoEngine({joo:joo, end:initComplete});
+            }
+
+            function initComplete() {
+			    initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
+			    startOimoTest(100 , 2);
+            }
+
+		    function resetDemo() {
+		    	clearContent();
+		    	clearOimoTest();
+		    	startOimoTest();
+			}
+
+			function moveView() {
+				var n = currentView;
+				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
+
+				document.getElementById("bview").innerHTML = "VIEW " + n;
+
+				currentView++;
+				if(currentView == vSet.length)currentView = 0;
+			}
+
+			function transBody() {
+
+			    var max = bodys.length;
+			    var body, mesh, r, p, sleep, mtx;//, i=0;
+			    for ( var i = 0; i < max; ++i ) {
+			    	body = bodys[i];
+			    //var body = world.rigidBodies;
+				//while (body != null) {
+					if (body.type == 0x1) {
+				    	if( content.children[i] ){
+				    		mesh = content.children[i];
+				    		r = body.rotation;
+				    		p = body.position;
+				    		sleep = body.sleeping;
+
+				    		mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, p.x*100, r.e10, r.e11, r.e12, p.y*100, r.e20, r.e21, r.e22, p.z*100, 0, 0, 0, 1);
+					        mesh.position.getPositionFromMatrix( mtx );
+					    	mesh.rotation.setFromRotationMatrix( mtx );
+
+					    	//material
+					    	if(sleep){
+					    		if(mesh.material.name == "mat01"){ mesh.material = mat01sleep;}
+					    		if(mesh.material.name == "mat02"){ mesh.material = mat02sleep;}
+					    	} else {
+					    		if(mesh.material.name == "mat01sleep") mesh.material = mat01;
+					    		if(mesh.material.name == "mat02sleep") mesh.material = mat02;
+					    	}
+				    	} else { // create object
+				    		if( body.shapes.type == 1) addSphere();
+				    		if( body.shapes.type == 2) addCube();
+				    	}
+				    }
+				    
+				    //body = body.next;
+				    //i++;
+				}
+
+			}
+
+		    window.onload = init;
+		</script>
+	</body>
+</html>
