@@ -17,3 +17,8 @@ loth
 V1 : [http://lo-th.github.io/loth/diana/index.html](http://lo-th.github.io/loth/diana/index.html)
 
 V2 : [http://lo-th.github.io/loth/diana/index2.html](http://lo-th.github.io/loth/diana/index2.html)
+
+
+4/ Oimo.js engine on Three.js
+
+[http://lo-th.github.io/loth/oimo.js/index.html](http://lo-th.github.io/loth/oimo.js/index.html)
