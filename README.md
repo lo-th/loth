@@ -22,3 +22,7 @@ V2 : [http://lo-th.github.io/loth/diana/index2.html](http://lo-th.github.io/loth
 4/ Oimo.js engine on Three.js
 
 [http://lo-th.github.io/loth/oimo.js/index.html](http://lo-th.github.io/loth/oimo.js/index.html)
+
+[oimo dev worker test](http://lo-th.github.io/loth/oimo.js/index_dev.html)
+
+[oimo rev worker test](http://lo-th.github.io/loth/oimo.js/index_rev.html)

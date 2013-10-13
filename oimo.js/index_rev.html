@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>OimoEngine labs</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+	</head>
+	<body>
+		<div id="container" class="unselectable"></div>
+		<div id="myFlash" class="unselectable"></div>
+		<div id="titre" class="unselectable">OimoEngine labs</div>
+		<div id="fps" class="unselectable"></div>
+		<div id="info" class="unselectable">
+			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
+			- <a href="http://threejs.org" target="_blank">three.js 61</a>
+			- <a href="https://code.google.com/p/sea3d/" target="_blank">sea3d 1.6.0.2</a>
+			- <a href="https://github.com/saharan/OimoPhysics" target="_blank">oimo physics a10 dev</a>
+		</div>
+		<div id="cursor" class="unselectable">
+			<img id="cursorUp" class="unselectable" src="images/cursor0.png">
+			<img id="cursorDown" class="unselectable" src="images/cursor01.png">
+		</div>
+
+		<div id="menu" class="unselectable">
+			<button type="button" onclick="resetDemo()" id="bcontrol">RESET</button>
+			<button type="button" onclick="moveView()" id="bview">VIEW</button>
+		</div>
+		<script type="text/javascript" src="js/three.min.js"></script>
+		<script type="text/javascript" src="js/Mirror.js"></script>
+		<script type="text/javascript" src="js/tweenLite.min.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3D.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DLoader.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DDeflate.js"></script>
+		<script type="text/javascript" src="js/loaders/sea3d/SEA3DLZMA.js"></script>
+		<script type="text/javascript" src="js/loth/ViewBasic.js"></script>
+		<script type="text/javascript">
+		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
+		    var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
+
+		    var currentView = 0;
+		    var playerSelect = 1;
+		    var maxcube = 300;
+		    var sizecube = 50;
+
+		    var OimoWorker;
+		    var dt = 1/60;
+            var N = 1000;
+            var matrix = new Float32Array(N*12);
+           // var position = new Float32Array(N*12);
+           // var rotation = new Float64Array(N*12);
+            //var matrix = new Float64Array(N*12);
+           // var matrix = new ArrayBuffer(N*12);
+            var sendTime; // Time when we sent last message
+            var SUPPORT_TRANSFERABLE = false;
+
+		    function init() {
+            	// init three.js engine
+            	initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
+
+            	for(var i = 0; i!==N; i++){
+            		//addCube();
+            		addCylinder();
+            	}
+
+            	var _output = document.getElementById("info");
+
+        	    OimoWorker = new Worker('worker_oimo_rev.js');
+        	    OimoWorker.postMessage = OimoWorker.webkitPostMessage || OimoWorker.postMessage;
+
+        	    /*var ab = new ArrayBuffer( 1 );
+        	    OimoWorker.postMessage( ab, [ab] );
+        	    SUPPORT_TRANSFERABLE = ( ab.byteLength === 0 );
+        	    */
+
+
+        	    OimoWorker.onmessage = function(e) {
+        	    	//matrix = e.data.matrix;
+        	    	if(e.data.matrix){
+        	    	matrix = e.data.matrix;
+        	    	// Get fresh data from the worker
+        	    	//if(e.data.matrix != null){
+        	    	//	matrix = e.data.matrix;
+
+            	    	var mtx;
+            	    	var mesh;
+
+            	    	// Update rendering meshes
+            	    	for(var i=0; i!==N; i++){
+            	    		mesh = content.children[i];
+            	    		mtx = new THREE.Matrix4(matrix[12*i+0], matrix[12*i+1], matrix[12*i+2], matrix[12*i+3], 
+            	    			                    matrix[12*i+4], matrix[12*i+5], matrix[12*i+6], matrix[12*i+7], 
+            	    			                    matrix[12*i+8], matrix[12*i+9], matrix[12*i+10], matrix[12*i+11],
+            	    			                    0, 0, 0, 1);
+					        mesh.position.getPositionFromMatrix( mtx );
+					    	mesh.rotation.setFromRotationMatrix( mtx );
+			            }
+		            }
+
+        	   	    
+        	   	    var delay = dt * 1000 - (Date.now()-sendTime);
+        	   	    if(delay < 0)  delay = 0;
+        	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;
+        	   	    setTimeout(sendDataToWorker, delay);
+        	    }
+
+        	    sendDataToWorker();
+                
+
+            }
+
+            function sendDataToWorker(){
+	            sendTime = Date.now();
+	            //
+	            if(SUPPORT_TRANSFERABLE)
+	                OimoWorker.postMessage({tell:"Yooo", matrix: matrix }, [matrix.buffer]);
+	            else 
+	        	    OimoWorker.postMessage({tell:"Yooo", matrix: matrix });
+
+
+	           /* OimoWorker.postMessage({w:'yoooch'}){
+	                N : N,
+	                dt : dt,
+	                cannonUrl : document.location.href.replace(/\/[^/]*$/,"/") + "../build/cannon.js",
+	                positions : positions,
+	                quaternions : quaternions
+	            },[positions.buffer, quaternions.buffer]);*/
+	        }
+
+		    function resetDemo() {
+		    	/*clearContent();
+		    	clearOimoTest();
+		    	startOimoTest();*/
+			}
+
+			function moveView() {
+				var n = currentView;
+				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
+
+				document.getElementById("bview").innerHTML = "VIEW " + n;
+
+				currentView++;
+				if(currentView == vSet.length)currentView = 0;
+			}
+
+		    window.onload = init;
+		</script>
+	</body>
+</html>
