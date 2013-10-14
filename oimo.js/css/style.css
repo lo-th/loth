@@ -26,6 +26,15 @@ body {
 	left: calc(50% - 512px);
 	text-align: left;
 }
+#debug {
+	position: absolute;
+	top: 50px;
+	width: 300px;
+	height: 400px;
+	left: calc(50% - 512px);
+	margin-left: 10px;
+	text-align: left;
+}
 #fps {
 	position: absolute;
 	text-align: right;

@@ -9,8 +9,9 @@
 	<body>
 		<div id="container" class="unselectable"></div>
 		<div id="myFlash" class="unselectable"></div>
-		<div id="titre" class="unselectable">OimoEngine labs</div>
+		<div id="titre" class="unselectable">Oimo.js labs rev</div>
 		<div id="fps" class="unselectable"></div>
+		<div id="debug" class="unselectable"></div>
 		<div id="info" class="unselectable">
 			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
 			- <a href="http://threejs.org" target="_blank">three.js 61</a>
@@ -45,7 +46,7 @@
 		    var OimoWorker;
 		    var dt = 1/60;
             var N = 200;
-            var matrix = new Float32Array(N*14);
+            var matrix = [];//new Float32Array(N*14);
             var sendTime; // Time when we sent last message
             var SUPPORT_TRANSFERABLE = false;
 
@@ -58,7 +59,7 @@
             		addCylinder();
             	}*/
 
-            	var _output = document.getElementById("info");
+            	var _output = document.getElementById("debug");
 
         	    OimoWorker = new Worker('worker_oimo_rev.js');
         	    OimoWorker.postMessage = OimoWorker.webkitPostMessage || OimoWorker.postMessage;
@@ -108,7 +109,7 @@
 			            }
 		            }
 
-        	   	    var delay = dt * 1000 - (Date.now()-sendTime);
+        	   	    var delay = Math.floor(dt * 1000 - (Date.now()-sendTime));
         	   	    if(delay < 0)  delay = 0;
         	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;
         	   	    setTimeout(sendDataToWorker, delay);
