@@ -27,25 +27,24 @@ this.onmessage = function (e) {
                 p = body.position;
                 // sleep = body.sleeping;
                 // type = body.shapes.type;
-                //mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, p.x*100, r.e10, r.e11, r.e12, p.y*100, r.e20, r.e21, r.e22, p.z*100, 0, 0, 0, 1);
-                            
+
                 matrix[12*i + 0] = r.e00;
                 matrix[12*i + 1] = r.e01;
                 matrix[12*i + 2] = r.e02;
-                matrix[12*i + 3] = p.x * 100;
+                matrix[12*i + 3] = Math.floor(p.x * 100);
 
                 matrix[12*i + 4] = r.e10;
                 matrix[12*i + 5] = r.e11;
                 matrix[12*i + 6] = r.e12;
-                matrix[12*i + 7] = p.y * 100;
+                matrix[12*i + 7] = Math.floor(p.y * 100);
 
                 matrix[12*i + 8] = r.e20;
                 matrix[12*i + 9] = r.e21;
                 matrix[12*i + 10] = r.e22;
-                matrix[12*i + 11] = p.z * 100;
+                matrix[12*i + 11] = Math.floor(p.z * 100);
            // }
         }
-        this.postMessage({tell:"working", matrix:matrix })//, [matrix.buffer])
+        this.postMessage({tell:"RUN", matrix:matrix })//, [matrix.buffer])
     } else{
         initClass();
     }
@@ -160,7 +159,7 @@ function startOimoTest(n, t){
    
 
    // this.postMessage({ matrix:matrix }, [matrix.buffer])
- this.postMessage({tell:"world Init", matrix:null })//, [matrix.buffer])
+ this.postMessage({tell:"INIT", matrix:null })//, [matrix.buffer])
    // this.postMessage("world initialised !!");
 }
 

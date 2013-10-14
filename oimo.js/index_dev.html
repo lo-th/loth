@@ -83,9 +83,10 @@
 			            }
 		            }
 
-        	   	    _output.innerHTML = e.data.tell;// + matrix[0];
+        	   	    
         	   	    var delay = dt * 1000 - (Date.now()-sendTime);
         	   	    if(delay < 0)  delay = 0;
+        	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;
         	   	    setTimeout(sendDataToWorker, delay);
         	    }
 
@@ -98,28 +99,15 @@
 	            sendTime = Date.now();
 	            OimoWorker.postMessage({ matrix: matrix })//, [matrix.buffer]);
 
-
-	           /* OimoWorker.postMessage({w:'yoooch'}){
-	                N : N,
-	                dt : dt,
-	                cannonUrl : document.location.href.replace(/\/[^/]*$/,"/") + "../build/cannon.js",
-	                positions : positions,
-	                quaternions : quaternions
-	            },[positions.buffer, quaternions.buffer]);*/
 	        }
 
 		    function resetDemo() {
-		    	/*clearContent();
-		    	clearOimoTest();
-		    	startOimoTest();*/
 			}
 
 			function moveView() {
 				var n = currentView;
 				onThreeChangeView(vSet[n].h, vSet[n].v, vSet[n].d);
-
 				document.getElementById("bview").innerHTML = "VIEW " + n;
-
 				currentView++;
 				if(currentView == vSet.length)currentView = 0;
 			}

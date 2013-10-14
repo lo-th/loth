@@ -21,7 +21,6 @@
 			<img id="cursorUp" class="unselectable" src="images/cursor0.png">
 			<img id="cursorDown" class="unselectable" src="images/cursor01.png">
 		</div>
-
 		<div id="menu" class="unselectable">
 			<button type="button" onclick="resetDemo()" id="bcontrol">RESET</button>
 			<button type="button" onclick="moveView()" id="bview">VIEW</button>
@@ -47,10 +46,6 @@
 		    var dt = 1/60;
             var N = 1000;
             var matrix = new Float32Array(N*12);
-           // var position = new Float32Array(N*12);
-           // var rotation = new Float64Array(N*12);
-            //var matrix = new Float64Array(N*12);
-           // var matrix = new ArrayBuffer(N*12);
             var sendTime; // Time when we sent last message
             var SUPPORT_TRANSFERABLE = false;
 
@@ -77,11 +72,9 @@
         	    OimoWorker.onmessage = function(e) {
         	    	//matrix = e.data.matrix;
         	    	if(e.data.matrix){
-        	    	matrix = e.data.matrix;
-        	    	// Get fresh data from the worker
-        	    	//if(e.data.matrix != null){
-        	    	//	matrix = e.data.matrix;
-
+        	    	    // Get fresh data from the worker
+        	    	    matrix = e.data.matrix;
+        	    	
             	    	var mtx;
             	    	var mesh;
 
@@ -96,8 +89,7 @@
 					    	mesh.rotation.setFromRotationMatrix( mtx );
 			            }
 		            }
-
-        	   	    
+		            
         	   	    var delay = dt * 1000 - (Date.now()-sendTime);
         	   	    if(delay < 0)  delay = 0;
         	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;
@@ -116,15 +108,6 @@
 	                OimoWorker.postMessage({tell:"Yooo", matrix: matrix }, [matrix.buffer]);
 	            else 
 	        	    OimoWorker.postMessage({tell:"Yooo", matrix: matrix });
-
-
-	           /* OimoWorker.postMessage({w:'yoooch'}){
-	                N : N,
-	                dt : dt,
-	                cannonUrl : document.location.href.replace(/\/[^/]*$/,"/") + "../build/cannon.js",
-	                positions : positions,
-	                quaternions : quaternions
-	            },[positions.buffer, quaternions.buffer]);*/
 	        }
 
 		    function resetDemo() {
