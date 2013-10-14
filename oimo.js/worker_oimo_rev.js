@@ -7,6 +7,9 @@ var dt = 1/60;
 var world;
 var bodys;
 var matrix;
+var info = "info test";
+var fps=0, time, time_prev=0, fpstxt="";
+
 var SUPPORT_TRANSFERABLE = false;
 self.postMessage = self.webkitPostMessage || self.postMessage;
 
@@ -68,19 +71,38 @@ self.onmessage = function (e) {
             //body = body.next;
             //i++;
         }
+        info = "<br>";
+        info += "Rigidbody: "+world.numRigidBodies+"<br>";
+        info += "Shape: "+world.numShapes +"<br>";
+        info += "Contact: "+world.numContacts+"<br>";
+        info += "Island: " + world.numIslands +"<br><br>";
+
+        info += fpstxt;
        // this.postMessage({tell:"working", matrix:matrix });
         //self.postMessage({tell:"RUN", matrix:matrix }, [matrix.buffer]);
         //self.postMessage({tell:"RUN", Matrix:matrix }, [matrix]);
         if(SUPPORT_TRANSFERABLE)
-            self.postMessage({tell:"T-RUN", matrix:matrix }, [matrix.buffer]);
+            self.postMessage({tell:"T-RUN", info:info, matrix:matrix }, [matrix.buffer]);
         else 
-            self.postMessage({tell:"RUN", matrix:matrix });
+            self.postMessage({tell:"RUN", info:info, matrix:matrix });
 
     } else{
         initClass();
     }
 
+    fpsUpdate();
 
+
+}
+
+function fpsUpdate() {
+    time = Date.now();
+    if (time - 1000 > time_prev) {
+        time_prev = time;
+        fpstxt ="Fps: " + fps +"<br>";
+        fps = 0;
+    } 
+    fps++;
 }
 
 function initClass(){

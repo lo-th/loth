@@ -8,8 +8,11 @@ var world;
 var bodys;
 var N = 100;
 var dt = 1/60;
+var info = "info test";
+var fps=0, time, time_prev=0, fpstxt="";
 
 this.onmessage = function (e) {
+
     if(e.data.N)N = e.data.N;
     if(e.data.dt)dt = e.data.dt;
   //  var matrix = e.data.matrix;
@@ -58,13 +61,34 @@ this.onmessage = function (e) {
             body = body.next;
             i++;
         }
+        info = "<br>";
+        info += "Rigidbody: "+world.numRigidBodies+"<br>";
+        info += "Contact: "+world.numContacts+"<br>";
+        info += "Pair Check: "+world.broadPhase.numPairChecks+"<br>";
+        info += "Contact Point: "+world.numContactPoints+"<br>";
+        info += "Island: " + world.numIslands +"<br><br>";
+        info += fpstxt;
 
-        this.postMessage({tell:"RUN", matrix:matrix })//, [matrix.buffer])
+
+        this.postMessage({tell:"RUN", info: info, matrix:matrix })//, [matrix.buffer])
     } else{
         initClass();
     }
 
+    fpsUpdate();
 
+
+}
+
+
+function fpsUpdate() {
+    time = Date.now();
+    if (time - 1000 > time_prev) {
+        time_prev = time;
+        fpstxt ="Fps: " + fps +"<br>";
+        fps = 0;
+    } 
+    fps++;
 }
 
 function initClass(){

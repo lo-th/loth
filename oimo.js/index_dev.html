@@ -98,7 +98,7 @@
         	   	    
         	   	    var delay = Math.floor(dt * 1000 - (Date.now()-sendTime));
         	   	    if(delay < 0)  delay = 0;
-        	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;
+        	   	    _output.innerHTML = e.data.tell + " - delay: " + delay+"<br>"+e.data.info;
         	   	    setTimeout(sendDataToWorker, delay);
         	    }
 
