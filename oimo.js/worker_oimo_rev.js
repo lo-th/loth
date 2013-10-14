@@ -2,6 +2,8 @@
 //importScripts('js/oimo_rev/net.jangaroo.examples.hello-world.classes.js');
 importScripts('js/oimo/runtime_min.js');
 importScripts('js/oimo/oimo_min_rev.js');
+var N = 100;
+var dt = 1/60;
 var world;
 var bodys;
 var matrix;
@@ -15,6 +17,8 @@ SUPPORT_TRANSFERABLE = ( ab.byteLength === 0 );
 
 
 self.onmessage = function (e) {
+    if(e.data.N)N = e.data.N;
+    if(e.data.dt)dt = e.data.dt;
    // matrix = e.data.matrix;
     matrix = e.data.matrix;
     if(world != null){
@@ -22,34 +26,47 @@ self.onmessage = function (e) {
        // this.postMessage("world run !! " + bodys[0].position.y);
 
         var max = bodys.length;
-        var body, r, p, sleep, mtx;
+        var body;
+        var r, p, sleep, t;
+        //var i=0;
 
         // Copy over the data to the buffers
        // var matrix = e.data.matrix;
 
-        for ( var i = 0; i !== 200 ; ++i ) {
+        for ( var i = 0; i !== max ; ++i ) {
+       // var body = world.rigidBodies;
+        //while (body != null) {
+
             body = bodys[i];
             //if (body.type == 0x0) {
                 r = body.rotation;
                 p = body.position;
-                // sleep = body.sleeping;
-                // type = body.shapes.type;
+                if(body.sleeping) sleep = 1;
+                else sleep = 0;
+                if(body.shapes[0].type) 
+                    t = body.shapes[0].type;
+               // else t = 0;
 
-                matrix[12*i + 0] = r.e00;
-                matrix[12*i + 1] = r.e01;
-                matrix[12*i + 2] = r.e02;
-                matrix[12*i + 3] = Math.floor(p.x * 100);
+                matrix[14*i + 0] = r.e00;
+                matrix[14*i + 1] = r.e01;
+                matrix[14*i + 2] = r.e02;
+                matrix[14*i + 3] = p.x * 100;
 
-                matrix[12*i + 4] = r.e10;
-                matrix[12*i + 5] = r.e11;
-                matrix[12*i + 6] = r.e12;
-                matrix[12*i + 7] = Math.floor(p.y * 100);
+                matrix[14*i + 4] = r.e10;
+                matrix[14*i + 5] = r.e11;
+                matrix[14*i + 6] = r.e12;
+                matrix[14*i + 7] = p.y * 100;
 
-                matrix[12*i + 8] = r.e20;
-                matrix[12*i + 9] = r.e21;
-                matrix[12*i + 10] = r.e22;
-                matrix[12*i + 11] = Math.floor(p.z * 100);
-           // }
+                matrix[14*i + 8] = r.e20;
+                matrix[14*i + 9] = r.e21;
+                matrix[14*i + 10] = r.e22;
+                matrix[14*i + 11] = p.z * 100;
+
+                matrix[14*i + 12] = sleep;
+                matrix[14*i + 13] = t;//stypes[i];
+            //}
+            //body = body.next;
+            //i++;
         }
        // this.postMessage({tell:"working", matrix:matrix });
         //self.postMessage({tell:"RUN", matrix:matrix }, [matrix.buffer]);
@@ -100,7 +117,7 @@ function initClass(){
 function initWorld(){
     world = new World();
     world.numIterations = 8;
-    world.timeStep = 1/60;
+    world.timeStep = dt;
     world.gravity = new Vec3(0, -10, 0);
     startOimoTest();
 }
@@ -111,13 +128,13 @@ function clearWorld(){
 }
 
 function startOimoTest(n, t){
-    if(n == null) n=200;
-    if(t == null) t=3;
+    if(n == null) n=N;
+    if(t == null) t=0;
 
     var sc = new ShapeConfig();
-    sc.density = 1;
-    sc.friction = 0.4;
-    sc.restitution = 0.2;
+    sc.density = 10;
+    sc.friction = 0.5;
+    sc.restitution = 0.5;
 
     // ground
     var gbody = new RigidBody(0, 0, 0, 0);
@@ -161,12 +178,15 @@ function startOimoTest(n, t){
     wbody.setupMass(0x1);
     world.addRigidBody(wbody);
 
+    sc.density = 1;
+
     bodys = [];
+   // stypes = [];
 
     // add dynamique object
     var body, px, pz, type;
     for (var i=0; i!==n; ++i ){
-        if(t==0)type = Math.floor(Math.random()*2)+1;
+        if(t==0)type = Math.floor(Math.random()*3)+1;
         else type = t;
         px = -1+Math.random()*2;
         pz = -1+Math.random()*2;
@@ -184,7 +204,7 @@ function startOimoTest(n, t){
             shape = new CylinderShape( 0.25, 0.5, sc);
             body.addShape(shape);
             body.setupMass(0x0);
-        } else { // box
+        } else if(type==2) { // box
             body = new RigidBody( 0, 0, 0, 0);
             sc.position.init(px, 100+i, pz);
             sc.rotation.init();
@@ -194,6 +214,7 @@ function startOimoTest(n, t){
         }
         world.addRigidBody(body);
         bodys[i] = body;
+        //stypes[i] = type;
     }
 
     if(SUPPORT_TRANSFERABLE)

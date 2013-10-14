@@ -6,44 +6,59 @@ importScripts('js/oimo/runtime_min.js');
 importScripts('js/oimo/oimo_min_dev.js');
 var world;
 var bodys;
-
+var N = 100;
+var dt = 1/60;
 
 this.onmessage = function (e) {
+    if(e.data.N)N = e.data.N;
+    if(e.data.dt)dt = e.data.dt;
   //  var matrix = e.data.matrix;
     if(world != null){
         world.step();
        // this.postMessage("world run !! " + bodys[0].position.y);
 
-        var max = bodys.length;
-        var body, r, p, sleep, mtx;
+        //var max = bodys.length;
+        //var body, 
+        var r, p, sleep, t;
+        var i=0;
 
         // Copy over the data to the buffers
         var matrix = e.data.matrix;
 
-        for ( var i = 0; i !== 200 ; ++i ) {
-            body = bodys[i];
-            //if (body.type == 0x1) {
+        //for ( var i = 0; i !== max ; ++i ) {
+        var body = world.rigidBodies;
+        while (body != null) {
+            //body = bodys[i];
+            if (body.type == 0x1) {
                 r = body.rotation;
                 p = body.position;
-                // sleep = body.sleeping;
-                // type = body.shapes.type;
+                if(body.sleeping) sleep = 1;
+                else sleep = 0;
+                if(body.shapes.type) t = body.shapes.type;
+                else t = 0;
 
-                matrix[12*i + 0] = r.e00;
-                matrix[12*i + 1] = r.e01;
-                matrix[12*i + 2] = r.e02;
-                matrix[12*i + 3] = Math.floor(p.x * 100);
+                matrix[14*i + 0] = r.e00;
+                matrix[14*i + 1] = r.e01;
+                matrix[14*i + 2] = r.e02;
+                matrix[14*i + 3] = p.x * 100;
 
-                matrix[12*i + 4] = r.e10;
-                matrix[12*i + 5] = r.e11;
-                matrix[12*i + 6] = r.e12;
-                matrix[12*i + 7] = Math.floor(p.y * 100);
+                matrix[14*i + 4] = r.e10;
+                matrix[14*i + 5] = r.e11;
+                matrix[14*i + 6] = r.e12;
+                matrix[14*i + 7] = p.y * 100;
 
-                matrix[12*i + 8] = r.e20;
-                matrix[12*i + 9] = r.e21;
-                matrix[12*i + 10] = r.e22;
-                matrix[12*i + 11] = Math.floor(p.z * 100);
-           // }
+                matrix[14*i + 8] = r.e20;
+                matrix[14*i + 9] = r.e21;
+                matrix[14*i + 10] = r.e22;
+                matrix[14*i + 11] = p.z * 100;
+
+                matrix[14*i + 12] = sleep;
+                matrix[14*i + 13] = t;
+            }
+            body = body.next;
+            i++;
         }
+
         this.postMessage({tell:"RUN", matrix:matrix })//, [matrix.buffer])
     } else{
         initClass();
@@ -81,7 +96,7 @@ function initClass(){
 function initWorld(){
     world = new World();
     world.numIterations = 8;
-    world.timeStep = 1/60;
+    world.timeStep = dt;
     world.gravity = new Vec3(0, -10, 0);
     startOimoTest();
 }
@@ -92,8 +107,8 @@ function clearWorld(){
 }
 
 function startOimoTest(n, t){
-    if(n == null) n=200;
-    if(t == null) t=2;
+    if(n == null) n=N;
+    if(t == null) t=0;
 
     var sc = new ShapeConfig();
     sc.density = 1;

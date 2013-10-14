@@ -45,7 +45,7 @@
 		    var OimoWorker;
 		    var dt = 1/60;
             var N = 200;
-            var matrix = new Float32Array(N*12);
+            var matrix = new Float32Array(N*14);
             var sendTime; // Time when we sent last message
             var SUPPORT_TRANSFERABLE = false;
 
@@ -53,10 +53,10 @@
             	// init three.js engine
             	initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
 
-            	for(var i = 0; i!==N; i++){
+            	/*for(var i = 0; i!==N; i++){
             		//addCube();
             		addCylinder();
-            	}
+            	}*/
 
             	var _output = document.getElementById("info");
 
@@ -77,16 +77,34 @@
         	    	
             	    	var mtx;
             	    	var mesh;
+            	    	var type;
 
             	    	// Update rendering meshes
             	    	for(var i=0; i!==N; i++){
-            	    		mesh = content.children[i];
-            	    		mtx = new THREE.Matrix4(matrix[12*i+0], matrix[12*i+1], matrix[12*i+2], matrix[12*i+3], 
-            	    			                    matrix[12*i+4], matrix[12*i+5], matrix[12*i+6], matrix[12*i+7], 
-            	    			                    matrix[12*i+8], matrix[12*i+9], matrix[12*i+10], matrix[12*i+11],
-            	    			                    0, 0, 0, 1);
-					        mesh.position.getPositionFromMatrix( mtx );
-					    	mesh.rotation.setFromRotationMatrix( mtx );
+            	    		if( content.children[i] ){
+	            	    		mesh = content.children[i];
+	            	    		mtx = new THREE.Matrix4(matrix[14*i+0], matrix[14*i+1], matrix[14*i+2], matrix[14*i+3], 
+	            	    			                    matrix[14*i+4], matrix[14*i+5], matrix[14*i+6], matrix[14*i+7], 
+	            	    			                    matrix[14*i+8], matrix[14*i+9], matrix[14*i+10], matrix[14*i+11],
+	            	    			                    0, 0, 0, 1);
+						        mesh.position.getPositionFromMatrix( mtx );
+						    	mesh.rotation.setFromRotationMatrix( mtx );
+						    	// material sleep
+						    	if(matrix[14*i+12] == 1){
+						    		if(mesh.material.name == "mat01"){ mesh.material = mat01sleep;}
+						    		if(mesh.material.name == "mat02"){ mesh.material = mat02sleep;}
+						    		if(mesh.material.name == "mat03"){ mesh.material = mat03sleep;}
+						    	} else {
+						    		if(mesh.material.name == "mat01sleep") mesh.material = mat01;
+						    		if(mesh.material.name == "mat02sleep") mesh.material = mat02;
+						    		if(mesh.material.name == "mat03sleep") mesh.material = mat03;
+						    	}
+					        } else {  // create mesh
+					        	type = matrix[14*i+13];
+					        	if(type == 0x1) addSphere();
+					        	if(type == 0x2) addCube();
+					        	if(type == 0x3) addCylinder();
+					        }
 			            }
 		            }
 
@@ -105,9 +123,9 @@
 	            sendTime = Date.now();
 	            //
 	            if(SUPPORT_TRANSFERABLE)
-	                OimoWorker.postMessage({tell:"Yooo", matrix: matrix }, [matrix.buffer]);
+	                OimoWorker.postMessage({N:N, dt:dt, matrix: matrix }, [matrix.buffer]);
 	            else 
-	        	    OimoWorker.postMessage({tell:"Yooo", matrix: matrix });
+	        	    OimoWorker.postMessage({N:N, dt:dt, matrix: matrix });
 	        }
 
 		    function resetDemo() {
