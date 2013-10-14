@@ -44,7 +44,7 @@
 
 		    var OimoWorker;
 		    var dt = 1/60;
-            var N = 1000;
+            var N = 200;
             var matrix = new Float32Array(N*12);
             var sendTime; // Time when we sent last message
             var SUPPORT_TRANSFERABLE = false;
@@ -89,7 +89,7 @@
 					    	mesh.rotation.setFromRotationMatrix( mtx );
 			            }
 		            }
-		            
+
         	   	    var delay = dt * 1000 - (Date.now()-sendTime);
         	   	    if(delay < 0)  delay = 0;
         	   	    _output.innerHTML = e.data.tell + " - delay: " + delay;

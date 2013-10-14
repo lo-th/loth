@@ -20,7 +20,7 @@ this.onmessage = function (e) {
         // Copy over the data to the buffers
         var matrix = e.data.matrix;
 
-        for ( var i = 0; i < 1000 ; ++i ) {
+        for ( var i = 0; i !== 200 ; ++i ) {
             body = bodys[i];
             //if (body.type == 0x1) {
                 r = body.rotation;
@@ -92,7 +92,7 @@ function clearWorld(){
 }
 
 function startOimoTest(n, t){
-    if(n == null) n=1000;
+    if(n == null) n=200;
     if(t == null) t=2;
 
     var sc = new ShapeConfig();
