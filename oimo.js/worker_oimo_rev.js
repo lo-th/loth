@@ -1,9 +1,9 @@
-
-//importScripts('js/oimo_rev/net.jangaroo.examples.hello-world.classes.js');
 importScripts('js/oimo/runtime_min.js');
+//importScripts('js/oimo/oimo_rev.js');
 importScripts('js/oimo/oimo_rev_min.js');
-var N = 100;
+var N = 200;
 var dt = 1/60;
+var iterations = 8;
 var world;
 var bodys;
 var matrix;
@@ -18,14 +18,14 @@ self.postMessage( ab, [ab] );
 SUPPORT_TRANSFERABLE = ( ab.byteLength === 0 );
 */
 
-
 self.onmessage = function (e) {
     if(e.data.N)N = e.data.N;
     if(e.data.dt)dt = e.data.dt;
+    if(e.data.iterations)iterations = e.data.iterations;
    // matrix = e.data.matrix;
     matrix = e.data.matrix;
     if(world != null){
-        world.step();
+        //world.step();
        // this.postMessage("world run !! " + bodys[0].position.y);
 
         var max = bodys.length;
@@ -42,40 +42,48 @@ self.onmessage = function (e) {
 
             body = bodys[i];
             //if (body.type == 0x0) {
-                r = body.rotation;
-                p = body.position;
-                if(body.sleeping) sleep = 1;
-                else sleep = 0;
-                if(body.shapes[0].type) 
-                    t = body.shapes[0].type;
-               // else t = 0;
+            r = body.rotation;
+            p = body.position;
+            if(body.sleeping) sleep = 1;
+            else sleep = 0;
+            if(body.shapes[0].type) 
+                t = body.shapes[0].type;
+            else t = 0;
 
-                matrix[14*i + 0] = r.e00;
-                matrix[14*i + 1] = r.e01;
-                matrix[14*i + 2] = r.e02;
-                matrix[14*i + 3] = p.x * 100;
+            matrix[14*i + 0] = r.e00;
+            matrix[14*i + 1] = r.e01;
+            matrix[14*i + 2] = r.e02;
+            matrix[14*i + 3] = p.x * 100;
 
-                matrix[14*i + 4] = r.e10;
-                matrix[14*i + 5] = r.e11;
-                matrix[14*i + 6] = r.e12;
-                matrix[14*i + 7] = p.y * 100;
+            matrix[14*i + 4] = r.e10;
+            matrix[14*i + 5] = r.e11;
+            matrix[14*i + 6] = r.e12;
+            matrix[14*i + 7] = p.y * 100;
 
-                matrix[14*i + 8] = r.e20;
-                matrix[14*i + 9] = r.e21;
-                matrix[14*i + 10] = r.e22;
-                matrix[14*i + 11] = p.z * 100;
+            matrix[14*i + 8] = r.e20;
+            matrix[14*i + 9] = r.e21;
+            matrix[14*i + 10] = r.e22;
+            matrix[14*i + 11] = p.z * 100;
 
-                matrix[14*i + 12] = sleep;
-                matrix[14*i + 13] = t;//stypes[i];
+            matrix[14*i + 12] = sleep;
+            matrix[14*i + 13] = t;
             //}
             //body = body.next;
             //i++;
         }
+
+        world.step();
         info = "<br>";
         info += "Rigidbody: "+world.numRigidBodies+"<br>";
         info += "Shape: "+world.numShapes +"<br>";
         info += "Contact: "+world.numContacts+"<br>";
         info += "Island: " + world.numIslands +"<br><br>";
+
+        info += "Broad Phase Time: " + world.performance.broadPhaseTime + "ms<br>";
+        info += "Narrow Phase Time: " + world.performance.narrowPhaseTime + "ms<br>";
+        info += "Solving Time: " + world.performance.solvingTime + "ms<br>";
+        info += "Updating Time: " + world.performance.updatingTime + "ms<br>";
+        info += "Total Time: " + world.performance.totalTime + "ms<br>";
 
         info += fpstxt;
        // this.postMessage({tell:"working", matrix:matrix });
@@ -111,6 +119,8 @@ function initClass(){
         complete(function(imports){with(imports){
             World = com.element.oimo.physics.dynamics.World;
             RigidBody = com.element.oimo.physics.dynamics.RigidBody;
+            BruteForceBroadPhase = com.element.oimo.physics.collision.broad.BruteForceBroadPhase;
+            SweepAndPruneBroadPhase = com.element.oimo.physics.collision.broad.SweepAndPruneBroadPhase;
             // Shape
             Shape = com.element.oimo.physics.collision.shape.Shape;
             ShapeConfig = com.element.oimo.physics.collision.shape.ShapeConfig;
@@ -138,7 +148,9 @@ function initClass(){
 
 function initWorld(){
     world = new World();
-    world.numIterations = 8;
+    //world.broadPhase = new BruteForceBroadPhase();
+    //world.broadPhase = new SweepAndPruneBroadPhase(); // default 
+    world.numIterations = iterations;
     world.timeStep = dt;
     world.gravity = new Vec3(0, -10, 0);
     startOimoTest();

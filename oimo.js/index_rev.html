@@ -40,12 +40,13 @@
 
 		    var currentView = 0;
 		    var playerSelect = 1;
-		    var maxcube = 300;
 		    var sizecube = 50;
 
 		    var OimoWorker;
 		    var dt = 1/60;
-            var N = 200;
+		    
+		    var iterations = 8;
+            var N = 100;
             var matrix = [];//new Float32Array(N*14);
             var sendTime; // Time when we sent last message
             var SUPPORT_TRANSFERABLE = false;
@@ -124,9 +125,9 @@
 	            sendTime = Date.now();
 	            //
 	            if(SUPPORT_TRANSFERABLE)
-	                OimoWorker.postMessage({N:N, dt:dt, matrix: matrix }, [matrix.buffer]);
+	                OimoWorker.postMessage({N:N, dt:dt, iterations:iterations, matrix: matrix }, [matrix.buffer]);
 	            else 
-	        	    OimoWorker.postMessage({N:N, dt:dt, matrix: matrix });
+	        	    OimoWorker.postMessage({N:N, dt:dt, iterations:iterations, matrix: matrix });
 	        }
 
 		    function resetDemo() {
