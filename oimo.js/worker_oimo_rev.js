@@ -1,7 +1,7 @@
 
 //importScripts('js/oimo_rev/net.jangaroo.examples.hello-world.classes.js');
 importScripts('js/oimo/runtime_min.js');
-importScripts('js/oimo/oimo_min_rev.js');
+importScripts('js/oimo/oimo_rev_min.js');
 var N = 100;
 var dt = 1/60;
 var world;

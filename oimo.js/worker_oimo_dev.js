@@ -3,7 +3,7 @@
 //importScripts('js/joo/runtime_min.js');
 //importScripts('js/joo/oimo_min.js');
 importScripts('js/oimo/runtime_min.js');
-importScripts('js/oimo/oimo_min_dev.js');
+importScripts('js/oimo/oimo_dev_min.js');
 var world;
 var bodys;
 var N = 100;
