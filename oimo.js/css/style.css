@@ -18,6 +18,7 @@ body {
 	width: 1024px;
 	left: calc(50% - 512px);
 	text-align: left;
+	 pointer-events: none
 }
 #info {
 	position: absolute;
@@ -34,6 +35,7 @@ body {
 	left: calc(50% - 512px);
 	margin-left: 10px;
 	text-align: left;
+	pointer-events: none
 }
 #fps {
 	position: absolute;
@@ -86,7 +88,7 @@ button {
     cursor: pointer;
     background-color: #000;
 }
-a { color: #505050; text-decoration:none}
+a { color: #505050; text-decoration:none; cursor: pointer;}
 a:visited { color: #505050; text-decoration:none}
 .unselectable{
     -moz-user-select: none;
@@ -94,4 +96,5 @@ a:visited { color: #505050; text-decoration:none}
     -khtml-user-select: none;
     -webkit-user-select: none;
     -o-user-select: none;
+
 }

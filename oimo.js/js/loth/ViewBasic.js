@@ -595,7 +595,7 @@ function fullResize(n){
 	var div;
 	for(var i=0; i< divListe.length; ++i){
 		div = document.getElementById( divListe[i] );
-		div.style.width = w+"px";
+		if(i!=5)div.style.width = w+"px";
 		div.style.left = "calc(50% - "+mw+"px)";
 		if(i==0)div.style.height = h+"px";
 		else if (i!==4 && i!==3 && i!==5)div.style.top = h+45+"px";

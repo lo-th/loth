@@ -1,6 +1,11 @@
 importScripts('js/oimo/runtime_min.js');
 //importScripts('js/oimo/oimo_dev.js');
 importScripts('js/oimo/oimo_dev_min.js');
+
+// main class
+var World, RigidBody, BroadPhase, Shape, ShapeConfig, BoxShape, SphereShape, JointConfig, HingeJoint, WheelJoint, DistanceJoint, Vec3, Quat;
+
+// physics variable
 var world;
 var bodys;
 var N = 100;
@@ -8,10 +13,11 @@ var dt = 1/60;
 var iterations = 8;
 var info = "info test";
 var fps=0, time, time_prev=0, fpstxt="";
+
+
 var matrix;
 var sleeps;
 var types;
-var max;
 var positions;
 
 this.onmessage = function (e) {
@@ -19,97 +25,62 @@ this.onmessage = function (e) {
     if(e.data.N)N = e.data.N;
     if(e.data.dt)dt = e.data.dt;
     if(e.data.iterations)iterations = e.data.iterations;
-  //  var matrix = e.data.matrix;
-    if(world != null){
-      //  world.timeStep = dt;
+
     //var matrix = e.data.matrix;
-         update();
-    /*   world.step();
-       // this.postMessage("world run !! " + bodys[0].position.y);
 
-        //var max = bodys.length;
-        //var body, 
-        var r, p, sleep, t;
-        var i=0;
-
-        // Copy over the data to the buffers
-        
-
-        //for ( var i = 0; i !== max ; ++i ) {
-        var body = world.rigidBodies;
-        while (body != null) {
-            //body = bodys[i];
-            if (body.type == 0x1) {
-                r = body.rotation;
-                p = body.position;
-                if(body.sleeping) sleep = 1;
-                else sleep = 0;
-                if(body.shapes.type) t = body.shapes.type;
-                else t = 0;
-
-                matrix[14*i + 0] = r.e00;
-                matrix[14*i + 1] = r.e01;
-                matrix[14*i + 2] = r.e02;
-                matrix[14*i + 3] = p.x * 100;
-
-                matrix[14*i + 4] = r.e10;
-                matrix[14*i + 5] = r.e11;
-                matrix[14*i + 6] = r.e12;
-                matrix[14*i + 7] = p.y * 100;
-
-                matrix[14*i + 8] = r.e20;
-                matrix[14*i + 9] = r.e21;
-                matrix[14*i + 10] = r.e22;
-                matrix[14*i + 11] = p.z * 100;
-
-                matrix[14*i + 12] = sleep;
-                matrix[14*i + 13] = t;
-            }
-            body = body.next;
-            i++;
-        }
-        info = "<br>";
-        info += "Rigidbody: "+world.numRigidBodies+"<br>";
-        info += "Contact: "+world.numContacts+"<br>";
-        info += "Pair Check: "+world.broadPhase.numPairChecks+"<br>";
-        info += "Contact Point: "+world.numContactPoints+"<br>";
-        info += "Island: " + world.numIslands +"<br><br>";
-        info += fpstxt;
-
-
-        this.postMessage({tell:"RUN", info: info, matrix:matrix })//, [matrix.buffer])*/
+    if(world != null){
+        updateType1();
     } else{
         initClass();
     }
-
-    //fpsUpdate();
 }
 
-function update() {
+function updateType1() {
     
-    var r, p, sleep, t;
-    //var i=0;
-
-    // Copy over the data to the buffers
-    //var matrix = [];//e.data.matrix;
+    var r, p, t;
+    var max = bodys.length;
 
     for ( var i = 0; i !== max ; ++i ) {
-    //var body = world.rigidBodies;
-    //while (body != null) {
-       // body = bodys[i];
-        //if (body.type == 0x1) {
             
-          if( bodys[i].sleeping) sleep = 1;
-          else sleep = 0;
-            /*if(body.shapes.type) t = body.shapes.type;
-            else t = 0;*/
+        if( bodys[i].sleeping) sleeps[i] = 1;
+        else sleeps[i] = 0;
 
-            r = bodys[i].rotation;
-            p = bodys[i].position;
+        r = bodys[i].rotation;
+        p = bodys[i].position;
 
-            /*positions[3*i +0] = (p.x * 100).toFixed(2);
-            positions[3*i +1] = (p.y * 100).toFixed(2);
-            positions[3*i +2] = (p.z * 100).toFixed(2);*/
+        matrix[12*i + 0] = r.e00;
+        matrix[12*i + 1] = r.e01;
+        matrix[12*i + 2] = r.e02;
+        matrix[12*i + 3] = Math.round(p.x * 100);
+
+        matrix[12*i + 4] = r.e10;
+        matrix[12*i + 5] = r.e11;
+        matrix[12*i + 6] = r.e12;
+        matrix[12*i + 7] = Math.round(p.y * 100);
+
+        matrix[12*i + 8] = r.e20;
+        matrix[12*i + 9] = r.e21;
+        matrix[12*i + 10] = r.e22;
+        matrix[12*i + 11] = Math.round(p.z * 100);
+    }
+
+    world.step();
+    fpsUpdate();
+    this.postMessage({tell:"RUN", info: worldInfo(), matrix:matrix, sleeps:sleeps  })
+}
+
+function updateType2() {
+    
+    var r, p, sleep, t, i=0;
+
+    var body = world.rigidBodies;
+    while (body != null) {
+        if (body.type == 0x1) {
+          if( body.sleeping) sleeps[i] = 1;
+          else sleeps[i] = 0;
+
+            r = body.rotation;
+            p = body.position;
 
             matrix[12*i + 0] = r.e00;
             matrix[12*i + 1] = r.e01;
@@ -125,19 +96,18 @@ function update() {
             matrix[12*i + 9] = r.e21;
             matrix[12*i + 10] = r.e22;
             matrix[12*i + 11] = Math.round(p.z * 100);
-            //matrix[14*i + 12] = sleep;
-            //matrix[14*i + 13] = t;*/
-            sleeps[i] = sleep;
         }
-        //body = body.next;
-       // i++;
-    //}
-world.step();
+        body = body.next;
+        i++;
+    }
 
-
+    world.step();
     fpsUpdate();
+    this.postMessage({tell:"RUN", info: worldInfo(), matrix:matrix, sleeps:sleeps  })
+}
 
-    info = "<br>";
+function worldInfo() {
+    info = "";
     info += "Rigidbody: "+world.numRigidBodies+"<br>";
     info += "Contact: "+world.numContacts+"<br>";
     info += "Pair Check: "+world.broadPhase.numPairChecks+"<br>";
@@ -150,10 +120,7 @@ world.step();
     info += "Updating Time: " + world.performance.updatingTime + "ms<br>";
     info += "Total Time: " + world.performance.totalTime + "ms<br>";
     info += fpstxt;
-
-    this.postMessage({tell:"RUN", info: info, matrix:matrix, sleeps:sleeps  })
-
-
+    return info;
 }
 
 function fpsUpdate() {
@@ -165,6 +132,7 @@ function fpsUpdate() {
     } 
     fps++;
 }
+
 
 function initClass(){
     with(joo.classLoader) {
@@ -280,13 +248,7 @@ function startOimoTest(n, t){
         bodys[i] = body;
         types[i] = type;
     }
-    max = n;
 
-   
-
-   // this.postMessage({ matrix:matrix }, [matrix.buffer])
- this.postMessage({tell:"INIT", matrix:null, types:types })//, [matrix.buffer])
- //this.timer = setInterval( update , 1000/60);
-   // this.postMessage("world initialised !!");
+    this.postMessage({tell:"INIT", matrix:null, types:types })//, [matrix.buffer])
 }
 
