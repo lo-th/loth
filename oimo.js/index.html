@@ -11,6 +11,7 @@
 		<div id="myFlash" class="unselectable"></div>
 		<div id="titre" class="unselectable">OimoEngine labs</div>
 		<div id="fps" class="unselectable"></div>
+		<div id="debug" class="unselectable"></div>
 		<div id="info" class="unselectable">
 			<a href="http://3dflashlo.wordpress.com/" target="_blank">loth 2013</a>
 			- <a href="http://threejs.org" target="_blank">three.js 61</a>
@@ -26,8 +27,11 @@
 			<button type="button" onclick="resetDemo()" id="bcontrol">RESET</button>
 			<button type="button" onclick="moveView()" id="bview">VIEW</button>
 		</div>
-		<script type="text/javascript"> joo = { debug: false }; </script>
+		 
+		<!--<script type="text/javascript"> joo = { debug: false }; </script>-->
 		<script type="text/javascript" src="js/joo/jangaroo-application.js"></script>
+		<script type="text/javascript" src="js/joo/net.jangaroo.jangaroo-runtime.classes.js"></script>
+		<script type="text/javascript" src="js/joo/net.jangaroo.examples.hello-world.classes.js"></script>
 
 		<script type="text/javascript" src="js/three.min.js"></script>
 		<script type="text/javascript" src="js/Mirror.js"></script>
@@ -39,7 +43,6 @@
 		<script type="text/javascript" src="js/loth/OimoEngine.js"></script>
 		<script type="text/javascript" src="js/loth/ViewBasic.js"></script>
 		<script type="text/javascript">
-		    //joo;
 		    var vSet = [ {h:90, v:70, d:600}, {h:0, v:60, d:1000}, {h:360, v:45, d:600}, {h:200, v:70, d:1500}, {h:0, v:10, d:1000}];
 		    var key = { front:false, back:false, left:false, right:false, jump:false, crouch:false };
 
@@ -49,12 +52,15 @@
 		    var sizecube = 50;
 
 		    function init() {
-		    	initOimoEngine({joo:joo, end:initComplete});
+		    	initOimoEngine({ end:initComplete });
+		    	//initComplete();
             }
 
             function initComplete() {
-			    initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
-			    startOimoTest(100 , 2);
+            	// init three.js engine
+            	initThree({ mouse:true, autoSize:true, n:Math.floor(Math.random()*4)});
+            	startOimoTest(1000 , 0);
+
             }
 
 		    function resetDemo() {
@@ -76,11 +82,44 @@
 			function transBody() {
 
 			    var max = bodys.length;
-			    var body, mesh, r, p, sleep, mtx;//, i=0;
-			    for ( var i = 0; i < max; ++i ) {
+			    var body, mesh, r, p, sleep, mtx;
+			    for ( var i = 0; i !== max; ++i ) {
 			    	body = bodys[i];
-			    //var body = world.rigidBodies;
-				//while (body != null) {
+					if (body.type == 0x1) {
+				    	if( content.children[i] ){
+				    		mesh = content.children[i];
+				    		r = body.rotation;
+				    		p = body.position;
+				    		sleep = body.sleeping;
+
+				    		mtx = new THREE.Matrix4(r.e00, r.e01, r.e02, p.x*100, r.e10, r.e11, r.e12, p.y*100, r.e20, r.e21, r.e22, p.z*100, 0, 0, 0, 1);
+					        mesh.position.getPositionFromMatrix( mtx );
+					    	mesh.rotation.setFromRotationMatrix( mtx );
+
+					    	//material
+					    	if(sleep){
+					    		if(mesh.material.name == "mat01"){ mesh.material = mat01sleep;}
+					    		if(mesh.material.name == "mat02"){ mesh.material = mat02sleep;}
+					    	} else {
+					    		if(mesh.material.name == "mat01sleep") mesh.material = mat01;
+					    		if(mesh.material.name == "mat02sleep") mesh.material = mat02;
+					    	}
+				    	} else { // create object
+				    		if( body.shapes.type == 1) addSphere();
+				    		if( body.shapes.type == 2) addCube();
+				    	}
+				    }
+				}
+
+			}
+
+			function transBody2() {
+
+			    var max = bodys.length;
+			    var body, mesh, r, p, sleep, mtx, i=0;
+
+			    var body = world.rigidBodies;
+				while (body != null) {
 					if (body.type == 0x1) {
 				    	if( content.children[i] ){
 				    		mesh = content.children[i];
@@ -106,8 +145,8 @@
 				    	}
 				    }
 				    
-				    //body = body.next;
-				    //i++;
+				    body = body.next;
+				    i++;
 				}
 
 			}

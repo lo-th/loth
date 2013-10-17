@@ -4,7 +4,13 @@ var World, RigidBody;
 var Shape, ShapeConfig, BoxShape, SphereShape;
 var JointConfig, HingeJoint, WheelJoint, DistanceJoint;
 var Vec3, Quat;
-
+var dt = 1/60;
+var dt2 =  0;
+var sendTime;
+var timeEngine;
+var timeObject;
+var prevTime = 0;
+var delay;
 var bodys = [];
 
 var world;
@@ -12,11 +18,12 @@ var world;
 function initOimoEngine(option) {
 	if(!option)option = {};
 
-	with(option.joo.classLoader) {
-	  import_("net.jangaroo.example.HelloWorld");
+	with(joo.classLoader) {
+	 // import_("net.jangaroo.example.HelloWorld");
+       import_("com.elementdev.oimo.physics.OimoPhysics");
 	  complete(function(imports){with(imports){
 
-	  	 World = com.elementdev.oimo.physics.dynamics.World;
+	  	World = com.elementdev.oimo.physics.dynamics.World;
 	    RigidBody = com.elementdev.oimo.physics.dynamics.RigidBody;
 	    // shape
 	    Shape = com.elementdev.oimo.physics.collision.shape.Shape;
@@ -32,6 +39,8 @@ function initOimoEngine(option) {
 	    Vec3 = com.elementdev.oimo.math.Vec3;
 	    Quat = com.elementdev.oimo.math.Quat;
 
+        //world = new World();
+
 	    if(option.end != null) option.end();
 
 	   // window.setInterval(updateWorld, 1000 / 60);
@@ -46,9 +55,9 @@ function clearOimoTest(){
 function startOimoTest(n, t){
 	if(world == null){
 		world = new World();
-	    world.numIterations = 8;
-	    world.timeStep = 1 / 60;
-	    world.gravity = new Vec3(0, -10, 0);
+	    world.numIterations = 8;//8
+	    world.timeStep = dt;
+	    world.gravity = new Vec3(0, -5, 0);
     }
 
     if(n == null) n=100;
@@ -63,14 +72,14 @@ function startOimoTest(n, t){
     var body = new RigidBody(0, -0.5, 0, 0, 0, 0, 0);
     var shape0 = new BoxShape(sc, 10, 1, 10);
     body.addShape(shape0);
-    body.setupMass(RigidBody.BODY_STATIC);
+    body.setupMass(0x2);
     world.addRigidBody(body);
 
     //wall
     var wbody = new RigidBody(0, 5, -2.5, 0, 0, 0, 0);
     var sh = new BoxShape(sc, 5, 10, 1);
     wbody.addShape(sh);
-    wbody.setupMass(RigidBody.BODY_STATIC);
+    wbody.setupMass(0x2);
     world.addRigidBody(wbody);
 
     wbody = new RigidBody(0, 5, 2.5, 0, 0, 0, 0);
@@ -118,12 +127,28 @@ function startOimoTest(n, t){
         }
 	    bodys[i] = r;
     }
+
+    updateWorld();
 }
 
 
 function updateWorld(){
+    sendTime = new Date();//Date.now();
+    //dt2 = (sendTime - prevTime) * 0.001;
+    //world.timeStep=dt2;
 	world.step();
-	transBody();
+    timeEngine = new Date();//Date.now();//-sendTime;
+	transBody2();
+    timeObject = new Date();//Date.now();//-timeEngine;
+    //delay = (Date.now()-sendTime)//*0.001;
+    //delay = dt * 1000 - (Date.now()-sendTime);
+    delay = dt * 1000 + (Date.now()-sendTime);
+    //if(delay < 0)  delay = 0;
+    //world.timeStep=delay;
+    //prevTime =  Date.now();
+    //setTimeout(updateWorld, delay);
+    setTimeout(updateWorld, (timeObject-timeEngine));
+    document.getElementById("debug").innerHTML = "engine: " + (timeEngine-sendTime)+"ms<br>"+" object: "+ (timeObject-timeEngine)+"ms";
 }
 
 

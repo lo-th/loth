@@ -1,5 +1,5 @@
 body {
-	color: #888888;
+	color: #606060;
 	font-family:Monospace;
 	font-size:11px;
 	margin: 0px;
@@ -15,10 +15,10 @@ body {
 	position: absolute;
 	top: 10px;
 	font-size:16px;
-	width: 1024px;
+	height:30px;
+	width: 300px;
 	left: calc(50% - 512px);
 	text-align: left;
-	 pointer-events: none
 }
 #info {
 	position: absolute;
@@ -70,7 +70,7 @@ body {
 	margin-top: -16px;
 	visibility:hidden;
 }
- #menu {
+#menu {
     top: 5px;
     width: 1024px;
     left: calc(50% - 512px);
@@ -88,8 +88,8 @@ button {
     cursor: pointer;
     background-color: #000;
 }
-a { color: #505050; text-decoration:none; cursor: pointer;}
-a:visited { color: #505050; text-decoration:none}
+a { color: #888888; text-decoration:none; cursor: pointer;}
+a:visited { color: #888888; text-decoration:none}
 .unselectable{
     -moz-user-select: none;
     -ms-user-select: none;

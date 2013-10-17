@@ -8622,7 +8622,7 @@ remove.detach();
 remove.parent=null;
 },
 "public function step",function(){
-var time1=new Date();
+var time1=Date.now();
 var body=this.rigidBodies;
 while(body!=null){
 body.addedToIsland=false;
@@ -8646,12 +8646,12 @@ body=body.next;
 }
 this.updateContacts$1();
 this.solveIslands$1();
-var time2=new Date();
+var time2=Date.now();
 this.performance.totalTime=time2-time1;
 this.performance.updatingTime=this.performance.totalTime-(this.performance.broadPhaseTime+this.performance.narrowPhaseTime+this.performance.solvingTime);
 },
 "private function updateContacts",function(){
-var time1=new Date();
+var time1=Date.now();
 this.broadPhase.detectPairs();
 var pairs=this.broadPhase.pairs;
 var numPairs=this.broadPhase.numPairs;
@@ -8686,7 +8686,7 @@ if(!exists){
 this.addContact$1(s1,s2);
 }
 }
-var time2=new Date();
+var time2=Date.now();
 this.performance.broadPhaseTime=time2-time1;
 this.numContactPoints=0;
 contact=this.contacts;
@@ -8715,7 +8715,7 @@ contact.persisting=false;
 contact.constraint.addedToIsland=false;
 contact=contact.next;
 }
-var time3=new Date();
+var time3=Date.now();
 this.performance.narrowPhaseTime=time3-time2;
 },
 "private function addContact",function(s1,s2){
@@ -8772,7 +8772,7 @@ if(this.maxIslandConstraints$1<numConstraints){
 this.maxIslandConstraints$1=numConstraints<<1;
 this.islandConstraints$1=[];
 }
-var time1=new Date();
+var time1=Date.now();
 this.numIslands=0;
 for(var base=this.rigidBodies;base!=null;base=base.next){
 if(base.addedToIsland||base.isStatic||base.sleeping){
@@ -8897,7 +8897,7 @@ this.islandRigidBodies$1[j]=null;
 }
 this.numIslands++;
 }
-var time2=new Date();
+var time2=Date.now();
 this.performance.solvingTime=time2-time1;
 },
 ];},[],["com.elementdev.oimo.physics.collision.broadphase.BroadPhase","com.elementdev.oimo.physics.OimoPhysics","com.elementdev.oimo.physics.collision.broadphase.BruteForceBroadPhase","com.elementdev.oimo.physics.collision.broadphase.sap.SAPBroadPhase","com.elementdev.oimo.physics.collision.broadphase.dbvt.DBVTBroadPhase","Error","com.elementdev.oimo.math.Vec3","com.elementdev.oimo.physics.util.Performance","com.elementdev.oimo.physics.collision.shape.Shape","com.elementdev.oimo.physics.collision.narrowphase.SphereSphereCollisionDetector","com.elementdev.oimo.physics.collision.narrowphase.SphereBoxCollisionDetector","com.elementdev.oimo.physics.collision.narrowphase.BoxBoxCollisionDetector","com.elementdev.oimo.physics.constraint.contact.Contact"], "0.8.0", "0.8.1"

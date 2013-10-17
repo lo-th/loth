@@ -8545,7 +8545,7 @@ jc.next=null;
 remove.parent=null;
 },
 "public function step",function(){
-var time1=new Date();
+var time1=Date.now();
 var tmpC=this.contacts;
 this.contacts=this.prevContacts$1;
 this.prevContacts$1=tmpC;
@@ -8571,7 +8571,7 @@ continue;
 }
 this.detectCollisions$1();
 this.updateIslands$1();
-var time2=new Date();
+var time2=Date.now();
 this.performance.solvingTime=time2-this.performance.solvingTime;
 this.performance.totalTime=time2-time1;
 },
@@ -8580,9 +8580,9 @@ this.collectContactInfos$1();
 this.setupContacts$1();
 },
 "private function collectContactInfos",function(){
-var time1=new Date();
+var time1=Date.now();
 this.broadPhase.detectPairs();
-var time2=new Date();
+var time2=Date.now();
 this.performance.broadPhaseTime=time2-time1;
 this.collisionResult$1.numContactInfos=0;
 var pairs=this.broadPhase.pairs;
@@ -8599,7 +8599,7 @@ return;
 }
 }
 }
-var time3=new Date();
+var time3=Date.now();
 this.performance.narrowPhaseTime=time3-time2;
 this.performance.updatingTime=time3;
 },
@@ -8714,7 +8714,7 @@ tmpC=this.constraints$1[i];
 this.constraints$1[i]=this.constraints$1[swap];
 this.constraints$1[swap]=tmpC;
 }
-var time1=new Date();
+var time1=Date.now();
 this.performance.updatingTime=time1-this.performance.updatingTime;
 this.performance.solvingTime=time1;
 this.numIslands=0;

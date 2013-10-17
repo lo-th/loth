@@ -1,136 +1,110 @@
 importScripts('js/oimo/runtime_min.js');
-//importScripts('js/oimo/oimo_dev.js');
-importScripts('js/oimo/oimo_dev_min.js');
+importScripts('js/oimo/oimo_dev.js');
+//importScripts('js/oimo/oimo_dev_min.js');
+importScripts('js/oimo/demo.js');
 
+/*
+OimoPhysics alpha dev 10
+@author Saharan _ http://el-ement.com
+@link https://github.com/saharan/OimoPhysics
+...
+Compact engine for three.js by Loth
+
+OimoPhysics use international system units
+0.1 to 10 meters max for dynamique body
+
+size and position x100 for three.js
+*/
+var version = "10.DEV";
 // main class
-var World, RigidBody, BroadPhase, Shape, ShapeConfig, BoxShape, SphereShape, JointConfig, HingeJoint, WheelJoint, DistanceJoint, Vec3, Quat;
+var World, RigidBody, BroadPhase, Shape, ShapeConfig, BoxShape, SphereShape
+var JointConfig, HingeJoint, WheelJoint, DistanceJoint, Vec3, Quat;
 
 // physics variable
+var scale = 100;
 var world;
 var bodys;
 var N = 100;
 var dt = 1/60;
 var iterations = 8;
 var info = "info test";
-var fps=0, time, time_prev=0, fpstxt="";
-
+var fps=0, time, time_prev=0, fpsint = 0;
+var timeint = 0;
 
 var matrix;
 var sleeps;
 var types;
-var positions;
+var sizes;
+var infos =[];
+var currentDemo = 0;
+//var isDemo = false;
+//var matrix = new Float32Array(N*12);
 
-this.onmessage = function (e) {
-
-    if(e.data.N)N = e.data.N;
-    if(e.data.dt)dt = e.data.dt;
-    if(e.data.iterations)iterations = e.data.iterations;
-
-    //var matrix = e.data.matrix;
-
-    if(world != null){
-        updateType1();
-    } else{
+self.onmessage = function (e) {
+    var phase = e.data.tell;
+    if(phase === "INITWORLD"){
+        dt = e.data.dt;
+        iterations = e.data.iterations;
         initClass();
+    }
+
+    else if(phase === "UPDATE"){
+        update();
+    } 
+
+    else if(phase === "CLEAR"){
+        clearWorld();
     }
 }
 
-function updateType1() {
-    
-    var r, p, t;
+function update() {
+    world.step();
+
+    var t01 = Date.now();
+    var r, p, t, n;
     var max = bodys.length;
 
     for ( var i = 0; i !== max ; ++i ) {
-            
         if( bodys[i].sleeping) sleeps[i] = 1;
-        else sleeps[i] = 0;
-
-        r = bodys[i].rotation;
-        p = bodys[i].position;
-
-        matrix[12*i + 0] = r.e00;
-        matrix[12*i + 1] = r.e01;
-        matrix[12*i + 2] = r.e02;
-        matrix[12*i + 3] = Math.round(p.x * 100);
-
-        matrix[12*i + 4] = r.e10;
-        matrix[12*i + 5] = r.e11;
-        matrix[12*i + 6] = r.e12;
-        matrix[12*i + 7] = Math.round(p.y * 100);
-
-        matrix[12*i + 8] = r.e20;
-        matrix[12*i + 9] = r.e21;
-        matrix[12*i + 10] = r.e22;
-        matrix[12*i + 11] = Math.round(p.z * 100);
-    }
-
-    world.step();
-    fpsUpdate();
-    this.postMessage({tell:"RUN", info: worldInfo(), matrix:matrix, sleeps:sleeps  })
-}
-
-function updateType2() {
-    
-    var r, p, sleep, t, i=0;
-
-    var body = world.rigidBodies;
-    while (body != null) {
-        if (body.type == 0x1) {
-          if( body.sleeping) sleeps[i] = 1;
-          else sleeps[i] = 0;
-
-            r = body.rotation;
-            p = body.position;
-
-            matrix[12*i + 0] = r.e00;
-            matrix[12*i + 1] = r.e01;
-            matrix[12*i + 2] = r.e02;
-            matrix[12*i + 3] = Math.round(p.x * 100);
-
-            matrix[12*i + 4] = r.e10;
-            matrix[12*i + 5] = r.e11;
-            matrix[12*i + 6] = r.e12;
-            matrix[12*i + 7] = Math.round(p.y * 100);
-
-            matrix[12*i + 8] = r.e20;
-            matrix[12*i + 9] = r.e21;
-            matrix[12*i + 10] = r.e22;
-            matrix[12*i + 11] = Math.round(p.z * 100);
+        else{ 
+            sleeps[i] = 0;
+            r = bodys[i].rotation;
+            p = bodys[i].position;
+            n = 12*i;
+            matrix[n+0]=r.e00; matrix[n+1]=r.e01; matrix[n+2]=r.e02; matrix[n+3]=p.x;
+            matrix[n+4]=r.e10; matrix[n+5]=r.e11; matrix[n+6]=r.e12; matrix[n+7]=p.y;
+            matrix[n+8]=r.e20; matrix[n+9]=r.e21; matrix[n+10]=r.e22; matrix[n+11]=p.z;
         }
-        body = body.next;
-        i++;
     }
+    var t02 = Date.now();
 
-    world.step();
+    timeint = t02-t01;
     fpsUpdate();
-    this.postMessage({tell:"RUN", info: worldInfo(), matrix:matrix, sleeps:sleeps  })
+    worldInfo();
+
+    self.postMessage({tell:"RUN", infos: infos, matrix:matrix, sleeps:sleeps  })
 }
 
 function worldInfo() {
-    info = "";
-    info += "Rigidbody: "+world.numRigidBodies+"<br>";
-    info += "Contact: "+world.numContacts+"<br>";
-    info += "Pair Check: "+world.broadPhase.numPairChecks+"<br>";
-    info += "Contact Point: "+world.numContactPoints+"<br>";
-    info += "Island: " + world.numIslands +"<br><br>";
-    
-    info += "Broad-Phase Time: " + world.performance.broadPhaseTime + "ms<br>";
-    info += "Narrow-Phase Time: " + world.performance.narrowPhaseTime + "ms<br>";
-    info += "Solving Time: " + world.performance.solvingTime + "ms<br>";
-    info += "Updating Time: " + world.performance.updatingTime + "ms<br>";
-    info += "Total Time: " + world.performance.totalTime + "ms<br>";
-    info += fpstxt;
-    return info;
+    infos[0] = world.numRigidBodies;
+    infos[1] = world.numContacts;
+    infos[2] = world.broadPhase.numPairChecks;
+    infos[3] = world.numContactPoints;
+    infos[4] = world.numIslands;
+    infos[5] = world.performance.broadPhaseTime;
+    infos[6] = world.performance.narrowPhaseTime ;
+    infos[7] = world.performance.solvingTime;
+    infos[8] = world.performance.updatingTime;
+    infos[9] = world.performance.totalTime;
+    infos[10] = fpsint;
+    infos[11] = timeint;
 }
 
-function fpsUpdate() {
+function fpsUpdate(){
     time = Date.now();
     if (time - 1000 > time_prev) {
-        time_prev = time;
-        fpstxt ="Fps: " + fps +"<br>";
-        fps = 0;
-    } 
-    fps++;
+        time_prev = time; fpsint = fps; fps = 0;
+    } fps++;
 }
 
 
@@ -156,99 +130,74 @@ function initClass(){
             Quat = com.elementdev.oimo.math.Quat;
 
             initWorld();
-           
         }});
     }
 }
 
 function initWorld(){
-    world = new World();
+    if(world==null){
+        world = new World();
 
-    //world.broadphase = BroadPhase.BROAD_PHASE_BRUTE_FORCE;
-    //world.broadphase = BroadPhase.BROAD_PHASE_SWEEP_AND_PRUNE;
-    //world.broadphase = BroadPhase.BROAD_PHASE_DYNAMIC_BOUNDING_VOLUME_TREE;
-    
-    world.numIterations = iterations;
-    world.timeStep = dt;
-    world.gravity = new Vec3(0, -10, 0);
-    startOimoTest();
+        //world.broadphase = BroadPhase.BROAD_PHASE_BRUTE_FORCE;
+        //world.broadphase = BroadPhase.BROAD_PHASE_SWEEP_AND_PRUNE;
+        //world.broadphase = BroadPhase.BROAD_PHASE_DYNAMIC_BOUNDING_VOLUME_TREE;
+        
+        world.numIterations = iterations;
+        world.timeStep = dt;
+        world.gravity = new Vec3(0, -10, 0);
+    }
+    //startOimoTest();
+
+    sleeps = [];
+    infos = [];
+
+    initDemo();
+}
+
+function initDemo(){
+
+    bodys = [];
+    types = [];
+    sizes = [];
+    matrix = [];
+
+    demo01();
+    self.postMessage({tell:"INIT", types:types, sizes:sizes });
 }
 
 function clearWorld(){
     if(world != null) world.clear();
     bodys = [];
-}
-
-function startOimoTest(n, t){
-    if(n == null) n=N;
-    if(t == null) t=0;
-
-    var sc = new ShapeConfig();
-    sc.density = 1;
-    sc.friction = 0.4;
-    sc.restitution = 0.2;
-
-    // ground
-    var gbody = new RigidBody(0, -5, 0, 0, 0, 0, 0);
-    var shape0 = new BoxShape(sc, 10, 10, 10);
-    gbody.addShape(shape0);
-    gbody.setupMass(0x2);
-    world.addRigidBody(gbody);
-
-    //wall
-    var wbody = new RigidBody(0, 5, -2.5, 0, 0, 0, 0);
-    var sh = new BoxShape(sc, 5, 10, 1);
-    wbody.addShape(sh);
-    wbody.setupMass(0x2);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody(0, 5, 2.5, 0, 0, 0, 0);
-    sh = new BoxShape(sc, 5, 10, 1);
-    wbody.addShape(sh);
-    wbody.setupMass(0x2);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody(-2.5, 5, 0, 0, 0, 0, 0);
-    sh = new BoxShape(sc, 1, 10, 5);
-    wbody.addShape(sh);
-    wbody.setupMass(0x2);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody(2.5, 5, 0, 0, 0, 0, 0);
-    sh = new BoxShape(sc, 1, 10, 5);
-    wbody.addShape(sh);
-    wbody.setupMass(0x2);
-    world.addRigidBody(wbody);
-
-    bodys = [];
-    matrix = [];
     sleeps = [];
     types = [];
-    positions = [];
-
-    // add dynamique object
-    var body, px, pz, type;
-    for (var i=0; i!==n; ++i ){
-        if(t==0)type = Math.floor(Math.random()*2)+1;
-        else type = t;
-        px = -1+Math.random()*2;
-        pz = -1+Math.random()*2;
-        if(type==1){ // sphere
-            body = new RigidBody(px, 60+i, pz, 0, 0, 0, 0);
-            shape = new SphereShape(sc, 0.25);
-            body.addShape(shape);
-            body.setupMass(0x1);
-        } else { // box
-            body = new RigidBody(px, 50+i, pz, 0, 0, 0, 0);
-            shape = new BoxShape(sc, 0.5, 0.5, 0.5);
-            body.addShape(shape);
-            body.setupMass(0x1);
-        }
-        world.addRigidBody(body);
-        bodys[i] = body;
-        types[i] = type;
-    }
-
-    this.postMessage({tell:"INIT", matrix:null, types:types })//, [matrix.buffer])
+    infos = [];
+    self.postMessage({tell:"CLEAR"});
 }
 
+//--------------------------------------------------
+//    BASIC OBJECT
+//--------------------------------------------------
+
+function addRigid(obj){
+    var p = obj.pos || [0,0,0];
+    var s = obj.size || [1,1,1];
+    var r = obj.rot || [0,0,0];
+    var move = obj.move || false;
+    var sc = obj.sc || new ShapeConfig();
+    var t, i; 
+    var shape;
+    switch(obj.type){
+        case "box": shape=new BoxShape(sc, s[0], s[1], s[2]); t=2; break;
+        case "sphere": shape=new SphereShape(sc, s[0]); t=1; break;
+    }
+    var body = new RigidBody(p[0], p[1], p[2], 0, 0, 0, 0);
+    body.addShape(shape);
+    if(!move)body.setupMass(0x2);
+    else{ 
+        body.setupMass(0x1);
+        bodys.push(body);
+        types.push(t);
+        sizes.push([s[0]*scale, s[1]*scale, s[2]*scale]);
+    }
+    world.addRigidBody(body);
+}

@@ -35,7 +35,7 @@ mat02sleep.name = "mat02sleep";
 mat03sleep.name = "mat03sleep";
 
 var geo01 = new THREE.CubeGeometry( 1, 1, 1 );
-var geo02 = new THREE.SphereGeometry( 1, 26, 26 );
+var geo02 = new THREE.SphereGeometry( 1, 22, 26 );
 var geo03 = new THREE.CylinderGeometry( 1, 1, 1, 26 );
 
 var ToRad = Math.PI / 180;
@@ -122,24 +122,33 @@ function clearContent(){
 }
 
 function addCube(s) {
-	if(s==null) s = {x:50, y:50, z:50}; 
+	if(s==null) s = [50,50,50];//{x:50, y:50, z:50}; 
 	var mesh = new THREE.Mesh(geo01, mat01);
-	mesh.scale.set( s.x, s.y, s.z );
+	mesh.scale.set( s[0], s[1], s[2] );
+	mesh.position.y = -10000;
 	content.add( mesh );
+	mesh.receiveShadow = true;
+	mesh.castShadow = true;
 }
 
-function addSphere(r) {
-	if(r==null) r = 25;
+function addSphere(s) {
+	if(s==null) s = [25,25,25];//{x:25, y:50, z:25};//r = 25;
 	var mesh = new THREE.Mesh(geo02, mat02);
-	mesh.scale.set( r, r, r );
+	mesh.scale.set( s[0], s[0], s[0] );
+	mesh.position.y = -10000;
 	content.add( mesh );
+	mesh.receiveShadow = true;
+	mesh.castShadow = true;
 }
 
 function addCylinder(s) {
-	if(s==null) s = {x:25, y:50, z:25};
+	if(s==null) s = [25,50,25];//{x:25, y:50, z:25};
 	var mesh = new THREE.Mesh(geo03, mat03);
-	mesh.scale.set( s.x, s.y, s.z );
+	mesh.scale.set( s[0], s[1], s[2] );
+	mesh.position.y = -10000;
 	content.add( mesh );
+	mesh.receiveShadow = true;
+	mesh.castShadow = true;
 }
 
 
@@ -152,7 +161,9 @@ var verticalMirror;
 
 function mirrorGround(){
 	var planeGeo = new THREE.PlaneGeometry( 2000, 2000 );
-	groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: camPos.w, textureHeight: camPos.h, color: 0x303030 } );
+	groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: camPos.w, textureHeight: camPos.h, color: 0x303030} );
+	groundMirror.receiveShadow = false;
+	groundMirror.castShadow = false;
 
     var blendings = [ "NoBlending", "NormalBlending", "AdditiveBlending", "SubtractiveBlending", "MultiplyBlending", "AdditiveAlphaBlending" ];
 	groundMirror.material.transparent = true;
@@ -164,7 +175,7 @@ function mirrorGround(){
 	mirrorMesh.y = 0;
 	scene.add( mirrorMesh );
 
-	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: camPos.w, textureHeight: camPos.h, color:0x303030 } );
+	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: camPos.w, textureHeight: camPos.h, color:0x999999 } );
 				
 	var verticalMirrorMesh = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), verticalMirror.material );
 	verticalMirrorMesh.add( verticalMirror );
@@ -182,7 +193,7 @@ function mirrorGround(){
 
 function initLights() {
 	lights[0] = new THREE.DirectionalLight( 0xffffff );
-	lights[0].intensity = 1.2;
+	lights[0].intensity = 1;
 	lights[0].castShadow = true;
 
 	lights[0].shadowCameraNear = 100;
@@ -207,13 +218,16 @@ function initLights() {
 
 	scene.add(lights[0]);
 
-	lights[1] = new THREE.PointLight( 0x60ff60, 0.5, 2000 );
-	lights[1].position.set( 0, 50, -400 );
+	lights[1] = new THREE.PointLight( 0xff0000, 1, 800 );
 	scene.add( lights[1] );
-
-	lights[2] = new THREE.PointLight( 0xff6060, 0.5, 2000 );
-	lights[2].position.set( 0, 50, 400 );
+	lights[2] = new THREE.PointLight( 0x00ff00, 1, 800 );
 	scene.add( lights[2] );
+	lights[3] = new THREE.PointLight( 0x0000ff, 1, 800 );
+	scene.add( lights[3] );
+
+	lights[1].position.copy( Orbit(center , 0, 90, 400));
+	lights[2].position.copy( Orbit(center , -120, 90, 400));
+	lights[3].position.copy( Orbit(center , 120, 90, 400));
 }
 
 //-----------------------------------------------------
@@ -221,8 +235,8 @@ function initLights() {
 //-----------------------------------------------------
 
 function initObject() {
-	var geometry = new THREE.PlaneGeometry( 10000,10000 );
-	var plane = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0x303030, shininess:100, specular:0xffffff } ) );
+	var geometry = new THREE.PlaneGeometry( 2000,2000 );
+	var plane = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0x303030, shininess:100, specular:0x303030} ) );
 	plane.rotation.x = (-90)*ToRad;
 	plane.position.y =-2
 	scene.add(plane);
@@ -230,18 +244,16 @@ function initObject() {
 	plane.receiveShadow = true;
 	plane.castShadow = false;
 
-	geometry = new THREE.SphereGeometry( 50,30,30 );
-	//var sphereA = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
-	var sphereA = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xff0000, shininess:100, specular:0xffffff } ) );
-	var sphereB = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0x00ff00, shininess:100, specular:0xffffff } ) );
-	sphereA.position.z = 400;
-	sphereB.position.z = -400;
-	sphereA.position.y = sphereB.position.y = 50;
+	geometry = new THREE.SphereGeometry( 10,12,12 );
+	var sphereA = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000} ) );
+	var sphereB = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00} ) );
+	var sphereC = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff} ) );
+	sphereA.position.copy( Orbit(center , 0, 90, 400));
+	sphereB.position.copy( Orbit(center , -120, 90, 400));
+	sphereC.position.copy( Orbit(center , 120, 90, 400));
 	scene.add(sphereA);
 	scene.add(sphereB);
-
-	sphereA.receiveShadow = sphereB.castShadow = true;
-	sphereA.castShadow = sphereB.castShadow = true;
+	scene.add(sphereC);
 }
 
 //-----------------------------------------------------
@@ -306,10 +318,6 @@ function stopRender() {
 
 function update() {
 	requestAnimationFrame( update );
-	/*if(world){
-		world.step();
-		transBody();
-	}*/
 
 	//delta = clock.getDelta();
 	//THREE.AnimationHandler.update( delta*0.5 );
@@ -595,7 +603,7 @@ function fullResize(n){
 	var div;
 	for(var i=0; i< divListe.length; ++i){
 		div = document.getElementById( divListe[i] );
-		if(i!=5)div.style.width = w+"px";
+		if(i!=5 && i!=3)div.style.width = w+"px";
 		div.style.left = "calc(50% - "+mw+"px)";
 		if(i==0)div.style.height = h+"px";
 		else if (i!==4 && i!==3 && i!==5)div.style.top = h+45+"px";

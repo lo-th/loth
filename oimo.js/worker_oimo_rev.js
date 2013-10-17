@@ -1,117 +1,114 @@
 importScripts('js/oimo/runtime_min.js');
-//importScripts('js/oimo/oimo_rev.js');
-importScripts('js/oimo/oimo_rev_min.js');
-var N = 200;
-var dt = 1/60;
-var iterations = 8;
+importScripts('js/oimo/oimo_rev.js');
+//importScripts('js/oimo/oimo_rev_min.js');
+importScripts('js/oimo/demo.js');
+
+/*
+OimoPhysics alpha rev 10
+@author Saharan _ http://el-ement.com
+@link https://github.com/saharan/OimoPhysics
+...
+Compact engine for three.js by Loth
+
+OimoPhysics use international system units
+0.1 to 10 meters max for dynamique body
+
+size and position x100 for three.js
+*/
+var version = "10.REV";
+// main class
+var World, RigidBody, BruteForceBroadPhase, SweepAndPruneBroadPhase;
+var Shape, ShapeConfig, BoxShape, SphereShape, CylinderShape;
+var Joint, JointConfig, HingeJoint, Hinge2Joint, BallJoint, DistanceJoint;
+var Vec3, Quat, Mat33, Mat44;
+
+// physics variable
+var scale = 100;
 var world;
 var bodys;
-var matrix;
+var N = 100;
+var dt = 1/60;
+var iterations = 8;
 var info = "info test";
-var fps=0, time, time_prev=0, fpstxt="";
+var fps=0, time, time_prev=0, fpsint = 0;
+var timeint = 0;
 
-var SUPPORT_TRANSFERABLE = false;
-self.postMessage = self.webkitPostMessage || self.postMessage;
-
-/*var ab = new ArrayBuffer( 1 );
-self.postMessage( ab, [ab] );
-SUPPORT_TRANSFERABLE = ( ab.byteLength === 0 );
-*/
+var matrix;
+var sleeps;
+var types;
+var sizes;
+var infos =[];
+var currentDemo = 0;
+//var isDemo = false;
+//var matrix = new Float32Array(N*12);
 
 self.onmessage = function (e) {
-    if(e.data.N)N = e.data.N;
-    if(e.data.dt)dt = e.data.dt;
-    if(e.data.iterations)iterations = e.data.iterations;
-   // matrix = e.data.matrix;
-    matrix = e.data.matrix;
-    if(world != null){
-        //world.step();
-       // this.postMessage("world run !! " + bodys[0].position.y);
-
-        var max = bodys.length;
-        var body;
-        var r, p, sleep, t;
-        //var i=0;
-
-        // Copy over the data to the buffers
-       // var matrix = e.data.matrix;
-
-        for ( var i = 0; i !== max ; ++i ) {
-       // var body = world.rigidBodies;
-        //while (body != null) {
-
-            body = bodys[i];
-            //if (body.type == 0x0) {
-            r = body.rotation;
-            p = body.position;
-            if(body.sleeping) sleep = 1;
-            else sleep = 0;
-            if(body.shapes[0].type) 
-                t = body.shapes[0].type;
-            else t = 0;
-
-            matrix[14*i + 0] = r.e00;
-            matrix[14*i + 1] = r.e01;
-            matrix[14*i + 2] = r.e02;
-            matrix[14*i + 3] = p.x * 100;
-
-            matrix[14*i + 4] = r.e10;
-            matrix[14*i + 5] = r.e11;
-            matrix[14*i + 6] = r.e12;
-            matrix[14*i + 7] = p.y * 100;
-
-            matrix[14*i + 8] = r.e20;
-            matrix[14*i + 9] = r.e21;
-            matrix[14*i + 10] = r.e22;
-            matrix[14*i + 11] = p.z * 100;
-
-            matrix[14*i + 12] = sleep;
-            matrix[14*i + 13] = t;
-            //}
-            //body = body.next;
-            //i++;
-        }
-
-        world.step();
-        info = "<br>";
-        info += "Rigidbody: "+world.numRigidBodies+"<br>";
-        info += "Shape: "+world.numShapes +"<br>";
-        info += "Contact: "+world.numContacts+"<br>";
-        info += "Island: " + world.numIslands +"<br><br>";
-
-        info += "Broad Phase Time: " + world.performance.broadPhaseTime + "ms<br>";
-        info += "Narrow Phase Time: " + world.performance.narrowPhaseTime + "ms<br>";
-        info += "Solving Time: " + world.performance.solvingTime + "ms<br>";
-        info += "Updating Time: " + world.performance.updatingTime + "ms<br>";
-        info += "Total Time: " + world.performance.totalTime + "ms<br>";
-
-        info += fpstxt;
-       // this.postMessage({tell:"working", matrix:matrix });
-        //self.postMessage({tell:"RUN", matrix:matrix }, [matrix.buffer]);
-        //self.postMessage({tell:"RUN", Matrix:matrix }, [matrix]);
-        if(SUPPORT_TRANSFERABLE)
-            self.postMessage({tell:"T-RUN", info:info, matrix:matrix }, [matrix.buffer]);
-        else 
-            self.postMessage({tell:"RUN", info:info, matrix:matrix });
-
-    } else{
+    var phase = e.data.tell;
+    if(phase === "INITWORLD"){
+        dt = e.data.dt;
+        iterations = e.data.iterations;
         initClass();
     }
 
-    fpsUpdate();
+    else if(phase === "UPDATE"){
+        update();
+    } 
 
-
+    else if(phase === "CLEAR"){
+        clearWorld();
+    }
 }
 
-function fpsUpdate() {
+function update() {
+    world.step();
+
+    var t01 = Date.now();
+    var r, p, t, n;
+    var max = bodys.length;
+
+    for ( var i = 0; i !== max ; ++i ) {
+        if( bodys[i].sleeping) sleeps[i] = 1;
+        else{ 
+            sleeps[i] = 0;
+            r = bodys[i].rotation;
+            p = bodys[i].position;
+            n = 12*i;
+            matrix[n+0]=r.e00; matrix[n+1]=r.e01; matrix[n+2]=r.e02; matrix[n+3]=p.x;
+            matrix[n+4]=r.e10; matrix[n+5]=r.e11; matrix[n+6]=r.e12; matrix[n+7]=p.y;
+            matrix[n+8]=r.e20; matrix[n+9]=r.e21; matrix[n+10]=r.e22; matrix[n+11]=p.z;
+        }
+    }
+    var t02 = Date.now();
+
+    timeint = t02-t01;
+    fpsUpdate();
+    worldInfo();
+
+    self.postMessage({tell:"RUN", infos: infos, matrix:matrix, sleeps:sleeps  })
+}
+
+function worldInfo() {
+    infos[0] = world.numRigidBodies;
+    infos[1] = world.numContacts;
+    infos[2] = world.numShapes;
+    infos[3] = world.numJoints;
+    infos[4] = world.numIslands;
+    infos[5] = world.performance.broadPhaseTime;
+    infos[6] = world.performance.narrowPhaseTime ;
+    infos[7] = world.performance.solvingTime;
+    infos[8] = world.performance.updatingTime;
+    infos[9] = world.performance.totalTime;
+    infos[10] = fpsint;
+    infos[11] = timeint;
+}
+
+function fpsUpdate(){
     time = Date.now();
     if (time - 1000 > time_prev) {
-        time_prev = time;
-        fpstxt ="Fps: " + fps +"<br>";
-        fps = 0;
-    } 
-    fps++;
+        time_prev = time; fpsint = fps; fps = 0;
+    } fps++;
 }
+
 
 function initClass(){
     with(joo.classLoader) {
@@ -141,127 +138,77 @@ function initClass(){
             Mat44 = com.element.oimo.math.Mat44;
 
             initWorld();
-           
         }});
     }
 }
 
 function initWorld(){
-    world = new World();
-    //world.broadPhase = new BruteForceBroadPhase();
-    //world.broadPhase = new SweepAndPruneBroadPhase(); // default 
-    world.numIterations = iterations;
-    world.timeStep = dt;
-    world.gravity = new Vec3(0, -10, 0);
-    startOimoTest();
+    if(world==null){
+        world = new World();
+        world.numIterations = iterations;
+        world.timeStep = dt;
+        world.gravity = new Vec3(0, -10, 0);
+    }
+    //startOimoTest();
+
+    sleeps = [];
+    infos = [];
+
+    initDemo();
+}
+
+function initDemo(){
+
+    bodys = [];
+    types = [];
+    sizes = [];
+    matrix = [];
+
+    demo01();
+    self.postMessage({tell:"INIT", types:types, sizes:sizes });
 }
 
 function clearWorld(){
-    if(world != null) world.clear();
+    var i;
+    var max = world.numRigidBodies;
+    for (i = max - 1; i >= 0 ; i -- ) world.removeRigidBody(world.rigidBodies[i]);
+    max = world.numJoints;
+    for (i = max - 1; i >= 0 ; i -- ) world.removeJoint(world.joints[i]);
+    
     bodys = [];
+    sleeps = [];
+    types = [];
+    infos = [];
+    self.postMessage({tell:"CLEAR"});
 }
 
-function startOimoTest(n, t){
-    if(n == null) n=N;
-    if(t == null) t=0;
+//--------------------------------------------------
+//    BASIC OBJECT
+//--------------------------------------------------
 
-    var sc = new ShapeConfig();
-    sc.density = 10;
-    sc.friction = 0.5;
-    sc.restitution = 0.5;
-
-    // ground
-    var gbody = new RigidBody(0, 0, 0, 0);
-    sc.position.init(0, -5, 0);
-    //sc.rotation.init();
-    var shape0 = new BoxShape( 10, 10, 10, sc);
-    gbody.addShape(shape0);
-    gbody.setupMass(0x1);
-    world.addRigidBody(gbody);
-
-    //wall
-    var wbody = new RigidBody( 0, 0, 0, 0);
-    sc.position.init(0, 5, -2.5);
-    //sc.rotation.init();
-    var sh = new BoxShape(5, 10, 1, sc);
-    wbody.addShape(sh);
-    wbody.setupMass(0x1);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody( 0, 0, 0, 0);
-    sc.position.init(0, 5, 2.5);
-    //sc.rotation.init();
-    sh = new BoxShape( 5, 10, 1, sc);
-    wbody.addShape(sh);
-    wbody.setupMass(0x1);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody( 0, 0, 0, 0);
-    sc.position.init(-2.5, 5, 0);
-    //sc.rotation.init();
-    sh = new BoxShape( 1, 10, 5, sc);
-    wbody.addShape(sh);
-    wbody.setupMass(0x1);
-    world.addRigidBody(wbody);
-
-    wbody = new RigidBody( 0, 0, 0, 0);
-    sc.position.init(2.5, 5, 0);
-    //sc.rotation.init();
-    sh = new BoxShape( 1, 10, 5, sc);
-    wbody.addShape(sh);
-    wbody.setupMass(0x1);
-    world.addRigidBody(wbody);
-
-    sc.density = 1;
-
-    bodys = [];
-   // stypes = [];
-
-    // add dynamique object
-    var body, px, pz, type;
-    for (var i=0; i!==n; ++i ){
-        if(t==0)type = Math.floor(Math.random()*3)+1;
-        else type = t;
-        px = -1+Math.random()*2;
-        pz = -1+Math.random()*2;
-        if(type==1){ // sphere
-            body = new RigidBody( 0, 0, 0, 0);
-            sc.position.init(px, 110+i, pz);
-            sc.rotation.init();
-            shape = new SphereShape( 0.25, sc);
-            body.addShape(shape);
-            body.setupMass(0x0);
-        } else if(type==3){ // cylinder
-            body = new RigidBody( 0, 0, 0, 0);
-            sc.position.init(px, 100+i, pz);
-            sc.rotation.init();
-            shape = new CylinderShape( 0.25, 0.5, sc);
-            body.addShape(shape);
-            body.setupMass(0x0);
-        } else if(type==2) { // box
-            body = new RigidBody( 0, 0, 0, 0);
-            sc.position.init(px, 100+i, pz);
-            sc.rotation.init();
-            shape = new BoxShape( 0.5, 0.5, 0.5, sc);
-            body.addShape(shape);
-            body.setupMass(0x0);
-        }
-        world.addRigidBody(body);
-        bodys[i] = body;
-        //stypes[i] = type;
+function addRigid(obj){
+    var p = obj.pos || [0,0,0];
+    var s = obj.size || [1,1,1];
+    var r = obj.rot || [0,0,0];
+    var move = obj.move || false;
+    var sc = obj.sc || new ShapeConfig();
+    var t; 
+    var shape;
+    sc.position.init(p[0], p[1], p[2]);
+    sc.rotation.init();
+    switch(obj.type){
+        case "box": shape=new BoxShape(s[0], s[1], s[2], sc); t=2; break;
+        case "cylinder": shape=new CylinderShape(s[0], s[1], sc); t=3; break;
+        case "sphere": shape=new SphereShape(s[0], sc); t=1; break;
     }
-
-    if(SUPPORT_TRANSFERABLE)
-        self.postMessage({tell:"T-INIT", matrix:matrix }, [matrix.buffer]);
-    else 
-        self.postMessage({tell:"INIT", matrix:matrix });
-
-    //self.postMessage({tell:"INIT", matrix:matrix }, [matrix.buffer]);
-    //var objData = ;
-    //self.postMessage({tell:"INIT", matrix:matrix }, [matrix.buffer]);
-  //  self.postMessage({tell:"INIT", Matrix:matrix }, [matrix]);
-   // this.postMessage({ matrix:matrix }, [matrix.buffer])
- //this.postMessage({tell:"world Init", matrix:null })//, [matrix.buffer])
-   // this.postMessage("world initialised !!");
+    var body = new RigidBody(0, 0, 0, 0);
+    body.addShape(shape);
+    if(!move)body.setupMass(0x1);
+    else{ 
+        body.setupMass(0x0);
+        bodys.push(body);
+        types.push(t);
+        sizes.push([s[0]*scale, s[1]*scale, s[2]*scale]);
+    }
+    world.addRigidBody(body);
 }
-
