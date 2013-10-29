@@ -19,10 +19,6 @@ V1 : [http://lo-th.github.io/loth/diana/index.html](http://lo-th.github.io/loth/
 V2 : [http://lo-th.github.io/loth/diana/index2.html](http://lo-th.github.io/loth/diana/index2.html)
 
 
-4/ Oimo.js engine on Three.js
+4/ OimoPhysics worker preview (Away3d & sea3d 1.6)
 
-[http://lo-th.github.io/loth/oimo.js/index.html](http://lo-th.github.io/loth/oimo.js/index.html)
-
-[oimo dev worker test](http://lo-th.github.io/loth/oimo.js/index_dev.html)
-
-[oimo rev worker test](http://lo-th.github.io/loth/oimo.js/index_rev.html)
+[http://lo-th.github.io/loth/oimo.fl/index.html](http://lo-th.github.io/loth/oimo.fl/index.html)
