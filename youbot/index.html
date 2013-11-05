@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>SEA3D File Format - WebGL</title>
+		<title>Three YouBot</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<meta property="og:image" content="http://sea3d.googlecode.com/svn/tags/SEA3D-Mascot.jpg"/>
-		<meta property="og:title" content="SEA3D File Format - WebGL"/>
-		<meta property="og:url" content="http://sea3d.poonya.com/webgl/"/>
-		<meta property="og:site_name" content="SEA3D File Format"/>
-		<meta property="og:type" content="website"/>
-		<meta property="og:description" content="A file format for games"/>
+		<meta property="og:title" content="Three Youbot - WebGL"/>
+		<meta property="og:description" content="Robot simulation demo"/>
 		<meta name="language" content="en-us" />
-		<link rel="shortcut icon" href="http://sea3d.googlecode.com/svn/tags/ico.png" type="image/x-icon" />
 		<style>
 			body {
 				font-family: Monospace;
@@ -44,7 +39,7 @@
 
 	<body>		
 		<div id="info"></div>
-		<div id="loading"><img src="images/ajax-loader.gif" alt="Loading SEA3D File."></div>
+		<div id="loading"><img src="images/ajax-loader.gif" alt="Loading youbot robot"></div>
 		<script src="js/three.min.js"></script>	
 		<script src="js/tweenLite.min.js"></script>
 		<script src="js/CameraLoth.js"></script>	
@@ -58,35 +53,29 @@
 		<script src="js/postprocessing/ShaderPass.js"></script>
 		<script src="js/postprocessing/MaskPass.js"></script> 
 		<script src="js/shaders/CopyShader.js"></script>
-		
 		<script src="js/shaders/ColorCorrectionShader.js"></script>
-		<script src="js/shaders/VignetteShader.js"></script>
 
-		
 		<script>								
 			var container, info;
-			var infos
-
 			var cam, scene, renderer, clock, loader, composer, renderPass, delta, sunLight;
-
-			var mouseX = 0, mouseY = 0;
 			var ToRad = Math.PI / 180;
-			var wheel_geometry_r, wheel_geometry_l;
-			//mesh
+			// geometry
+			var wheel_geo_r, wheel_geo_l;
+			// mesh
 			var wheels = [];
-			var base;
+			var base, plate, arm_base, arm_joint_1;
 			var youbot;
 
 			window.onload = init;
 			
 
 			function init() {
-				
 				container = document.createElement( 'div' );
 				container.style.position = "absolute";
 				document.body.appendChild( container );
 				
 				clock = new THREE.Clock();
+
 				// Scene
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0x121212 , 200, 1000 );
@@ -94,29 +83,29 @@
 				camera.aspect = window.innerWidth / (window.innerHeight-4);
 				camera.updateProjectionMatrix();
 
-				// Lights
-				var ambient = new THREE.AmbientLight( 0x505050);
+				// Lights and shadow
+				var ambient = new THREE.AmbientLight( 0x333333);
 				scene.add( ambient );												
 				
-				var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
-				hemiLight.color.setHex( 0xFFFFFF );
-				hemiLight.groundColor.setHex( 0x505050 );
+				var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
+				hemiLight.color.setHex( 0xfeffe6 );
+				hemiLight.groundColor.setHex( 0x303030 );
 				hemiLight.position.set( 0, 500, 0 );
 				scene.add( hemiLight );
 
-				sunLight = new THREE.DirectionalLight( 0xffffff );
-				sunLight.intensity = 0.6;
+				sunLight = new THREE.DirectionalLight( 0xe6f3ff );
+				sunLight.intensity = 0.5;
 				sunLight.castShadow = true;
 
 				sunLight.shadowCameraNear = 100;
 				sunLight.shadowCameraFar = 500;
 				
 				sunLight.shadowMapBias = 0.01;
-				sunLight.shadowMapDarkness = 0.7;
-				sunLight.shadowMapWidth = 1024;
-				sunLight.shadowMapHeight = 1024;
+				sunLight.shadowMapDarkness = 0.3;
+				sunLight.shadowMapWidth =1024;
+				sunLight.shadowMapHeight =1024;
 
-				var lightSize = 200;
+				var lightSize = 130;
 
 				sunLight.shadowCameraLeft = -lightSize;
 				sunLight.shadowCameraRight = lightSize;
@@ -140,7 +129,8 @@
 				renderPass = new THREE.RenderPass( scene, camera );
 				var copyPass = new THREE.ShaderPass( THREE.CopyShader );				
 				composer.addPass( renderPass );
-				var vh = 1.6, vl = 1.2;
+				//var vh = 1.6, vl = 1.2;
+				var vh = 1.05, vl = 1.2;
 				var colorCorrectionPass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
 				colorCorrectionPass.uniforms[ "powRGB" ].value = new THREE.Vector3( vh, vh, vh );
 				colorCorrectionPass.uniforms[ "mulRGB" ].value = new THREE.Vector3( vl, vl, vl );
@@ -167,8 +157,9 @@
 
 			function loadRobot() {
 				var sea3dStandard = true;
-				var mat01 = new THREE.MeshPhongMaterial( { color: 0x333333, shininess:100, specular:0xffffff } );
-				
+				//var matBasic = new THREE.MeshPhongMaterial( { color: 0x333333, shininess:100, specular:0xffffff } );
+				var matBasic = new THREE.MeshLambertMaterial( { color: 0x333333, shininess:100, specular:0xffffff } );
+
 				if (sea3dStandard)
 					camera.scale.set(-1, 1, 1);
 				
@@ -176,11 +167,10 @@
 				
 				loader.onComplete = function( e ) {
 					for (var i=0; i !== loader.meshes.length; i++){
-						loader.meshes[i].material = mat01;
-
+						loader.meshes[i].material = matBasic;
 						if(loader.meshes[i].name === "base_frame" ) base = loader.meshes[i];
-						if(loader.meshes[i].name === "bot_wheel_R" ) wheel_geometry_r = loader.meshes[i].geometry;
-						if(loader.meshes[i].name === "bot_wheel_L" ) wheel_geometry_l = loader.meshes[i].geometry;
+						if(loader.meshes[i].name === "bot_wheel_R" ) wheel_geo_r = loader.meshes[i].geometry;
+						if(loader.meshes[i].name === "bot_wheel_L" ) wheel_geo_l = loader.meshes[i].geometry;
 					}
 					createRobot();
 					document.getElementById('loading').style.visibility = 'hidden';
@@ -189,18 +179,57 @@
 			}
 
 			function createRobot() {
+				var i;
 				youbot = new THREE.Object3D();
 				scene.add(youbot);
-				var wheelTexture = new THREE.ImageUtils.loadTexture("images/wheel.jpg");
-				wheelTexture.repeat.set( 1, -1 );
-				wheelTexture.wrapS = wheelTexture.wrapT = THREE.RepeatWrapping;
-				var wheelMaterial = new THREE.MeshPhongMaterial( { map: wheelTexture, shininess:100, specular:0x404040 } );
-				youbot.add( base );
-				//base.position.set(0, 8.4, 0);
+				// textures
+				var textures = [];
+				textures[0] = new THREE.ImageUtils.loadTexture("images/base.jpg");
+				textures[1] = new THREE.ImageUtils.loadTexture("images/wheel.jpg");
+				textures[2] = new THREE.ImageUtils.loadTexture("images/base_frame.jpg");
+				textures[3] = new THREE.ImageUtils.loadTexture("images/joint1.jpg");
+				textures[4] = new THREE.ImageUtils.loadTexture("images/plate.jpg");
+				for(i = 0; i!== textures.length; i++){
+					textures[i].repeat.set( 1, -1 );
+				    textures[i].wrapS = textures[i].wrapT = THREE.RepeatWrapping;
+				    textures[i].anisotropy = renderer.getMaxAnisotropy();
+				}
 
-				for(var i=0; i!==4;i++){
-					if(i===0 || i===2) wheels[i] = new THREE.Mesh( wheel_geometry_r, wheelMaterial);
-					else wheels[i] = new THREE.Mesh( wheel_geometry_l, wheelMaterial);
+				// material
+				var shine = 10;
+				var specular = 0x606060;
+				var baseMaterial = new THREE.MeshPhongMaterial( { map: textures[0], shininess:shine, specular:specular } );
+				var wheelMaterial = new THREE.MeshPhongMaterial( { map: textures[1], shininess:shine, specular:specular } );
+				var armBaseMaterial = new THREE.MeshPhongMaterial( { map: textures[2], shininess:shine, specular:specular } );
+				var joint1Material = new THREE.MeshPhongMaterial( { map: textures[3], shininess:shine, specular:specular } );
+				var plateMaterial = new THREE.MeshPhongMaterial( { map: textures[4], shininess:shine, specular:specular } );
+
+				/*var baseMaterial = new THREE.MeshLambertMaterial( { map: textures[0], shininess:100, specular:0x404040 } );
+				var wheelMaterial = new THREE.MeshLambertMaterial( { map: textures[1], shininess:100, specular:0x404040 } );
+				var armBaseMaterial = new THREE.MeshLambertMaterial( { map: textures[2], shininess:100, specular:0x404040 } );
+				var joint1Material = new THREE.MeshLambertMaterial( { map: textures[3], shininess:100, specular:0x404040 } );
+				var plateMaterial = new THREE.MeshLambertMaterial( { map: textures[4], shininess:100, specular:0x404040 } );*/
+
+				// detect mesh
+				var name;
+				for(i = 0; i!== base.children.length; i++){
+					name = base.children[i].name;
+					if(name === "arm_base_frame") arm_base = base.children[i]
+					if(name === "plate") plate = base.children[i]
+				}
+				arm_joint_1 = arm_base.children[0];
+
+				// apply material
+				base.material = baseMaterial;
+				plate.material = plateMaterial;
+				arm_base.material = armBaseMaterial;
+				arm_joint_1.material = joint1Material;
+
+				youbot.add( base );
+
+				for(i=0; i!==4;i++){
+					if(i===0 || i===2) wheels[i] = new THREE.Mesh( wheel_geo_r, wheelMaterial);
+					else wheels[i] = new THREE.Mesh( wheel_geo_l, wheelMaterial);
 					
 					if(i===0) wheels[i].position.set(-22.5, 5, -15.8);
 					if(i===1) wheels[i].position.set(-22.5, 5, 15.8);
@@ -240,7 +269,6 @@
 				//if ( key[3] || key[2]) controls.speed = clamp( controls.speed + 1 * delta * controls.acceleration, -controls.maxSpeed, controls.maxSpeed );
 
 				// speed decay
-				//if(!controls.lateral){
 				if ( ! ( key[0] || key[1]) ) {
 					if ( controls.speed > 0 ) {
 						var k = exponentialEaseOut( controls.speed / controls.maxSpeed );
@@ -276,6 +304,7 @@
 
 				youbot.position.x += controls.tx;
 				youbot.position.z += controls.tz;
+
 				// wheel animation
 				var wSpeed = delta * controls.wheelRotation;
 				for(var i=0; i!==4;i++){

@@ -70,7 +70,7 @@ function onMouseMove(e) {
 	if (mouse.down && !camPos.automove ) {
 		mouse.x = e.clientX;
 		mouse.y = e.clientY;
-		camPos.horizontal = ((mouse.x - mouse.ox) * 0.3) + mouse.h;
+		camPos.horizontal = (-(mouse.x - mouse.ox) * 0.3) + mouse.h;
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
 	}
@@ -82,7 +82,7 @@ function onTouchMove(e) {
     if (mouse.down && !camPos.automove ) {
 		mouse.x = e.touches[touchId].clientX;
 		mouse.y =  e.touches[touchId].clientY;
-		camPos.horizontal = ((mouse.x - mouse.ox) * 0.3) + mouse.h;
+		camPos.horizontal = (-(mouse.x - mouse.ox) * 0.3) + mouse.h;
 		camPos.vertical = (-(mouse.y - mouse.oy) * 0.3) + mouse.v;
 		moveCamera();
     }
