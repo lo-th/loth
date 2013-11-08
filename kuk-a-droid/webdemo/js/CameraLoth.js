@@ -4,20 +4,24 @@ var vsize = { x:window.innerWidth, y:window.innerHeight, z:window.innerWidth/win
 var mouse = {x: 0, y: 0, down:false, over:false, ox: 0, oy: 0, h: 0, v: 0, mx:0, my:0};
 var center = new THREE.Vector3(0,0,0);
 var ToRad = Math.PI / 180;
+var DomElement;
 
 var camera;
 
-function CameraLoth(option) {
+function CameraLoth(domElement) {
+	this.domElement = ( domElement !== undefined ) ? domElement : document
 	camera = new THREE.PerspectiveCamera( 60, 1, 1, 1000 );
 	scene.add(camera);
 	moveCamera();
 
-	document.addEventListener( 'mousemove', onMouseMove, false );
-	document.addEventListener( 'touchmove', onTouchMove, false );
-	document.addEventListener( 'mousedown', onMouseDown, false );
-	document.addEventListener( 'mouseup', onMouseUp, false );
-	document.addEventListener( 'mousewheel', onMouseWheel, false );
-	document.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	this.domElement.addEventListener( 'mousemove', onMouseMove, false );
+	this.domElement.addEventListener( 'touchmove', onTouchMove, false );
+	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
+	this.domElement.addEventListener( 'mouseup', onMouseUp, false );
+	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
+	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+
+	DomElement = this.domElement;
 }
 
 
@@ -25,7 +29,7 @@ function CameraLoth(option) {
 //  MOUSE
 //-----------------------------------------------------
 
-function onMouseOut() {
+/*function onMouseOut() {
 	if(cursor){
 	    document.body.style.cursor = 'auto';
 	    cursorUp.style.visibility = 'hidden';
@@ -40,7 +44,7 @@ function onMouseOver() {
     	cursorUp.style.visibility = 'visible';
     	mouse.over = true;
     }
-}
+}*/
 
 function onMouseDown(e) {
 	mouse.ox = e.clientX;
@@ -62,12 +66,14 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
+	document.body.style.cursor = 'auto';
 	mouse.down = false;
 }
 
 function onMouseMove(e) {
 	e.preventDefault();
 	if (mouse.down && !camPos.automove ) {
+		document.body.style.cursor = 'move';
 		mouse.x = e.clientX;
 		mouse.y = e.clientY;
 		camPos.horizontal = (-(mouse.x - mouse.ox) * 0.3) + mouse.h;
@@ -93,7 +99,7 @@ function onMouseWheel(e) {
 	var m;
 	if ( e.wheelDelta ){ delta = e.wheelDelta; m=true}
 	else if ( e.detail ) { delta = - e.detail; m=false}
-	if(m)camPos.distance-=delta;
+	if(m)camPos.distance-=delta/10;
 	else camPos.distance-=delta*10;
 	moveCamera();
 }
