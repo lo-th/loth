@@ -59,8 +59,10 @@
 
 		<script src="webdemo/js/three.min.js"></script>
 		<script src="webdemo/js/CameraLoth.js"></script>
+		<script src='webdemo/js/stats.min.js'></script>
 		<script src='webdemo/js/dat.gui.min.js'></script>
 		<script src="webdemo/js/tweenLite.min.js"></script>
+		<script src="webdemo/js/BufferGeometryUtils.js"></script>
 		<script src="webdemo/js/loaders/sea3d/SEA3D.js"></script>
 		<script src="webdemo/js/loaders/sea3d/SEA3DLoader.js"></script>
 		<script src="webdemo/js/loaders/sea3d/SEA3DDeflate.js"></script>
@@ -71,6 +73,7 @@
 		    var ToRad = Math.PI / 180;
 			var container, info, gui;
 			var scene, renderer, camera, clock, delta, sunLight, cam;
+			var stats;
 			// geometry
 			var wheel_geo_r, wheel_geo_l;
 			// object3d
@@ -99,11 +102,16 @@
 				var ambient = new THREE.AmbientLight( 0x505050);
 				scene.add( ambient );												
 				
-				var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
+				/*var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
 				hemiLight.color.setHex( 0xfeffe6 );
 				hemiLight.groundColor.setHex( 0x303030 );
 				hemiLight.position.set( 0, 500, 0 );
-				scene.add( hemiLight );
+				scene.add( hemiLight );*/
+
+				var pointLight = new THREE.PointLight( 0xfeffe6, 1.5, 2000 );
+				pointLight.color.setHSL( 0.05, 1, 0.95 );
+				pointLight.position.set( 0, 50, 600 );
+				scene.add( pointLight );
 
 				sunLight = new THREE.DirectionalLight( 0xe6f3ff );
 				sunLight.intensity = 1;
@@ -140,11 +148,11 @@
 				window.addEventListener( 'resize', onResize, false );
 				
 				// ground
-				var geometry = new THREE.PlaneGeometry( 10000,10000 );
+				var geometry = new THREE.PlaneGeometry( 10000,10000,2,2 );
 				var groundMap = new THREE.ImageUtils.loadTexture( AssetsFolder + "ground.jpg" );
 				groundMap.repeat.set( 2000, 2000 );
 				groundMap.wrapS = groundMap.wrapT = THREE.RepeatWrapping;
-				var mat00 = new THREE.MeshPhongMaterial( { map:groundMap , shininess:20, specular:0x606060, metal:true } );
+				var mat00 = new THREE.MeshPhongMaterial( { map:groundMap , shininess:20, specular:0x606060 } );
 				var plane = new THREE.Mesh( geometry, mat00 );
 				plane.rotation.x = 90*ToRad;
 				plane.receiveShadow = true;
@@ -156,15 +164,20 @@
 				
 				loader.onComplete = function( e ) {
 					for (var i=0; i !== loader.meshes.length; i++){
-						//loader.meshes[i].material = matBasic;
 						if(loader.meshes[i].name === "base_frame" ) base = loader.meshes[i];
-						if(loader.meshes[i].name === "bot_wheel_R" ) wheel_geo_r = loader.meshes[i].geometry;
-						if(loader.meshes[i].name === "bot_wheel_L" ) wheel_geo_l = loader.meshes[i].geometry;
+						if(loader.meshes[i].name === "bot_wheel_R" ) wheel_geo_r = THREE.BufferGeometryUtils.fromGeometry(loader.meshes[i].geometry);//loader.meshes[i].geometry;
+						if(loader.meshes[i].name === "bot_wheel_L" ) wheel_geo_l = THREE.BufferGeometryUtils.fromGeometry(loader.meshes[i].geometry);//loader.meshes[i].geometry;
 					}
 					document.getElementById('loading').style.visibility = 'hidden';
 					createRobot();
 				};
 				loader.load( AssetsFolder + "youbot.sea" );
+
+				stats = new Stats();
+				stats.domElement.style.position	= 'absolute';
+				stats.domElement.style.right	= '10px';
+				stats.domElement.style.bottom	= '10px';
+				document.body.appendChild( stats.domElement );
 			}
 
 			function createRobot() {
@@ -211,15 +224,13 @@
 				var specular = 0x606060;
 				materials[0] = new THREE.MeshPhongMaterial( { map: textures[0], shininess:shine, specular:specular } );
 				materials[1] = new THREE.MeshPhongMaterial( { map: textures[1], shininess:shine, specular:specular } );
-				materials[2] = new THREE.MeshPhongMaterial( { map: textures[2], shininess:shine, specular:specular, metal:true } );
+				materials[2] = new THREE.MeshPhongMaterial( { map: textures[2], shininess:shine, specular:specular } );
 				materials[3] = new THREE.MeshPhongMaterial( { map: textures[3], shininess:shine, specular:specular } );
 				materials[4] = new THREE.MeshPhongMaterial( { map: textures[4], shininess:shine, specular:specular } );
 				materials[5] = new THREE.MeshPhongMaterial( { map: textures[5], shininess:shine, specular:specular } );
 				materials[6] = new THREE.MeshPhongMaterial( { map: textures[6], shininess:shine, specular:specular } );
 				materials[7] = new THREE.MeshPhongMaterial( { map: textures[7], shininess:shine, specular:specular } );
 				materials[8] = new THREE.MeshPhongMaterial( { map: textures[8], shininess:shine, specular:specular } );
-				materials[9] = new THREE.MeshPhongMaterial( { map: textures[8], shininess:shine, specular:specular, metal:true } );
-
 
 				// apply material
 				base.material = materials[1];
@@ -230,8 +241,8 @@
 				arm_joint_3.material = materials[6];
 				arm_joint_4.material = materials[7];
 				arm_joint_5.material = materials[8];
-				right_finger.material = materials[9];
-				left_finger.material = materials[9];
+				right_finger.material = materials[8];
+				left_finger.material = materials[8];
 
 				// add root model
 				youbot.add( base );
@@ -366,6 +377,7 @@
 			function render(delta) {
 				moveRobot(delta);
 				renderer.render( scene, camera );
+				stats.update();
 			}
 
 			function displayInfo() {
@@ -412,7 +424,7 @@
 			//  GUI
 			//-----------------------------------------------------
 
-			var jointConfig = { joint_1:0, joint_2:90, joint_3:90, joint_4:90, joint_5:0, finger:0 };
+			var jointConfig = { joint_1:0, joint_2:90, joint_3:90, joint_4:0, joint_5:0, finger:0 };
 
 			function addGUI() {
 				gui = new dat.GUI();
