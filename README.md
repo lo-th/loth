@@ -23,6 +23,8 @@ V2 : [http://lo-th.github.io/loth/diana/index2.html](http://lo-th.github.io/loth
 
 [http://lo-th.github.io/loth/oimo.fl/index.html](http://lo-th.github.io/loth/oimo.fl/index.html)
 
-5/ My work for Kuk-a-droid, full optimized remodeling, UV texture creation and render.
+5/ My current work for Kuk-a-droid, full optimized remodeling, UV texture creation, texture render, three.js code.<br>
+( original model .DAE no uv map = 8.50 Mb / test export sea3d no uv = 2 Mb / final model optimized with full uv = 503 Kb )
+
 
 [http://lo-th.github.io/loth/kuk-a-droid/index.html](http://lo-th.github.io/loth/kuk-a-droid/index.html)
