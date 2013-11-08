@@ -140,11 +140,11 @@
 				window.addEventListener( 'resize', onResize, false );
 				
 				// ground
-				var geometry = new THREE.PlaneGeometry( 20000,20000 );
+				var geometry = new THREE.PlaneGeometry( 10000,10000 );
 				var groundMap = new THREE.ImageUtils.loadTexture( AssetsFolder + "ground.jpg" );
 				groundMap.repeat.set( 2000, 2000 );
 				groundMap.wrapS = groundMap.wrapT = THREE.RepeatWrapping;
-				var mat00 = new THREE.MeshPhongMaterial( { map:groundMap , shininess:20, specular:0x909090} );
+				var mat00 = new THREE.MeshPhongMaterial( { map:groundMap , shininess:20, specular:0x606060, metal:true } );
 				var plane = new THREE.Mesh( geometry, mat00 );
 				plane.rotation.x = 90*ToRad;
 				plane.receiveShadow = true;
@@ -211,15 +211,14 @@
 				var specular = 0x606060;
 				materials[0] = new THREE.MeshPhongMaterial( { map: textures[0], shininess:shine, specular:specular } );
 				materials[1] = new THREE.MeshPhongMaterial( { map: textures[1], shininess:shine, specular:specular } );
-				materials[2] = new THREE.MeshPhongMaterial( { map: textures[2], shininess:shine, specular:specular } );
+				materials[2] = new THREE.MeshPhongMaterial( { map: textures[2], shininess:shine, specular:specular, metal:true } );
 				materials[3] = new THREE.MeshPhongMaterial( { map: textures[3], shininess:shine, specular:specular } );
 				materials[4] = new THREE.MeshPhongMaterial( { map: textures[4], shininess:shine, specular:specular } );
 				materials[5] = new THREE.MeshPhongMaterial( { map: textures[5], shininess:shine, specular:specular } );
 				materials[6] = new THREE.MeshPhongMaterial( { map: textures[6], shininess:shine, specular:specular } );
 				materials[7] = new THREE.MeshPhongMaterial( { map: textures[7], shininess:shine, specular:specular } );
 				materials[8] = new THREE.MeshPhongMaterial( { map: textures[8], shininess:shine, specular:specular } );
-				materials[9] = new THREE.MeshPhongMaterial( { color: 0xff0000, shininess:shine, specular:specular } );
-				materials[10] = new THREE.MeshPhongMaterial( { color: 0xffff00, shininess:shine, specular:specular } );
+				materials[9] = new THREE.MeshPhongMaterial( { map: textures[8], shininess:shine, specular:specular, metal:true } );
 
 
 				// apply material
@@ -231,8 +230,8 @@
 				arm_joint_3.material = materials[6];
 				arm_joint_4.material = materials[7];
 				arm_joint_5.material = materials[8];
-				right_finger.material = materials[8];
-				left_finger.material = materials[8];
+				right_finger.material = materials[9];
+				left_finger.material = materials[9];
 
 				// add root model
 				youbot.add( base );
