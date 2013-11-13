@@ -11,7 +11,7 @@
 		<style>
 			body {
 				font-family: 'Trebuchet MS', Geneva, sans-serif;
-				background-color: #373737;
+				background-color: #2d2d2d;
 				overflow: hidden;
 				font-size: 11px;
 				height: 100%;
@@ -92,7 +92,6 @@
 
 				// Scene and camera
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x373737 , 200, 1000 );
 				cam = new CameraLoth(container);
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
@@ -141,7 +140,7 @@
 				renderer.shadowMapSoft = true;
 				renderer.gammaOutput = true;
 				renderer.gammaInput = true;
-				renderer.setClearColor( 0x373737, 1 );
+				renderer.setClearColor( 0x2d2d2d, 1 );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
 				
@@ -197,8 +196,11 @@
 				arm_joint_3 = arm_joint_2.children[0];
 				arm_joint_4 = arm_joint_3.children[0];
 				arm_joint_5 = arm_joint_4.children[0];
-				left_finger = arm_joint_5.children[0];
-				right_finger = arm_joint_5.children[1];
+				for(i = 0; i!== arm_joint_5.children.length; i++){
+					name = arm_joint_5.children[i].name;
+					if(name === "right_finger") right_finger = arm_joint_5.children[i];
+					if(name === "left_finger") left_finger = arm_joint_5.children[i];
+				}
 
 				// texture
 				var textures = [];
@@ -269,6 +271,7 @@
 				onThreeChangeView(40, 60, 150);
 
 				animate();
+				addAnimation();
 				addGUI();
 			}
 
@@ -429,7 +432,7 @@
 			function addGUI() {
 				gui = new dat.GUI();
 				var f0 = gui.addFolder('ARM');
-				f0.add( jointConfig, 'joint_1', 0, 360 ).listen().onChange( function() { arm_joint_1.rotation.y = jointConfig.joint_1 * ToRad; });
+				f0.add( jointConfig, 'joint_1', -170, 170 ).listen().onChange( function() { arm_joint_1.rotation.y = jointConfig.joint_1 * ToRad; });
 				f0.add( jointConfig, 'joint_2', 0, 170 ).listen().onChange( function() { arm_joint_2.rotation.y = jointConfig.joint_2 * ToRad; });
 				f0.add( jointConfig, 'joint_3', -45, 225 ).listen().onChange( function() { arm_joint_3.rotation.y = jointConfig.joint_3 * ToRad; });
 				f0.add( jointConfig, 'joint_4', -110, 110 ).listen().onChange( function() { arm_joint_4.rotation.y = jointConfig.joint_4 * ToRad; });
@@ -437,6 +440,29 @@
 				f0.add( jointConfig, 'finger', 0, 2 ).listen().onChange( function() { right_finger.position.z = jointConfig.finger; left_finger.position.z = -jointConfig.finger; });
 				f0.open();
 			}
+
+			//-----------------------------------------------------
+			//  ANIMATION TEST
+			//-----------------------------------------------------
+
+			function addAnimation() {
+				TweenLite.to(jointConfig, 3, {joint_2: 0, joint_3: 180, joint_4:-100, delay:5, onUpdate: animationUpdate, onComplete: animationEnd });
+				TweenLite.to(jointConfig, 0.5, {joint_5:180, finger:2, delay:8, onUpdate: animationUpdate, onComplete: animationEnd });
+				TweenLite.to(jointConfig, 0.5, {joint_5:0, finger:0, delay:8.5, onUpdate: animationUpdate, onComplete: animationEnd });
+			}
+
+			function animationUpdate() {
+				arm_joint_1.rotation.y = jointConfig.joint_1 * ToRad;
+				arm_joint_2.rotation.y = jointConfig.joint_2 * ToRad;
+				arm_joint_3.rotation.y = jointConfig.joint_3 * ToRad;
+				arm_joint_4.rotation.y = jointConfig.joint_4 * ToRad;
+				arm_joint_5.rotation.y = jointConfig.joint_5 * ToRad;
+				right_finger.position.z = jointConfig.finger; left_finger.position.z = -jointConfig.finger;
+			}
+
+			function animationEnd() {
+			}
+	
 
 		</script>
 	</body>
