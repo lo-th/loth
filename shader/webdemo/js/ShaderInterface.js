@@ -209,7 +209,8 @@ function createSea3dDropZone(){
 			try{
 				loadSeaFile(e.currentTarget.result, modelSize);
 				//showLoader(false);
-			}//catch(e){alert('Couldn\'t read that file. Make sure it\'s an mp3 or ogg file (Chrome) or ogg file (Firefox).');}
+			}catch(e){//alert('Couldn\'t read that file. Make sure it\'s an mp3 or ogg file (Chrome) or ogg file (Firefox).');
+		}
 		};
 		reader.readAsDataURL(allTheFiles[0]);
 	},true);
