@@ -96,7 +96,7 @@ var renderer,composer, scene,camera,mesh,fov=120,nfov=45,sphereMaterial,material
 var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, optionsPinned=false;
 var cubeCamera, envSphere;
 var textureCube, envMaterial;
-
+var materialTrans;
 var noise=new ImprovedNoise();
 var MaxAnistropy;
 
@@ -171,7 +171,8 @@ function initMaterial(){
 		vertexShader:sphere_vertexShader,
 		fragmentShader:sphere_fragmentShader,
 		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading
+		shading:THREE.SmoothShading,
+		
 	});
 	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
 	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
@@ -196,6 +197,24 @@ function initMaterial(){
 
 	materialAnim.normalMap.repeat.set( 1, 1 );
 	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+
+	materialTrans =  new THREE.MeshPhongMaterial( {
+		//color: 0x000000, 
+		ambient: 0xFFFFFF, 
+		shininess:50, 
+		specular:0xffFFFF,
+		reflectivity:1,  
+		envMap:textureCube, 
+	    combine: THREE.MixOperation,
+		normalMap:material.uniforms.tNormal.value,
+		normalScale:{x:0,y:0},
+		wrapping:THREE.ClampToEdgeWrapping,
+		shading:THREE.SmoothShading,
+		transparent:true,
+		opacity:0.3
+	} ) 
+	materialTrans.normalMap.repeat.set( 1, 1 );
+	materialTrans.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
 
 	sphereMaterial=new THREE.ShaderMaterial({
 		uniforms:{
@@ -317,39 +336,40 @@ function sea3dSpecial(size){
 	var i;
 	switch(currentModel){
 		case'vision':
-		var visionWheel = new THREE.Object3D();
-		var visionSit = new THREE.Object3D();
-		var visionSteering;
-		for (i=0; i !== meshs.length; i++){
-			if(meshs[i].name == "wheel" || meshs[i].name == "wheel_j1" || meshs[i].name == "wheel_j2"){content.remove(meshs[i]); visionWheel.add(meshs[i]);}
-			if(meshs[i].name == "sitBase" || meshs[i].name == "sitColor" || meshs[i].name == "sitColor002"){content.remove(meshs[i]); visionSit.add(meshs[i]);}
-			if(meshs[i].name == "steering")visionSteering = meshs[i];
-		}
-		var sits = [];	
-		for (i = 0; i < 4; i++) {
-			sits[i] = visionSit.clone();
-			content.add(sits[i]);
-		}
-		var px = 70*size, pz = 125*size;
-		sits[0].position.set(-px, -2.2, -pz);
-		sits[1].position.set(-px, -2.2, 0);
-		sits[2].position.set(px, -2.2, -pz);
-		sits[3].position.set(px, -2.2, 0);
-		
-		visionSteering.position.set(70*size, (123*size) -2.2, 96*size);
-		// WHEELS
-		var wheels = [];
-		for (i = 0; i < 4; i++) {
-			wheels[i] = visionWheel.clone();
-			content.add(wheels[i]);
-		}
-		var wPos = new THREE.Vector3(138, 60, 237);
-		wheels[0].position.set(-wPos.x * size, wPos.y * size, wPos.z * size);
-		wheels[1].position.set(-wPos.x * size, wPos.y * size, -wPos.z * size);
-		wheels[2].position.set(wPos.x * size, wPos.y * size, wPos.z * size);
-		wheels[3].position.set(wPos.x * size, wPos.y * size, -wPos.z * size);
-		wheels[2].scale.set(-1, -1, 1 );
-		wheels[3].scale.set(-1, -1, 1 );
+			var visionWheel = new THREE.Object3D();
+			var visionSit = new THREE.Object3D();
+			var visionSteering;
+			for (i=0; i !== meshs.length; i++){
+				if(meshs[i].name == "wheel" || meshs[i].name == "wheel_j1" || meshs[i].name == "wheel_j2"){content.remove(meshs[i]); visionWheel.add(meshs[i]);}
+				if(meshs[i].name == "sitBase" || meshs[i].name == "sitColor" || meshs[i].name == "sitColor002"){content.remove(meshs[i]); visionSit.add(meshs[i]);}
+				if(meshs[i].name == "steering")visionSteering = meshs[i];
+				if(meshs[i].name == "glass_top" || meshs[i].name == "dooor_glass"|| meshs[i].name == "door_glass"|| meshs[i].name == "glass_wheel_window") meshs[i].material = materialTrans;
+			}
+			var sits = [];	
+			for (i = 0; i < 4; i++) {
+				sits[i] = visionSit.clone();
+				content.add(sits[i]);
+			}
+			var px = 70*size, pz = 125*size;
+			sits[0].position.set(-px, -2.2, 0);
+			sits[1].position.set(-px, -2.2, pz);
+			sits[2].position.set(px, -2.2, 0);
+			sits[3].position.set(px, -2.2, pz);
+			
+			visionSteering.position.set(70*size, (123*size) -2.2, -96*size);
+			// WHEELS
+			var wheels = [];
+			for (i = 0; i < 4; i++) {
+				wheels[i] = visionWheel.clone();
+				content.add(wheels[i]);
+			}
+			var wPos = new THREE.Vector3(138, 60, 237);
+			wheels[0].position.set(-wPos.x * size, wPos.y * size, wPos.z * size);
+			wheels[1].position.set(-wPos.x * size, wPos.y * size, -wPos.z * size);
+			wheels[2].position.set(wPos.x * size, wPos.y * size, wPos.z * size);
+			wheels[3].position.set(wPos.x * size, wPos.y * size, -wPos.z * size);
+			wheels[2].scale.set(-1, -1, 1 );
+			wheels[3].scale.set(-1, -1, 1 );
 		break;
 	}
 }
