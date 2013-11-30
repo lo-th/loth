@@ -306,8 +306,10 @@ modelButtons.forEach(function(el){
 			case'column':f=true;  mod="column"; size=30; break;
 			case'gyro':f=true;  mod="gyro"; size=30; break;
 			case'youbot':f=true;  mod="youbot"; size=1; break;
-			case'body':f=true;  mod="body"; size=0.4; break;
+			case'body':f=true;  mod="body"; size=0.6; break;
 			case'head':f=true;  mod="head"; size=0.2; break;
+			case'onkba':f=true;  mod="onkba"; size=0.6; break;
+			case'vision':f=true;  mod="vision"; size=0.2; break;
 		}
 if(f){
 	 loadSeaFile(AssetsFolder + "models/"+mod+".sea", size);
