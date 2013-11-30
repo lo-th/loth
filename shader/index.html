@@ -186,7 +186,7 @@ function initMaterial(){
 		shininess:50, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:textureCube, 
+		envMap:tx, 
 	    combine: THREE.MixOperation,
 		skinning:true,
 		normalMap:material.uniforms.tNormal.value,
@@ -204,14 +204,14 @@ function initMaterial(){
 		shininess:50, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:textureCube, 
+		envMap:tx, 
 	    combine: THREE.MixOperation,
 		normalMap:material.uniforms.tNormal.value,
 		normalScale:{x:0,y:0},
 		wrapping:THREE.ClampToEdgeWrapping,
 		shading:THREE.SmoothShading,
 		transparent:true,
-		opacity:0.3
+		opacity:0.6
 	} ) 
 	materialTrans.normalMap.repeat.set( 1, 1 );
 	materialTrans.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
@@ -242,7 +242,9 @@ function loadSphere(){
 		cubeCamera.scale.set(-1,1,1);
 		cubeCamera.lookAt( new THREE.Vector3(0,0,5))
 		scene.add( cubeCamera );
+		cubeCamera.updateCubeMap( renderer, scene );
 		materialAnim.envMap = cubeCamera.renderTarget;
+		materialTrans.envMap = cubeCamera.renderTarget;
 
 		loadSeaFile(AssetsFolder + "models/gauntlet.sea", 1);
 	}
