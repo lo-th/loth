@@ -87,7 +87,7 @@
 <script>'use strict'
 var container=document.getElementById('container');
 var loader=document.getElementById('loader');
-
+var currentModel="";
 var presets=[];
 var AssetsFolder = "webdemo/assets/";
 var delta, clock;
@@ -307,9 +307,51 @@ function loadSeaFile(file, s){
 
 		//document.getElementById('title').innerHTML = max*s*2;
 		//onChangeDistance( max*s*2*100);
+		sea3dSpecial(s);
 
 	}
 	loader.load( file );
+}
+
+function sea3dSpecial(size){
+	var i;
+	switch(currentModel){
+		case'vision':
+		var visionWheel = new THREE.Object3D();
+		var visionSit = new THREE.Object3D();
+		var visionSteering;
+		for (i=0; i !== meshs.length; i++){
+			if(meshs[i].name == "wheel" || meshs[i].name == "wheel_j1" || meshs[i].name == "wheel_j2"){content.remove(meshs[i]); visionWheel.add(meshs[i]);}
+			if(meshs[i].name == "sitBase" || meshs[i].name == "sitColor" || meshs[i].name == "sitColor002"){content.remove(meshs[i]); visionSit.add(meshs[i]);}
+			if(meshs[i].name == "steering")visionSteering = meshs[i];
+		}
+		var sits = [];	
+		for (i = 0; i < 4; i++) {
+			sits[i] = visionSit.clone();
+			content.add(sits[i]);
+		}
+		var px = 70*size, pz = 125*size;
+		sits[0].position.set(-px, -2.2, -pz);
+		sits[1].position.set(-px, -2.2, 0);
+		sits[2].position.set(px, -2.2, -pz);
+		sits[3].position.set(px, -2.2, 0);
+		
+		visionSteering.position.set(70*size, (123*size) -2.2, 96*size);
+		// WHEELS
+		var wheels = [];
+		for (i = 0; i < 4; i++) {
+			wheels[i] = visionWheel.clone();
+			content.add(wheels[i]);
+		}
+		var wPos = new THREE.Vector3(138, 60, 237);
+		wheels[0].position.set(-wPos.x * size, wPos.y * size, wPos.z * size);
+		wheels[1].position.set(-wPos.x * size, wPos.y * size, -wPos.z * size);
+		wheels[2].position.set(wPos.x * size, wPos.y * size, wPos.z * size);
+		wheels[3].position.set(wPos.x * size, wPos.y * size, -wPos.z * size);
+		wheels[2].scale.set(-1, -1, 1 );
+		wheels[3].scale.set(-1, -1, 1 );
+		break;
+	}
 }
 
 function scaleContent(n){

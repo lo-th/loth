@@ -74,22 +74,20 @@ function initInterface(){
 	ctxSphere2 = canvasSphere2.getContext("2d");
 	ctxSphere2.scale(0.5, 0.5);
 	ctxSphere2.drawImage(canvasSphere3, 0, 0);
-
 	
 	//////
-
 
 	var j;
 	materialList=document.getElementById('materialList');
 	var li=document.createElement('li');
 	materialList.appendChild(li);
 		
-		// ctxSphere.scale(0.5, 0.5);
-		li.appendChild(canvasSphere2);
-		canvasSphere2.addEventListener('click',applySphereMaterial);
-		canvasSphere2.className='materialPreview';
-		//canvasSphere2.className='button';
-		//a.style.backgroundImage=canvasSphere
+	// ctxSphere.scale(0.5, 0.5);
+	li.appendChild(canvasSphere2);
+	canvasSphere2.addEventListener('click',applySphereMaterial);
+	canvasSphere2.className='materialPreview';
+	//canvasSphere2.className='button';
+	//a.style.backgroundImage=canvasSphere
 
 	for(j in materials){
 		var li=document.createElement('li');
@@ -103,8 +101,7 @@ function initInterface(){
 		material.uniforms.tMatCap.value=THREE.ImageUtils.loadTexture(AssetsFolder+'matcap/'+f);
 		envMaterial.map = material.uniforms.tMatCap.value;
 		e.preventDefault();
-	}
-	);
+	});
 })(materials[j].diffuse);
 	a.style.backgroundImage='url('+AssetsFolder+'matcap/'+encodeURIComponent(materials[j].diffuse)+')';
 	a.style.backgroundSize='contain';li.appendChild(a);materialList.appendChild(li);}
@@ -286,8 +283,20 @@ document.getElementById('normalRepeatInput').addEventListener('change',function(
 	materialAnim.normalMap.needsUpdate = true;
 	e.preventDefault();
 });
-document.getElementById('rimValueInput').addEventListener('change',function(e){material.uniforms.useRim.value=this.value/100;e.preventDefault();});
-document.getElementById('rimPowerValueInput').addEventListener('change',function(e){material.uniforms.rimPower.value=this.value/20;e.preventDefault();});[].slice.call(document.querySelectorAll('a[rel=external]'),0).forEach(function(a){a.addEventListener('click',function(e){window.open(this.href,'_blank');e.preventDefault();},false);});
+
+document.getElementById('rimValueInput').addEventListener('change',function(e){
+	material.uniforms.useRim.value=this.value/100;
+	e.preventDefault();
+});
+
+document.getElementById('rimPowerValueInput').addEventListener('change',function(e){
+	material.uniforms.rimPower.value=this.value/20;
+	e.preventDefault();
+});
+[].slice.call(document.querySelectorAll('a[rel=external]'),0).forEach(function(a){a.addEventListener('click',function(e){
+	window.open(this.href,'_blank');
+	e.preventDefault();
+},false);});
 
 
 
@@ -312,7 +321,8 @@ modelButtons.forEach(function(el){
 			case'vision':f=true;  mod="vision"; size=0.2; break;
 		}
 if(f){
-	 loadSeaFile(AssetsFolder + "models/"+mod+".sea", size);
+	currentModel = mod;
+	loadSeaFile(AssetsFolder + "models/"+mod+".sea", size);
 	el.classList.add('active');
     //setTimeout(function(){f(function(g){  });},250);
   }
