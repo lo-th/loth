@@ -15,14 +15,21 @@ function initInterface(){
 	modelList=document.getElementById('modelList');
 	scaleset = document.getElementById('scaleValueInput');
 	scaletxt = document.getElementById('scaletxt');
-	scaleset.addEventListener('change',function(e){modelSize=this.value;scaleContent(modelSize);scaletxt.innerHTML="Scale : "+modelSize;e.preventDefault();});
+	scaleset.addEventListener('change',function(e){modelSize=this.value; scaleContent(modelSize);scaletxt.innerHTML="Scale : "+modelSize;e.preventDefault();});
 	//[].slice.call(document.querySelectorAll('a[rel=external]'),0).forEach(function(a){a.addEventListener('click',function(e){window.open(this.href,'_blank');e.preventDefault();},false);});
+	modelList.appendChild(createSea3dDropZone());
+
+
+
+
+
 	blurset = document.getElementById('blurValueInput');
 	blurtxt = document.getElementById('blurtxt');
 	blurset.addEventListener('change',function(e){applyBlur(this.value);blurtxt.innerHTML="Blur : "+this.value;e.preventDefault();});
 	
-	modelList.appendChild(createSea3dDropZone());
-	/////
+	
+
+	/////____________________________________________
 	canvasSphere = document.createElement("canvas");
 	canvasSphere3 = document.createElement("canvas");
 	canvasSphere.width = canvasSphere.height = 512;
@@ -32,7 +39,7 @@ function initInterface(){
 	ctxSphere.fillStyle = "#FF1010";
 	ctxSphere.fillRect(0, 0, 512, 512);
 
-	
+	//__________________________________________
 
 	var grd=ctxSphere.createLinearGradient(0,0,0,512);
 	grd.addColorStop(0.1,"#EEEEEE");
@@ -111,6 +118,24 @@ function initInterface(){
 
 	normalList.appendChild(createNormalButton(null, 0));
 	normalList.appendChild(createDropZone(function(){adjustNormalMap(this);}));
+
+	//_____________FULLSCREEN
+	var el=document.getElementById('fullscreenBtn');
+	if(el){
+		var c=document.body;
+		el.addEventListener('click',function(e){c.onwebkitfullscreenchange=function(e){c.onwebkitfullscreenchange=function(){};};c.onmozfullscreenchange=function(e){c.onmozfullscreenchange=function(){};};
+			if(c.webkitRequestFullScreen)c.webkitRequestFullScreen();
+			if(c.mozRequestFullScreen)c.mozRequestFullScreen();
+			e.preventDefault();},false);
+	}
+
+	//_____________ANTIALIAS
+	document.getElementById('antialiasingButton').addEventListener('click',function(e){
+		CSSAntialias=!CSSAntialias;
+		this.classList.toggle('active',CSSAntialias);
+		onWindowResize();
+		e.preventDefault();
+	});
 }
 
 function applyBlur(b) {
@@ -205,6 +230,9 @@ function createSea3dDropZone(){
 		event.preventDefault();
 		var allTheFiles=event.dataTransfer.files;
 		var reader=new FileReader();
+		/*for (var i = 0, f; f = event.dataTransfer.files[i]; i++) {
+			loadSeaFile(f.name, modelSize);
+		}*/
 		reader.onload=function(e){
 			try{
 				loadSeaFile(e.currentTarget.result, modelSize);
@@ -213,6 +241,7 @@ function createSea3dDropZone(){
 		}
 		};
 		reader.readAsDataURL(allTheFiles[0]);
+		//reader.readAsText(allTheFiles[0]);
 	},true);
 	return dropzone;
 }
@@ -287,10 +316,12 @@ if(f){
   }
 //}});
 })});
-
+/*
 var isSafari=/Safari/.test(navigator.userAgent)&&/Apple Computer/.test(navigator.vendor);
 
 document.getElementById('snapshotBtn').addEventListener('click',function(e){
+	renderer.preserveDrawingBuffer=true;
+	var context = renderer.domElement.getContext("experimental-webgl", {preserveDrawingBuffer: true});
 	var name='clicktorelease.com-litSphere-'+Date.now()+'.png';
 	var canvas=document.createElement('canvas');
 	canvas.width=renderer.domElement.width/(CSSAntialias?2:1);
@@ -298,6 +329,7 @@ document.getElementById('snapshotBtn').addEventListener('click',function(e){
 	var ctx=canvas.getContext('2d');
 	var src=renderer.domElement;
 	ctx.drawImage(src,0,0,renderer.domElement.width,renderer.domElement.height,0,0,canvas.width,canvas.height);
+
 	var a=this;
 	if(isSafari){
 		var data=canvas.toDataURL('image/png');
@@ -311,4 +343,6 @@ document.getElementById('snapshotBtn').addEventListener('click',function(e){
 			a.setAttribute('download',name);
 			a.setAttribute('href',url);});
 	}
+	renderer.preserveDrawingBuffer=false;
 });
+*/

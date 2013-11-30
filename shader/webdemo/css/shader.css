@@ -54,18 +54,18 @@ li{list-style-type:none}
 .unselectable{ -o-user-select:none; -ms-user-select:none; -khtml-user-select:none; -webkit-user-select:none; -moz-user-select: none;}
 .button{
 	display:inline-block;
-	padding:7px 9px;
+	padding:2px 6px;
 	font-size:inherit;
 	color:#3c3c3d;
 	text-shadow:1px 1px 0 #000fff;
-	background:#ececec;
+	background:#666666;
 	white-space:nowrap;
 	overflow:visible;
 	cursor:pointer;
 	text-decoration:none;
-	border:1px solid #cacaca;
-	-webkit-border-radius:2px;
-	border-radius:2px;
+	border:1px solid #999999;
+	-webkit-border-radius:6px;
+	border-radius:6px;
 	-webkit-background-clip:padding-box;
 	outline:none;
 	position:relative;
@@ -127,3 +127,6 @@ input[type='range']::-moz-range-track {
     background-color: #FF0000;
     background: none;
 }
+
+a { color: #f0efd1; text-decoration:none; cursor: pointer;}
+a:visited { color: #f0efd1; text-decoration:none}

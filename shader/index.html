@@ -49,17 +49,18 @@
 		</div>
 		<div class="block">
 			<h2>Render options</h2>
-			<p><a href="#" id="screenBlendingBtn" class="button">Screen Blending</a> <a href="#" id="antialiasingButton" class="button">Antialiasing</a></p>
-		</div>
-		<div class="block">	
-			<h2>Actions</h2>	
-			<p><a href="#" id="fullscreenBtn" class="button">Fullscreen</a> <a href="#" id="snapshotBtn" class="button">Snapshot</a></p>
+			<p>
+			<a href="#" id="screenBlendingBtn" class="button">Screen Blending</a> 
+			<a href="#" id="antialiasingButton" class="button">Antialiasing</a>
+			<a href="#" id="fullscreenBtn" class="button">Fullscreen</a>
+			</p>
 		</div>
 		<div class="block">
+		<h2>Credits</h2><p>
 		    Code and model by <a href="http://3dflashlo.wordpress.com/" rel="external">Loth</a><br>
 		    Shader by <a href="http://www.twitter.com/thespite" rel="external">Jaume Sánchez</a><br>
 		    3d engine THREE.JS by Mr Doob<br>
-		    3d format SEA3D <br>
+		    3d format SEA3D <br></p>
 		</div>
 	</div>
 </div>
@@ -88,10 +89,11 @@ var loader=document.getElementById('loader');
 var presets=[];
 var AssetsFolder = "webdemo/assets/";
 var delta, clock;
-var hemiLight, pointLight, directionalLight,spotLight;
+var ambient,spotLight;
 var renderer,composer, scene,camera,mesh,fov=120,nfov=45,sphereMaterial,material,materialAnim,start=Date.now(), content, cam;
 var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, optionsPinned=false;
 var cubeCamera, envSphere;
+var textureCube, envMaterial;
 
 var noise=new ImprovedNoise();
 var MaxAnistropy;
@@ -109,63 +111,99 @@ function init(){
 	renderer.gammaOutput = true;
 	renderer.gammaInput = true;
 
-
-
 	MaxAnistropy = renderer.getMaxAnisotropy();
 	container.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
 	cam = new CameraLoth(container);
-	var ambient = new THREE.AmbientLight( 0xFFFFFF);
-				scene.add( ambient );
-	 /*pointLight = new THREE.PointLight( 0xfeffe6, 1.5, 2000 );
-				pointLight.color.setHSL( 0.05, 1, 0.95 );
-				pointLight.position.set( 0, 500, 0 );
-				scene.add( pointLight );
-	directionalLight = new THREE.DirectionalLight( 0xffffff, 1.475 );
-				directionalLight.position.set( 100, 100, -100 );
-				scene.add( directionalLight );
 
-
-				hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1.25 );
-				hemiLight.color.setHSL( 0.6, 1, 0.75 );
-				hemiLight.groundColor.setHSL( 0.1, 0.8, 0.7 );
-				hemiLight.position.y = 500;
-				scene.add( hemiLight );*/
-	spotLight = new THREE.SpotLight( 0xffffff );
-	spotLight.intensity = 1;
-	spotLight.position.set(100,200,50);
-	//spotLight.target = target;
-	/*spotLight.castShadow = true;
-
-	spotLight.shadowCameraNear = 100;
-	spotLight.shadowCameraFar = 300;
-	spotLight.shadowCameraFov = 75;
-
-	spotLight.shadowMapBias = 0.01;
-	spotLight.shadowMapDarkness = 0.7;
-	spotLight.shadowMapWidth = 1024;
-	spotLight.shadowMapHeight = 1024;*/
-	scene.add( spotLight );
-
+	initLight();
 	initMaterial();
+
+	// background sphere
 	var sphere=new THREE.Mesh(new THREE.IcosahedronGeometry(10000,1),sphereMaterial);
 	sphere.scale.set(-1,1,1);
 	scene.add(sphere);
 
-	///clearMesh();
-	///loadCube(addGeometry);
-
+	// imported object container
 	content = new THREE.Object3D();
 	scene.add(content);
 
 	window.addEventListener('resize',onWindowResize,false);
 	onWindowResize();
+
 	onThreeChangeView(40, 60, 100);
-
-	
 	loadSphere();
-
 	render();
+}
+
+function initLight(){
+	ambient = new THREE.AmbientLight( 0xFFFFFF);
+	scene.add( ambient );
+
+	spotLight = new THREE.SpotLight( 0xffffff );
+	spotLight.intensity = 1;
+	spotLight.position.set(100,200,50);
+	scene.add( spotLight );
+}
+
+function initMaterial(){
+	var tx = new THREE.Texture(canvasSphere3);
+	tx.anisotropy = MaxAnistropy;
+	tx.needsUpdate = true;
+
+	material=new THREE.ShaderMaterial({
+		uniforms:{
+			tNormal:{type:'t', value:tx},
+			tMatCap:{ type:'t', value:tx},
+			time:{ type:'f',value:0},
+			bump:{type:'f',value:0},
+			noise:{ type:'f',value:.04},
+			repeat:{type:'v2',value:new THREE.Vector2(1,1)},
+			useNormal:{ type:'f',value:0},
+			useRim:{ type:'f',value:0},
+			rimPower:{ type:'f',value:2},
+			useScreen:{ type:'f',value:0},
+			normalScale:{ type:'f',value:.5},
+			normalRepeat:{ type:'f',value:1}
+		},
+		vertexShader:sphere_vertexShader,
+		fragmentShader:sphere_fragmentShader,
+		wrapping:THREE.ClampToEdgeWrapping,
+		shading:THREE.SmoothShading
+	});
+	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
+	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
+
+
+	envMaterial = new THREE.MeshBasicMaterial( {map: material.uniforms.tMatCap.value} );
+
+	materialAnim =  new THREE.MeshPhongMaterial( {
+		color: 0xffFFFF, 
+		ambient: 0xFFFFFF, 
+		shininess:50, 
+		specular:0xffFFFF,
+		reflectivity:1,  
+		envMap:textureCube, 
+	    combine: THREE.MixOperation,
+		skinning:true,
+		normalMap:material.uniforms.tNormal.value,
+		normalScale:{x:0,y:0},
+		wrapping:THREE.ClampToEdgeWrapping,
+		shading:THREE.SmoothShading
+	} ) 
+
+	materialAnim.normalMap.repeat.set( 1, 1 );
+	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+
+	sphereMaterial=new THREE.ShaderMaterial({
+		uniforms:{
+			resolution:{ type:'v2',value:new THREE.Vector2(0,0)},
+			noise:{ type:'f',value:.04}
+		},
+		vertexShader:sphere_vs,
+		fragmentShader:sphere_fs,
+		side:THREE.BackSide
+	});
 }
 
 function showLoader(show){
@@ -193,8 +231,6 @@ function loadSphere(){
 var meshs = [];
 var animMeshs = [];
 var meshPositions = [];
-//var meshBox = [];
-
 
 function loadSeaFile(file, s){
 	showLoader(true);
@@ -212,28 +248,29 @@ function loadSeaFile(file, s){
 		var linkList ="";
 		for (i=0; i !== loader.meshes.length; i++){
 			meshs[i] = loader.meshes[i];
-		//	meshs[i].geometry.computeVertexNormals();
+			//meshs[i].geometry.computeVertexNormals();
 			//meshs[i].geometry.verticesNeedUpdate=true;
+			//meshs[i].geometry.normalsNeedUpdate=true;
 			meshs[i].geometry.buffersNeedUpdate = true;
-	//meshs[i].geometry.normalsNeedUpdate=true;
-	meshs[i].geometry.uvsNeedUpdate=true;
-	/*meshs[i].geometry.computeCentroids();
-	meshs[i].geometry.computeFaceNormals();
-	meshs[i].geometry.computeVertexNormals();
-	meshs[i].geometry.computeMorphNormals();
-	meshs[i].geometry.computeTangents();*/
-	//meshs[i].geometry.computeBoundingBox();
-				//meshBox[i] = meshs[i].geometry.boundingBox;
+			meshs[i].geometry.uvsNeedUpdate=true;
+			/*meshs[i].geometry.computeCentroids();
+			meshs[i].geometry.computeFaceNormals();
+			meshs[i].geometry.computeVertexNormals();
+			meshs[i].geometry.computeMorphNormals();
+			meshs[i].geometry.computeTangents();*/
+	        
+	        //meshs[i].geometry.computeBoundingBox();
+			//meshBox[i] = meshs[i].geometry.boundingBox;
 			
 			// original position
 			meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
 
 			if(meshs[i].bones){
-				//meshs[i].name = meshs[i].name+"_a";
+				meshs[i].name = meshs[i].name+"_a";
 				meshs[i].material = materialAnim;
-				meshs[i].JITCompile = false;
-				meshs[i].interpolationType = THREE.AnimationHandler.LINEAR;
-				animMeshs.push(meshs[i]);
+				//meshs[i].JITCompile = false;
+				//meshs[i].interpolationType = THREE.AnimationHandler.LINEAR;
+				//animMeshs.push(meshs[i]);
 				//if(meshs[i].currentAnimation)
 				//	meshs[i].play(meshs[i].currentAnimation);
 				//meshs[i].play('idle');
@@ -273,60 +310,6 @@ function loadSeaFile(file, s){
 	loader.load( file );
 }
 
-function loadBlob(callback){
-	function turbulence(x,y,z){
-		var t=-.5;
-		for(var f=1;f<=100/12;f*=2){
-			t+=Math.abs(noise.noise(f*x,f*y,f*z)/f);
-		}
-		return t;
-	}
-	var geometry=new THREE.CubeGeometry(30,30,30,30,30,30);
-	for(var j=0;j<geometry.vertices.length;j++){
-		var v=geometry.vertices[j];
-		var n=v.clone();
-		n.normalize();
-		v.copy(n);
-		v.multiplyScalar(30);
-		var f=.05;
-		var d=10*noise.noise(f*v.x,f*v.y,f*v.z);v.add(n.multiplyScalar(d));
-	}
-	material.uniforms.repeat.value.set(1,1);
-	callback(geometry);
-}
-
-function loadTorusKnot(callback){
-	material.uniforms.repeat.value.set(8,1);
-	callback(new THREE.TorusKnotGeometry(20,6,200,100,1,3));
-}
-
-function clearMesh(){
-	clearContent();
-	//if(mesh) {scene.remove(mesh);mesh=null;}
-}
-
-function addGeometry(geometry){
-/*	geometry.verticesNeedUpdate=true;
-	geometry.normalsNeedUpdate=true;
-	geometry.uvsNeedUpdate=true;
-	geometry.computeCentroids();
-	geometry.computeFaceNormals();
-	geometry.computeVertexNormals();
-	geometry.computeMorphNormals();
-	geometry.computeTangents();
-	mesh=new THREE.Mesh(geometry,material);
-	//scene.add(mesh);
-	mesh.scale.set(-1,1,1);
-	showLoader(false);*/
-}
-
-document.getElementById('antialiasingButton').addEventListener('click',function(e){
-	CSSAntialias=!CSSAntialias;
-	this.classList.toggle('active',CSSAntialias);
-	onWindowResize();
-	e.preventDefault();
-});
-
 function scaleContent(n){
 	if(content){
 		var obj, i;
@@ -350,77 +333,6 @@ function clearContent(){
 	}
 }
 
-var el=document.getElementById('fullscreenBtn');
-if(el){
-	var c=document.body;
-	el.addEventListener('click',function(e){c.onwebkitfullscreenchange=function(e){c.onwebkitfullscreenchange=function(){};};c.onmozfullscreenchange=function(e){c.onmozfullscreenchange=function(){};};
-		if(c.webkitRequestFullScreen)c.webkitRequestFullScreen();
-		if(c.mozRequestFullScreen)c.mozRequestFullScreen();
-		e.preventDefault();},false);
-}
-var textureCube;
-var envMaterial;
-
-function initMaterial(){
-	
-
-	material=new THREE.ShaderMaterial({
-		uniforms:{
-			tNormal:{type:'t',value:THREE.ImageUtils.loadTexture(AssetsFolder+'normal/243-normal.jpg')},
-			tMatCap:{ type:'t',value:THREE.ImageUtils.loadTexture(AssetsFolder+'matcap/jeepster_skinmat2.jpg')},
-			time:{ type:'f',value:0},
-			bump:{type:'f',value:0},
-			noise:{ type:'f',value:.04},
-			repeat:{type:'v2',value:new THREE.Vector2(1,1)},
-			useNormal:{ type:'f',value:0},
-			useRim:{ type:'f',value:0},
-			rimPower:{ type:'f',value:2},
-			useScreen:{ type:'f',value:0},
-			normalScale:{ type:'f',value:.5},
-			normalRepeat:{ type:'f',value:1}
-		},
-		vertexShader:sphere_vertexShader,
-		fragmentShader:sphere_fragmentShader,
-		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading//,
-		//side:THREE.DoubleSide
-	});
-	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
-	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
-
-
-	envMaterial = new THREE.MeshBasicMaterial( {} );
-	envMaterial.map = material.uniforms.tMatCap.value;
-
-	materialAnim =  new THREE.MeshPhongMaterial( {
-		color: 0xffFFFF, 
-		ambient: 0xFFFFFF, 
-		shininess:50, 
-		specular:0xffFFFF,
-		reflectivity:1,  
-		envMap:textureCube, 
-	    combine: THREE.MixOperation,
-		skinning:true,
-		normalMap:material.uniforms.tNormal.value,
-		normalScale:{x:0,y:0},
-		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading
-	} ) 
-
-	materialAnim.normalMap.repeat.set( 1, 1 );
-	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
-
-	sphereMaterial=new THREE.ShaderMaterial({
-		uniforms:{
-			resolution:{ type:'v2',value:new THREE.Vector2(0,0)},
-			noise:{ type:'f',value:.04}
-		},
-		vertexShader:sphere_vs,
-		fragmentShader:sphere_fs,
-		side:THREE.BackSide
-	});
-}
-
 function setNoise(n){
 	material.uniforms.noise.value=sphereMaterial.uniforms.noise.value=n;
 }
@@ -432,9 +344,7 @@ function onWindowResize(){
 	sphereMaterial.uniforms.resolution.value.set(s*window.innerWidth,s*window.innerHeight);
 }
 
-
 function render(){
-	
 	spotLight.position.copy(camera.position);
 	spotLight.lookAt(center);
 
@@ -453,7 +363,6 @@ function render(){
 		cubeCamera.updateCubeMap( renderer, scene );
 		envSphere.visible = false;
 	}
-
 	requestAnimationFrame(render);
 }
 
