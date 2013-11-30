@@ -28,3 +28,8 @@ V2 : [http://lo-th.github.io/loth/diana/index2.html](http://lo-th.github.io/loth
 
 
 [http://lo-th.github.io/loth/kuk-a-droid/index.html](http://lo-th.github.io/loth/kuk-a-droid/index.html)
+
+
+6/ Three.js shader test with sea3d
+
+[http://lo-th.github.io/loth/shader/index.html](http://lo-th.github.io/loth/shader/index.html)
