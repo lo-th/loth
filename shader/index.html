@@ -373,6 +373,30 @@ function sea3dSpecial(size){
 			wheels[2].scale.set(-1, -1, 1 );
 			wheels[3].scale.set(-1, -1, 1 );
 		break;
+		case'youbot':
+		    var wheels = [];
+		    var joint = [];
+		    for (i=0; i !== meshs.length; i++){
+				if(meshs[i].name == "bot_wheel_R"){wheels[0]=meshs[i]; wheels[1]=meshs[i].clone(); content.add(wheels[1]);}
+				if(meshs[i].name == "bot_wheel_L"){wheels[2]=meshs[i]; wheels[3]=meshs[i].clone(); content.add(wheels[3]);}
+				if(meshs[i].name == "_arm_joint_1"){joint[1]=meshs[i];}
+				if(meshs[i].name == "_arm_joint_2"){joint[2]=meshs[i];}
+				if(meshs[i].name == "_arm_joint_3"){joint[3]=meshs[i];}
+				if(meshs[i].name == "_arm_joint_4"){joint[4]=meshs[i];}
+				if(meshs[i].name == "_arm_joint_5"){joint[5]=meshs[i];}
+
+				//if(meshs[i].name == "rope_2_3_a"){joint[5]=meshs[i];}
+				if(meshs[i].name == "rope_2_3_a"){content.remove(meshs[i]);}
+				if(meshs[i].name == "rope_3_4_a"){content.remove(meshs[i]);}
+			}
+			wheels[0].position.set(-22.5, 5, -15.8);
+			wheels[2].position.set(-22.5, 5, 15.8);
+			wheels[1].position.set(22.5, 5, 15.8);
+			wheels[3].position.set(22.5, 5, -15.8);
+			joint[2].rotation.y = 45*ToRad;
+			joint[3].rotation.y = 45*ToRad;
+			joint[4].rotation.y = -45*ToRad;
+		break;
 	}
 }
 
