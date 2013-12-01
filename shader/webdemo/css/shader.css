@@ -27,6 +27,11 @@ body{color:#fff;font-family:tahoma,sans-serif;font-size:13px;background-color:#2
 	position:relative;
 	display:block;
 }
+#grad0, #grad1, #grad2{
+	position:relative;
+	display:block;
+	margin-top:10px;
+}
 #mh0, #mh1{
 	position:absolute;
 	margin-left:-64px;

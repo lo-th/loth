@@ -15,12 +15,14 @@ var canvasNormal;
 var modelSize = 20;
 var scaleset;
 var scaletxt;
-var blurset, blurtxt, blur = 2;
+//var blurset, blurtxt, blur = 2;
+var alphaset, alphatxt;
 var lineset, linetxt;
 
 var canvasSphere=[];
 var canvasHelper=[];
 var mh = [];
+var grd = [];
 var drag2 = false;
 var drag3 = false;
 
@@ -30,7 +32,7 @@ var ctxh=[];
 var txt;
 var gradians = [];
 
-var grad00 = {range:[0.1,0.3,0.8,1], color:[ [0,0,0,1], [60,60,60,1], [60,60,60,1], [0,0,0,1] ], line:10 };
+var grad00 = {range:[0.1,0.3,0.8,1], color:[ [0,0,0,1], [60,60,60,1], [60,60,60,1], [0,0,0,1] ], line:10, alpha:0.5 };
 var grad01 = {range:[0.1,0.5,0.99,1], color:[ [255,255,255,1], [180,180,180,1], [60,60,60,0.5], [0,0,0,0] ], pos:[128,50, 128,128], rad:[25, 128]};
 var grad02 = {range:[0.1,0.5,0.99,1], color:[ [0,0,0,255], [20,20,20,0.5], [30,30,30,0.1], [0,0,0,0] ], pos:[128,200, 128,128], rad:[25, 128]};
 
@@ -68,7 +70,7 @@ function initSphereGradian(){
 	canvasSphere[5] = document.createElement("canvas");
 
 	canvasSphere[3].width = canvasSphere[4].width = canvasSphere[5].width =256;
-	canvasSphere[3].height = canvasSphere[4].height = canvasSphere[5].height =16;
+	canvasSphere[3].height = canvasSphere[4].height = canvasSphere[5].height =24;
 	ctxs[3] = canvasSphere[3].getContext("2d");
 	ctxs[4] = canvasSphere[4].getContext("2d");
 	ctxs[5] = canvasSphere[5].getContext("2d");
@@ -129,7 +131,8 @@ function placeHelper(){
 function drawSphereGradian(){
 	var i;
 	ctxs[0].clearRect(0, 0, 256, 256);
-	gradians[0] = ctxs[0].createLinearGradient(0,0,0,512);
+	ctxs[1].clearRect(0, 0, 256, 256);
+	gradians[0] = ctxs[0].createLinearGradient(0,0,0,256);
 	gradians[5] = ctxs[0].createLinearGradient(0,0,256,0);
 	gradians[3] = ctxs[0].createLinearGradient(0,0,256,0);
 	gradians[4] = ctxs[0].createLinearGradient(0,0,256,0);
@@ -151,9 +154,6 @@ function drawSphereGradian(){
 		gradians[4].addColorStop(grad02.range[i],'rgba('+grad02.color[i][0]+','+grad02.color[i][1]+','+grad02.color[i][2]+','+grad02.color[i][3]+')');
     }
     
-   // ctxs[1].clearRect(0, 0, 512, 512);
-   // ctxs[2].clearRect(0, 0, 256, 256);
-
     ctxs[0].fillStyle = gradians[0];
 	ctxs[0].fillRect(0, 0, 256, 256);
 
@@ -165,35 +165,38 @@ function drawSphereGradian(){
 
 	//______________linear gradian
 	ctxs[3].fillStyle = gradians[5];
-	ctxs[3].fillRect(0, 0, 256, 16);
+	ctxs[3].fillRect(0, 0, 256, 24);
 
 	ctxs[4].fillStyle = gradians[3];
-	ctxs[4].fillRect(0, 0, 256, 16);
+	ctxs[4].fillRect(0, 0, 256, 24);
 
 	ctxs[5].fillStyle = gradians[4];
-	ctxs[5].fillRect(0, 0, 256, 16);
+	ctxs[5].fillRect(0, 0, 256, 24);
 
 	//_____________stroke line
-	ctxs[0].beginPath();
-    ctxs[0].arc(128, 128, 128, 0, 2 * Math.PI, false);
-    ctxs[0].lineWidth = grad00.line;
-    ctxs[0].strokeStyle = gradians[0];
-    ctxs[0].stroke();
+	ctxs[1].beginPath();
+    ctxs[1].arc(128, 128, 128, 0, 2 * Math.PI, false);
+    ctxs[1].lineWidth = grad00.line;
+    ctxs[1].strokeStyle = gradians[0];
+    ctxs[1].stroke();
 
-    //_____________copy final image
-   // var imageData =  ctxs[0].getImageData( 0, 0, 512, 512 );
-    //ctxs[1].putImageData( imageData, 0, 0 );
+    //_____________copy line
+   //
+   // var imageData =  ctxs[1].getImageData( 0, 0, 256, 256 );
+   //stackBoxBlurCanvasRGBA( canvasSphere[1], canvasSphere[2], 0, 0, 256, 256, blur, 1 );
+    ctxs[0].drawImage( canvasSphere[1], 0, 0 );
+    ctxs[0].globalAlpha = grad00.alpha;
    //ctxs[2].drawImage(canvasSphere[1],0,0);
 	// apply blur
-	//stackBoxBlurCanvasRGBA( canvasSphere[0], canvasSphere[1], 0, 0, 512, 512, blur, 1 );
+	//
 
 	applySphereMaterial();
 }
 
-function applyBlur() {
-	stackBoxBlurCanvasRGBA( canvasSphere[0], canvasSphere[1], 0, 0, 256, 256, blur, 1 );
+/*function applyBlur() {
+	stackBoxBlurCanvasRGBA( canvasSphere[1], canvasSphere[2], 0, 0, 256, 256, blur, 1 );
 	applySphereMaterial();
-}
+}*/
 
 function applySphereMaterial() {
 	// preview
@@ -226,46 +229,44 @@ function initInterface(){
 
 
 
-	blurset = document.getElementById('blurValueInput');
+	/*blurset = document.getElementById('blurValueInput');
 	blurtxt = document.getElementById('blurtxt');
-	blurset.addEventListener('change',function(e){blur=this.value; applyBlur();blurtxt.innerHTML="Blur : "+blur;e.preventDefault();});
+	blurset.addEventListener('change',function(e){blur=this.value; applyBlur();blurtxt.innerHTML="Blur : "+blur;e.preventDefault();});*/
+
+	alphaset = document.getElementById('alphaValueInput');
+	alphatxt = document.getElementById('alphatxt');
+	alphaset.addEventListener('change',function(e){grad00.alpha=this.value/100; drawSphereGradian();alphatxt.innerHTML="Alpha : "+this.value;});
 
 	lineset = document.getElementById('lineValueInput');
 	linetxt = document.getElementById('linetxt');
-	lineset.addEventListener('change',function(e){grad00.line=this.value; drawSphereGradian();linetxt.innerHTML="Line : "+this.value;e.preventDefault();});
+	lineset.addEventListener('change',function(e){grad00.line=this.value; drawSphereGradian();linetxt.innerHTML="Line : "+this.value;});
 
 	var mapp= document.getElementById('map');
-	//mapp.style.scale=0.5;
-
 	mh[0]= document.getElementById('mh0');
 	mh[1]= document.getElementById('mh1');
 	mh[2]= document.getElementById('mh2');
 	mh[3]= document.getElementById('mh3');
+	grd[0]=document.getElementById('grad0');
+	grd[1]=document.getElementById('grad1');
+	grd[2]=document.getElementById('grad2');
+
 
 	initSphereGradian();
 	drawSphereGradian();
 
 	mapp.appendChild(canvasSphere[0]);
+	grd[0].appendChild(canvasSphere[3]);
+	grd[1].appendChild(canvasSphere[4]);
+	grd[2].appendChild(canvasSphere[5]);
+
 	mh[0].appendChild(canvasHelper[0]);
 	mh[1].appendChild(canvasHelper[1]);
 	mh[2].appendChild(canvasHelper[2]);
 	mh[3].appendChild(canvasHelper[3]);
 
-	/*mh[2].onmousedown = new function(){drag2 = true;}
-	mh[3].onmousedown = new function(){drag3 = true;}
-	mh[2].onmouseup = new function(){drag2 = false;}
-	mh[3].onmouseup = new function(){drag3 = false;}
-
-	mh[2].onmousemove = new function(e){if(drag2){mh[2].style.left = e.clientX + 'px'; }}*/
-	//addEventListener('onmousedown',function(e){});
-	//mh[2].addEventListener('onmouseover',function(e){mh[2].style.cursor = 'pointer';});
-
-	mh[2].addEventListener( 'mousedown', function(e){ drag2 = true; e.preventDefault(); }, false );
-	mh[2].addEventListener( 'mouseout', function(e){ drag2 = false; e.preventDefault(); }, false );
-	mh[2].addEventListener( 'mouseup', function(e){ drag2 = false;
-	 e.preventDefault();
-//	setTimeout(drawSphereGradian,250);
-}, false )
+	mh[2].addEventListener( 'mousedown', function(e){ drag2 = true; }, false );
+	mh[2].addEventListener( 'mouseout', function(e){ drag2 = false; }, false );
+	mh[2].addEventListener( 'mouseup', function(e){ drag2 = false; }, false );
 	mh[2].addEventListener( 'mousemove', function(e){
 		var rect = canvasSphere[0].getBoundingClientRect();
 		if(drag2){
@@ -273,18 +274,12 @@ function initInterface(){
 			grad01.pos[1] = (e.clientY-rect.top);
 			placeHelper();
 			drawSphereGradian();
-			//setTimeout(drawSphereGradian,10);
-
 		}
-		//e.preventDefault();
 	} , false );
 
-	mh[3].addEventListener( 'mousedown', function(e){ drag3 = true; e.preventDefault();}, false );
-	mh[3].addEventListener( 'mouseout', function(e){ drag3 = false; e.preventDefault(); }, false )
-	mh[3].addEventListener( 'mouseup', function(e){ drag3 = false; 
-	 e.preventDefault();
-	// setTimeout(drawSphereGradian,250);
-	}, false )
+	mh[3].addEventListener( 'mousedown', function(e){ drag3 = true; }, false );
+	mh[3].addEventListener( 'mouseout', function(e){ drag3 = false; }, false );
+	mh[3].addEventListener( 'mouseup', function(e){ drag3 = false; }, false );
 	mh[3].addEventListener( 'mousemove', function(e){
 		
 		var rect = canvasSphere[0].getBoundingClientRect();
@@ -293,9 +288,7 @@ function initInterface(){
 			grad02.pos[1] = (e.clientY-rect.top);
 			placeHelper();
 			drawSphereGradian();
-			//setTimeout(drawSphereGradian,10);
 		}
-		//e.preventDefault();
 	} , false );
 	 
 
@@ -304,22 +297,9 @@ function initInterface(){
 	materialList=document.getElementById('materialList');
 	var li=document.createElement('li');
 	materialList.appendChild(li);
-		
-	
-	// ctxSphere.scale(0.5, 0.5);
-	//li.appendChild(canvasSphere2);
-	
-
 	
 	
 
-	li.appendChild(canvasSphere[3]);
-	li.appendChild(canvasSphere[4]);
-	li.appendChild(canvasSphere[5]);
-	//canvasSphere2.addEventListener('click',applySphereMaterial);
-	//canvasSphere2.className='materialPreview';
-	//canvasSphere2.className='button';
-	//a.style.backgroundImage=canvasSphere
 
 	for(j in materials){
 		var li=document.createElement('li');
