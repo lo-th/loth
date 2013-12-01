@@ -19,15 +19,39 @@ var blurset, blurtxt, blur = 2;
 var lineset, linetxt;
 
 var canvasSphere=[];
+var canvasHelper=[];
+var mh = [];
+var drag2 = false;
+var drag3 = false;
+
+
 var ctxs=[];
+var ctxh=[];
 var txt;
 var gradians = [];
 
-var grad00 = {range:[0.1,0.3,0.8,1], color:[ [0,0,0,255], [60,60,60,255], [60,60,60,255], [0,0,0,255] ], line:40 };
-var grad01 = {range:[0.1,0.3,0.99,1], color:[ [255,255,255,255], [60,60,60,255], [60,60,60,100], [0,0,0,0] ], pos:[256,100, 256,256], rad:[100, 256]};
-var grad02 = {range:[0.1,0.3,0.4,1], color:[ [0,0,0,255], [60,60,60,100], [60,60,60,20], [0,0,0,0] ], pos:[256,400, 256,256], rad:[50, 256]};
+var grad00 = {range:[0.1,0.3,0.8,1], color:[ [0,0,0,1], [60,60,60,1], [60,60,60,1], [0,0,0,1] ], line:40 };
+var grad01 = {range:[0.1,0.5,0.99,1], color:[ [255,255,255,1], [180,180,180,1], [60,60,60,0.5], [0,0,0,0] ], pos:[256,100, 256,256], rad:[50, 256]};
+var grad02 = {range:[0.1,0.5,0.99,1], color:[ [0,0,0,255], [20,20,20,0.5], [30,30,30,0.1], [0,0,0,0] ], pos:[256,400, 256,256], rad:[50, 256]};
 
 function initSphereGradian(){
+	canvasHelper[0] = document.createElement("canvas");
+	canvasHelper[1] = document.createElement("canvas");
+	canvasHelper[2] = document.createElement("canvas");
+	canvasHelper[3] = document.createElement("canvas");
+
+	canvasHelper[0].width = canvasHelper[0].height = 128;
+	canvasHelper[1].width = canvasHelper[1].height = 128;
+	canvasHelper[2].width = canvasHelper[2].height = 16;
+	canvasHelper[3].width = canvasHelper[3].height = 16;
+
+	ctxh[0] = canvasHelper[0].getContext("2d");
+	ctxh[1] = canvasHelper[1].getContext("2d");
+	ctxh[2] = canvasHelper[2].getContext("2d");
+	ctxh[3] = canvasHelper[3].getContext("2d");
+
+	drawHelper();
+
 	canvasSphere[0] = document.createElement("canvas");
 	canvasSphere[1] = document.createElement("canvas");
 	canvasSphere[2] = document.createElement("canvas"); 
@@ -48,6 +72,56 @@ function initSphereGradian(){
 	ctxs[4] = canvasSphere[4].getContext("2d");
 	ctxs[5] = canvasSphere[5].getContext("2d");
 }
+function drawHelper(){
+	
+
+	ctxh[2].beginPath();
+    ctxh[2].arc(8, 8, 4, 0, 2 * Math.PI, false);
+    ctxh[2].lineWidth = 4;
+    ctxh[2].strokeStyle = 'rgba(225,225,0,0.5)';
+    ctxh[2].stroke();
+    ctxh[2].fillStyle = '#ffff00'
+    ctxh[2].fill();
+
+    ctxh[3].beginPath();
+    ctxh[3].arc(8, 8, 4, 0, 2 * Math.PI, false);
+    ctxh[3].lineWidth = 4;
+    ctxh[3].strokeStyle = 'rgba(225,225,0,0.5)';
+    ctxh[3].stroke();
+    ctxh[3].fillStyle = '#ffff00'
+    ctxh[3].fill();
+
+    placeHelper();
+    drawHelper2();
+}
+function drawHelper2(){
+	var r0 = grad01.rad[0]*0.5;
+	var r1 = grad02.rad[0]*0.5;
+	
+	ctxh[0].beginPath();
+    ctxh[0].arc(64, 64, r0, 0, 2 * Math.PI, false);
+    ctxh[0].lineWidth = 1;
+    ctxh[0].strokeStyle = 'rgba(225,225,0,0.5)';
+    ctxh[0].stroke();
+    ctxh[0].fillStyle = 'rgba(225,225,0,0.1)'
+    ctxh[0].fill();
+
+    ctxh[1].beginPath();
+    ctxh[1].arc(64, 64, r1, 0, 2 * Math.PI, false);
+    ctxh[1].lineWidth = 1;
+    ctxh[1].strokeStyle = 'rgba(225,225,0,0.5)';
+    ctxh[1].stroke();
+    ctxh[1].fillStyle = 'rgba(225,225,0,0.1)'
+    ctxh[1].fill();
+}
+
+function placeHelper(){
+	mh[0].style.left =mh[2].style.left = (grad01.pos[0]*0.5)+'px' ;
+	mh[0].style.top = mh[2].style.top = (grad01.pos[1]*0.5)+'px' ;
+	mh[1].style.left =mh[3].style.left = (grad02.pos[0]*0.5)+'px' ;
+	mh[1].style.top =mh[3].style.top = (grad02.pos[1]*0.5)+'px' ;
+}
+
 
 function drawSphereGradian(){
 	var i;
@@ -148,9 +222,59 @@ function initInterface(){
 	linetxt = document.getElementById('linetxt');
 	lineset.addEventListener('change',function(e){grad00.line=this.value; drawSphereGradian();linetxt.innerHTML="Line : "+this.value;e.preventDefault();});
 
-	
+	var mapp= document.getElementById('map');
+	mh[0]= document.getElementById('mh0');
+	mh[1]= document.getElementById('mh1');
+	mh[2]= document.getElementById('mh2');
+	mh[3]= document.getElementById('mh3');
+
 	initSphereGradian();
 	drawSphereGradian();
+
+	mapp.appendChild(canvasSphere[2]);
+	mh[0].appendChild(canvasHelper[0]);
+	mh[1].appendChild(canvasHelper[1]);
+	mh[2].appendChild(canvasHelper[2]);
+	mh[3].appendChild(canvasHelper[3]);
+
+	/*mh[2].onmousedown = new function(){drag2 = true;}
+	mh[3].onmousedown = new function(){drag3 = true;}
+	mh[2].onmouseup = new function(){drag2 = false;}
+	mh[3].onmouseup = new function(){drag3 = false;}
+
+	mh[2].onmousemove = new function(e){if(drag2){mh[2].style.left = e.clientX + 'px'; }}*/
+	//addEventListener('onmousedown',function(e){});
+	//mh[2].addEventListener('onmouseover',function(e){mh[2].style.cursor = 'pointer';});
+
+	mh[2].addEventListener( 'mousedown', function(e){ drag2 = true; e.preventDefault(); }, false )
+	mh[2].addEventListener( 'mouseup', function(e){ drag2 = false; e.preventDefault(); setTimeout(drawSphereGradian,250);}, false )
+	mh[2].addEventListener( 'mousemove', function(e){
+		
+		var rect = canvasSphere[2].getBoundingClientRect();
+		if(drag2){
+			grad01.pos[0] = (e.clientX-rect.left)*2;
+			grad01.pos[1] = (e.clientY-rect.top)*2;
+			placeHelper();
+			
+
+		}
+		e.preventDefault();
+	} , false );
+
+	mh[3].addEventListener( 'mousedown', function(e){ drag3 = true; e.preventDefault();}, false )
+	mh[3].addEventListener( 'mouseup', function(e){ drag3 = false;  e.preventDefault();setTimeout(drawSphereGradian,250);}, false )
+	mh[3].addEventListener( 'mousemove', function(e){
+		
+		var rect = canvasSphere[2].getBoundingClientRect();
+		if(drag3){
+			grad02.pos[0] = (e.clientX-rect.left)*2;
+			grad02.pos[1] = (e.clientY-rect.top)*2;
+			placeHelper();
+			
+		}
+		e.preventDefault();
+	} , false );
+	 
 
 
 	var j;
@@ -158,9 +282,14 @@ function initInterface(){
 	var li=document.createElement('li');
 	materialList.appendChild(li);
 		
+	
 	// ctxSphere.scale(0.5, 0.5);
 	//li.appendChild(canvasSphere2);
-	li.appendChild(canvasSphere[2]);
+	
+
+	
+	
+
 	li.appendChild(canvasSphere[3]);
 	li.appendChild(canvasSphere[4]);
 	li.appendChild(canvasSphere[5]);

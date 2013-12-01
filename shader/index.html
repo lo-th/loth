@@ -16,9 +16,9 @@
 			<h2>SEA3D model</h2>
 			<p class="input"><span id="scaletxt">Scale : 1</span> <input type="range" min="1" max="20" value="1" id="scaleValueInput"/></p>
 			<ul class="list" id="modelList">
-				<li><a href="#" class="button active" data-value="gauntlet">Gauntlet</a></li>
+			    <li><a href="#" class="button active" data-value="dice">Dice</a></li>
+				<li><a href="#" class="button" data-value="gauntlet">Gauntlet</a></li>
 				<li><a href="#" class="button" data-value="drum">Drum</a></li>
-				<li><a href="#" class="button" data-value="dice">Dice</a></li>
 				<li><a href="#" class="button" data-value="column">Column</a></li>
 				<li><a href="#" class="button" data-value="gyro">Gyro</a></li>
 				<li><a href="#" class="button" data-value="youbot">YouBot</a></li>
@@ -32,6 +32,14 @@
 			<h2>Material map</h2>
 			<p class="input"><span id="blurtxt">Blur : 1</span> <input type="range" min="1" max="50" value="1" id="blurValueInput"/></p>
 			<p class="input"><span id="linetxt">Line : 40</span> <input type="range" min="1" max="100" value="40" id="lineValueInput"/></p>
+			<div id="map">
+				<div id="mh0"></div>
+				<div id="mh1"></div>
+				<div id="mh2"></div>
+				<div id="mh3"></div>
+			</div>
+				
+			
 			<ul class="list" id="materialList">
 			</ul>
 		</div>
@@ -247,7 +255,7 @@ function loadSphere(){
 		materialAnim.envMap = cubeCamera.renderTarget;
 		materialTrans.envMap = cubeCamera.renderTarget;
 
-		loadSeaFile(AssetsFolder + "models/gauntlet.sea", 1);
+		loadSeaFile(AssetsFolder + "models/dice.sea", 20);
 	}
 	loader.load( AssetsFolder + "models/sphere2.sea" );
 }

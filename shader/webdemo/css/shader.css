@@ -23,6 +23,23 @@ body{color:#fff;font-family:tahoma,sans-serif;font-size:13px;background-color:#2
 	overflow:auto; 
 	background-color:rgba(0,0,0,.2);
 }
+#map{
+	position:relative;
+	display:block;
+}
+#mh0, #mh1{
+	position:absolute;
+	margin-left:-64px;
+	margin-top:-64px;
+}
+#mh2, #mh3{
+	position:absolute;
+	margin-left:-8px;
+	margin-top:-8px;
+	cursor:pointer;
+}
+
+
 #pinBtn{position:absolute;top:20px;left:20px;width:32px;height:32px;border:1px solid #fff;opacity:.5;border-radius:8px;
 	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAApVBMVEX///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9b9jwKAAAANnRSTlMAAgMEBQYLFBUYGRobHR8kJSYoMDE6OzxgYWJjc3h5sLGztLW3uMzN0eDh4uPk6Pb3+fr7/f7N3WdnAAAAzklEQVQoz3VSex9CMBS9QikpeihKLz2EVKb7/T9aYxYW54/9tnO2+zoD+GGTvl1owwXxLFCGShcpRowkulENzrtZYIF9QIq9DVaQOYwfZ4gkwRIJQcxGhSDfUMBVZk/MtMmnU57k0RRizttiqCXj5RML4E0mHgt67FHa8UN2zcsv7dj+7q/hxd/rRen89KyEYS7oldAZqpZc0+rJKRZiufOOBiPOm6QpkHIkStcQZ5+OscOWUKNW/0YB9JXS2jC3VhkIzvu0gdZfQr+PU52+4DRBhcMoqeoAAAAASUVORK5CYII=);background-position:50% 50%;background-repeat:no-repeat;-webkit-transition:opacity 250ms ease-out;cursor:pointer}
 #pinBtn:hover,#pinBtn.pinned{opacity:1}
