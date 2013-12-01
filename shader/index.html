@@ -106,6 +106,7 @@ var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, op
 var cubeCamera, envSphere;
 var textureCube, envMaterial;
 var materialTrans;
+var materialMorph;
 var noise=new ImprovedNoise();
 var MaxAnistropy;
 
@@ -180,8 +181,7 @@ function initMaterial(){
 		vertexShader:sphere_vertexShader,
 		fragmentShader:sphere_fragmentShader,
 		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading,
-		
+		shading:THREE.SmoothShading
 	});
 	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
 	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
@@ -192,20 +192,45 @@ function initMaterial(){
 	materialAnim =  new THREE.MeshPhongMaterial( {
 		color: 0xffFFFF, 
 		ambient: 0xFFFFFF, 
-		shininess:50, 
+		shininess:1, 
 		specular:0xffFFFF,
 		reflectivity:1,  
 		envMap:txt, 
+		//lightMap:THREE.ImageUtils.loadTexture(AssetsFolder+'matcap/jeepster_skinmat2.jpg', THREE.SphericalReflectionMapping()),//txt,
+		refractionRatio:0.98,
 	    combine: THREE.MixOperation,
 		skinning:true,
 		normalMap:material.uniforms.tNormal.value,
 		normalScale:{x:0,y:0},
 		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading
+		shading:THREE.SmoothShading,
+		metal:true
 	} ) 
 
 	materialAnim.normalMap.repeat.set( 1, 1 );
 	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+
+	materialMorph =  new THREE.MeshPhongMaterial( {
+		color: 0xffFFFF, 
+		ambient: 0xFFFFFF, 
+		shininess:1, 
+		specular:0xffFFFF,
+		reflectivity:1,  
+		envMap:txt, 
+		refractionRatio:0.98,
+	    combine: THREE.MixOperation,
+		skinning:false,
+		morphTargets: true,
+		//morphNormals: true,
+		normalMap:material.uniforms.tNormal.value,
+		normalScale:{x:0,y:0},
+		wrapping:THREE.ClampToEdgeWrapping,
+		shading:THREE.SmoothShading,
+		metal:true
+	} ) 
+
+	materialMorph.normalMap.repeat.set( 1, 1 );
+	materialMorph.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
 
 	materialTrans =  new THREE.MeshPhongMaterial( {
 		//color: 0x000000, 
@@ -283,8 +308,10 @@ function loadSeaFile(file, s){
 			//meshs[i].geometry.computeVertexNormals();
 			//meshs[i].geometry.verticesNeedUpdate=true;
 			//meshs[i].geometry.normalsNeedUpdate=true;
+
 			meshs[i].geometry.buffersNeedUpdate = true;
 			meshs[i].geometry.uvsNeedUpdate=true;
+
 			/*meshs[i].geometry.computeCentroids();
 			meshs[i].geometry.computeFaceNormals();
 			meshs[i].geometry.computeVertexNormals();
@@ -322,12 +349,21 @@ function loadSeaFile(file, s){
 
 		for (i=0; i !== meshs.length; i++){
 			if(meshs[i].name[0]!=="_"){
-				//meshs[i].material = material;
-				
-				meshs[i].scale.set(s,s,s);
-				meshs[i].position.set(meshs[i].position.x*s,meshs[i].position.y*s,meshs[i].position.z*s);
-				
-				content.add(meshs[i]);
+				if(currentModel!=="head"){
+					meshs[i].scale.set(s,s,s);
+					meshs[i].position.set(meshs[i].position.x*s,meshs[i].position.y*s,meshs[i].position.z*s);
+					content.add(meshs[i]);
+			    } else {
+			    	if(meshs[i].name == "skin_hi"){
+			    		meshs[i].material = materialMorph;
+			    		meshs[i].setWeightByName("aah", 1);
+			    	}
+			    	if(meshs[i].name == "Fake_neck_a"){
+			    		meshs[i].scale.set(s,s,s);
+			    		meshs[i].position.set(meshs[i].position.x*s,meshs[i].position.y*s,meshs[i].position.z*s);
+			    		content.add(meshs[i]);
+			    	}
+			    }
 			}
 		}
 		/*var max=0;

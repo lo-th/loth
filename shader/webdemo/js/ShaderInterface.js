@@ -457,6 +457,11 @@ function adjustNormalMap(img){
 	materialAnim.normalScale.y = materialAnim.normalScale.x = 1;
 	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
 	materialAnim.normalMap.needsUpdate=true;
+
+	materialMorph.normalMap=material.uniforms.tNormal.value;
+	materialMorph.normalScale.y = materialMorph.normalScale.x = 1;
+	materialMorph.normalMap.wrapS=materialMorph.normalMap.wrapT=THREE.RepeatWrapping;
+	materialMorph.normalMap.needsUpdate=true;
 }
 
 
@@ -469,6 +474,7 @@ document.getElementById('screenBlendingBtn').addEventListener('click',function(e
 document.getElementById('normalValueInput').addEventListener('change',function(e){
 	material.uniforms.normalScale.value=this.value/100;
 	materialAnim.normalScale.y = materialAnim.normalScale.x = this.value/100;
+	materialMorph.normalScale.y = materialMorph.normalScale.x = this.value/100;
 	e.preventDefault();
 });
 
@@ -476,6 +482,8 @@ document.getElementById('normalRepeatInput').addEventListener('change',function(
 	material.uniforms.normalRepeat.value=this.value;
 	materialAnim.normalMap.repeat.set( this.value, this.value );
 	materialAnim.normalMap.needsUpdate = true;
+	materialMorph.normalMap.repeat.set( this.value, this.value );
+	materialMorph.normalMap.needsUpdate = true;
 	e.preventDefault();
 });
 
