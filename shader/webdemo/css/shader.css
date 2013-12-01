@@ -34,8 +34,8 @@ body{color:#fff;font-family:tahoma,sans-serif;font-size:13px;background-color:#2
 }
 #mh2, #mh3{
 	position:absolute;
-	margin-left:-8px;
-	margin-top:-8px;
+	margin-left:-10px;
+	margin-top:-10px;
 	cursor:pointer;
 }
 
