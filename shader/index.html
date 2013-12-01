@@ -26,6 +26,8 @@
 				<li><a href="#" class="button" data-value="head">Head</a></li>
 				<li><a href="#" class="button" data-value="onkba">Onkba</a></li>
 				<li><a href="#" class="button" data-value="vision">Vision</a></li>
+				<li><a href="#" class="button" data-value="dragon">Dragon</a></li>
+				<li><a href="#" class="button" data-value="panthere">Panthere</a></li>
 			</ul>
 		</div>
 		<div class="block">
@@ -201,14 +203,14 @@ function initMaterial(){
 		reflectivity:1,  
 		envMap:txt, 
 		//lightMap:THREE.ImageUtils.loadTexture(AssetsFolder+'matcap/jeepster_skinmat2.jpg', THREE.SphericalReflectionMapping()),//txt,
-		refractionRatio:0.98,
+		//refractionRatio:0.98,
 	    combine: THREE.MixOperation,
 		skinning:true,
 		normalMap:material.uniforms.tNormal.value,
-		normalScale:{x:0,y:0},
-		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading,
-		metal:true
+		normalScale:{x:0,y:0}//,
+		//wrapping:THREE.ClampToEdgeWrapping,
+		//shading:THREE.SmoothShading//,
+		//metal:true
 	} ) 
 
 	materialAnim.normalMap.repeat.set( 1, 1 );

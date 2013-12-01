@@ -525,6 +525,8 @@ modelButtons.forEach(function(el){
 			case'head':f=true;  mod="head"; size=0.2; break;
 			case'onkba':f=true;  mod="onkba"; size=0.6; break;
 			case'vision':f=true;  mod="vision"; size=0.2; break;
+			case'dragon':f=true;  mod="dragon"; size=1; break;
+			case'panthere':f=true;  mod="panthere"; size=1; break;
 		}
 if(f){
 	currentModel = mod;
