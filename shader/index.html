@@ -330,9 +330,23 @@ function loadSeaFile(file, s){
 			// original position
 			meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
 
+			// linked Object
+			if(meshs[i].children.length>0){
+				for(j=0; j!== meshs[i].children.length; j++){
+					meshs[i].children[j].name = "_"+meshs[i].children[j].name;
+				}
+			}
+			
+
+			// animation test
 			if(meshs[i].bones){
 				meshs[i].name = meshs[i].name+"_a";
 				meshs[i].material = materialAnim;
+				linkList+= meshs[i].name+"<br>";
+				for(j=0;j!==meshs[i].animations.length;j++){
+					linkList+="___"+meshs[i].animations[j].name+"<br>";
+
+				}
 				//meshs[i].JITCompile = false;
 				//meshs[i].interpolationType = THREE.AnimationHandler.LINEAR;
 				//animMeshs.push(meshs[i]);
@@ -341,14 +355,10 @@ function loadSeaFile(file, s){
 				//meshs[i].play('idle');
 			} else {
 				meshs[i].material = material;
+				linkList+= meshs[i].name+"<br>";
 			}
 
-			if(meshs[i].children.length>0){
-				for(j=0; j!== meshs[i].children.length; j++){
-					meshs[i].children[j].name = "_"+meshs[i].children[j].name;
-				}
-			}
-			linkList+= meshs[i].name+"<br>";
+			
 		}
 
 		document.getElementById('title').innerHTML = linkList;
@@ -468,6 +478,11 @@ function clearContent(){
 		var obj, i, j;
 		for ( i = content.children.length - 1; i >= 0 ; i -- ) {
 	    	obj = content.children[ i ];
+	    	// remove animation
+	    	if(obj.name[obj.name.length-1]=="a" && obj.name[obj.name.length-2]=="_"){
+	    		for ( j = obj.animations.length - 1; j >= 0 ; j -- ){obj.animations[j].stop();}
+	    	}
+	        // remove children
 	        if(obj.children.length > 0) for ( j = obj.children.length - 1; j >= 0 ; j -- ) {obj.remove(obj.children[j]);}
 			content.remove(obj);
 		}
