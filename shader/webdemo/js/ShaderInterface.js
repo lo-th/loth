@@ -2,14 +2,131 @@ var materials=[{name:'dark glass',diffuse:'944_large_remake2.jpg'},{name:'twilig
 var normals=[{name:'243',map:'243-normal.jpg'},{name:'243',map:'wrinkle-normal.jpg'},{name:'243',map:'295-normal.jpg'},{name:'243',map:'879-normal.jpg'},{name:'243',map:'2563-normal.jpg'},{name:'243',map:'brick-normal.jpg'},{name:'243',map:'floor2_ddn.jpg'},{name:'243',map:'forestfloornrmii7.jpg'},{name:'243',map:'normal.jpg'},{name:'243',map:'normalmap_tile_even.jpg'},{name:'243',map:'normalmap1.jpg'},{name:'243',map:'stage7.jpg'},{name:'243',map:'Worn Temple Wall.jpg'},{name:'243',map:'fig29.png'},{name:'243',map:'Wall3_normalmap.jpg'},{name:'243',map:'metal1_normalmap.jpg'},{name:'243',map:'99232450425c8132b17dbccf65da365a.jpg'},{name:'243',map:'4918-normal.jpg'},{name:'243',map:'cr_wallpaper1_NRM.jpg'},{name:'243',map:'stone_wall_normal_map.jpg'},{name:'243',map:'02.jpg'},{name:'243',map:'242-normal.jpg'},{name:'243',map:'7146-normal.jpg'},{name:'243',map:'1324-normal.jpg'},{name:'243',map:'Rock_01_local.jpg'},{name:'243',map:'6624-normal.jpg'}]
 
 var materialList, normalList, modelList;
+
+
 var canvasSphere, ctxSphere;
 var canvasSphere2, ctxSphere2;
 var canvasSphere3, ctxSphere3;
+
+
 var canvasNormal;
+
+
 var modelSize = 20;
 var scaleset;
 var scaletxt;
-var blurset, blurtxt;
+var blurset, blurtxt, blur = 2;
+var lineset, linetxt;
+
+var canvasSphere=[];
+var ctxs=[];
+var txt;
+var gradians = [];
+
+var grad00 = {range:[0.1,0.3,0.8,1], color:[ [0,0,0,255], [60,60,60,255], [60,60,60,255], [0,0,0,255] ], line:40 };
+var grad01 = {range:[0.1,0.3,0.99,1], color:[ [255,255,255,255], [60,60,60,255], [60,60,60,100], [0,0,0,0] ], pos:[256,100, 256,256], rad:[100, 256]};
+var grad02 = {range:[0.1,0.3,0.4,1], color:[ [0,0,0,255], [60,60,60,100], [60,60,60,20], [0,0,0,0] ], pos:[256,400, 256,256], rad:[50, 256]};
+
+function initSphereGradian(){
+	canvasSphere[0] = document.createElement("canvas");
+	canvasSphere[1] = document.createElement("canvas");
+	canvasSphere[2] = document.createElement("canvas"); 
+	canvasSphere[0].width = canvasSphere[0].height = 512;
+	canvasSphere[1].width = canvasSphere[1].height = 512;
+	canvasSphere[2].width = canvasSphere[2].height = 256;
+	ctxs[0] = canvasSphere[0].getContext("2d");
+	ctxs[1] = canvasSphere[1].getContext("2d");
+	ctxs[2] = canvasSphere[2].getContext("2d");
+	ctxs[2].scale(0.5, 0.5);
+	//__________
+	canvasSphere[3] = document.createElement("canvas"); 
+	canvasSphere[4] = document.createElement("canvas");
+	canvasSphere[5] = document.createElement("canvas");
+	canvasSphere[3].width = canvasSphere[4].width = canvasSphere[5].width =256;
+	canvasSphere[3].height = canvasSphere[4].height = canvasSphere[5].height =16;
+	ctxs[3] = canvasSphere[3].getContext("2d");
+	ctxs[4] = canvasSphere[4].getContext("2d");
+	ctxs[5] = canvasSphere[5].getContext("2d");
+}
+
+function drawSphereGradian(){
+	var i;
+	gradians[0] = ctxs[0].createLinearGradient(0,0,0,512);
+	gradians[5] = ctxs[0].createLinearGradient(0,0,256,0);
+	for(i=0; i!==grad00.range.length; i++){
+		gradians[0].addColorStop(grad00.range[i],'rgba('+grad00.color[i][0]+','+grad00.color[i][1]+','+grad00.color[i][2]+','+grad00.color[i][3]+')');
+		gradians[5].addColorStop(grad00.range[i],'rgba('+grad00.color[i][0]+','+grad00.color[i][1]+','+grad00.color[i][2]+','+grad00.color[i][3]+')');
+    }
+
+	ctxs[0].fillStyle = gradians[0];
+	ctxs[0].fillRect(0, 0, 512, 512);
+
+	gradians[1] = ctxs[0].createRadialGradient(grad01.pos[0],grad01.pos[1],grad01.rad[0],grad01.pos[2],grad01.pos[3],grad01.rad[1]);
+	for(i=0; i!==grad01.range.length; i++){
+		gradians[1].addColorStop(grad01.range[i],'rgba('+grad01.color[i][0]+','+grad01.color[i][1]+','+grad01.color[i][2]+','+grad01.color[i][3]+')');
+    }
+
+	ctxs[0].fillStyle = gradians[1];
+	ctxs[0].fillRect(0, 0, 512, 512);
+
+	gradians[2] = ctxs[0].createRadialGradient(grad02.pos[0],grad02.pos[1],grad02.rad[0],grad02.pos[2],grad02.pos[3],grad02.rad[1]);
+	for(i=0; i!==grad02.range.length; i++){
+		gradians[2].addColorStop(grad02.range[i],'rgba('+grad02.color[i][0]+','+grad02.color[i][1]+','+grad02.color[i][2]+','+grad02.color[i][3]+')');
+    }
+
+	ctxs[0].fillStyle = gradians[2];
+	ctxs[0].fillRect(0, 0, 512, 512);
+
+	//-------------
+
+	ctxs[3].fillStyle = gradians[5];
+	ctxs[3].fillRect(0, 0, 256, 16);
+
+	gradians[3] = ctxs[3].createLinearGradient(0,0,256,0);
+	for(i=0; i!==grad01.range.length; i++){
+		gradians[3].addColorStop(grad01.range[i],'rgba('+grad01.color[i][0]+','+grad01.color[i][1]+','+grad01.color[i][2]+','+grad01.color[i][3]+')');
+    }
+	ctxs[4].fillStyle = gradians[3];
+	ctxs[4].fillRect(0, 0, 256, 16);
+
+	gradians[4] = ctxs[4].createLinearGradient(0,0,256,0);
+	for(i=0; i!==grad01.range.length; i++){
+		gradians[4].addColorStop(grad02.range[i],'rgba('+grad02.color[i][0]+','+grad02.color[i][1]+','+grad02.color[i][2]+','+grad02.color[i][3]+')');
+    }
+	ctxs[5].fillStyle = gradians[4];
+	ctxs[5].fillRect(0, 0, 256, 16);
+
+	ctxs[0].beginPath();
+    ctxs[0].arc(256, 256, 256, 0, 2 * Math.PI, false);
+    ctxs[0].lineWidth = grad00.line;
+    ctxs[0].strokeStyle = gradians[0];
+    ctxs[0].stroke();
+
+	// apply blur
+	stackBoxBlurCanvasRGBA( canvasSphere[0], canvasSphere[1], 0, 0, 512, 512, blur, 1 );
+
+	applySphereMaterial();
+}
+
+function applyBlur() {
+	stackBoxBlurCanvasRGBA( canvasSphere[0], canvasSphere[1], 0, 0, 512, 512, blur, 1 );
+	applySphereMaterial();
+}
+
+function applySphereMaterial() {
+	// preview
+	ctxs[2].drawImage(canvasSphere[1],0,0);
+	// update texture
+	txt = new THREE.Texture(canvasSphere[1]);
+	txt.anisotropy = MaxAnistropy;
+	txt.needsUpdate = true;
+	// update material 
+	if(material && envMaterial){
+		material.uniforms.tMatCap.value=txt;
+		envMaterial.map = txt;
+	}
+}
+
 
 function initInterface(){
 	modelList=document.getElementById('modelList');
@@ -25,57 +142,16 @@ function initInterface(){
 
 	blurset = document.getElementById('blurValueInput');
 	blurtxt = document.getElementById('blurtxt');
-	blurset.addEventListener('change',function(e){applyBlur(this.value);blurtxt.innerHTML="Blur : "+this.value;e.preventDefault();});
+	blurset.addEventListener('change',function(e){blur=this.value; applyBlur();blurtxt.innerHTML="Blur : "+blur;e.preventDefault();});
+
+	lineset = document.getElementById('lineValueInput');
+	linetxt = document.getElementById('linetxt');
+	lineset.addEventListener('change',function(e){grad00.line=this.value; drawSphereGradian();linetxt.innerHTML="Line : "+this.value;e.preventDefault();});
+
 	
-	
+	initSphereGradian();
+	drawSphereGradian();
 
-	/////____________________________________________
-	canvasSphere = document.createElement("canvas");
-	canvasSphere3 = document.createElement("canvas");
-	canvasSphere.width = canvasSphere.height = 512;
-	canvasSphere3.width = canvasSphere3.height = 512;
-	ctxSphere = canvasSphere.getContext("2d");
-	ctxSphere3= canvasSphere3.getContext("2d");
-	ctxSphere.fillStyle = "#FF1010";
-	ctxSphere.fillRect(0, 0, 512, 512);
-
-	//__________________________________________
-
-	var grd=ctxSphere.createLinearGradient(0,0,0,512);
-	grd.addColorStop(0.1,"#EEEEEE");
-	grd.addColorStop(0.3,"#00AA00");
-	grd.addColorStop(0.8,"#1111AA");
-	grd.addColorStop(1,"#FFFFFF");
-
-	ctxSphere.fillStyle = grd;
-	ctxSphere.fillRect(0, 0, 512, 512);
-
-	var radgrad2 = ctxSphere.createRadialGradient(256,150,100,256,256,256);
-    radgrad2.addColorStop(0, '#EEEEEE');
-    radgrad2.addColorStop(0.99, '#FF0188');
-    radgrad2.addColorStop(1, 'rgba(255,1,136,0)');
-    ctxSphere.fillStyle = radgrad2;
-	ctxSphere.fillRect(0, 0, 512, 512);
-
-	ctxSphere.beginPath();
-    ctxSphere.arc(256, 256, 256, 0, 2 * Math.PI, false);
-      //context.fillStyle = 'green';
-     // context.fill();
-      ctxSphere.lineWidth = 40;
-      ctxSphere.strokeStyle = grd;//'#003300';
-      ctxSphere.stroke();
-
-    //stackBoxBlurCanvasRGBA( canvasSphere, 0, 0, 512, 512, 10, 2 );
-    var imageData = ctxSphere.getImageData( 0, 0, 512, 512 );
-    ctxSphere3.putImageData( imageData, 0, 0 );
-
-	canvasSphere2 = document.createElement("canvas");
-	canvasSphere2.width = canvasSphere2.height = 256;
-	ctxSphere2 = canvasSphere2.getContext("2d");
-	ctxSphere2.scale(0.5, 0.5);
-	ctxSphere2.drawImage(canvasSphere3, 0, 0);
-	
-	//////
 
 	var j;
 	materialList=document.getElementById('materialList');
@@ -83,9 +159,13 @@ function initInterface(){
 	materialList.appendChild(li);
 		
 	// ctxSphere.scale(0.5, 0.5);
-	li.appendChild(canvasSphere2);
-	canvasSphere2.addEventListener('click',applySphereMaterial);
-	canvasSphere2.className='materialPreview';
+	//li.appendChild(canvasSphere2);
+	li.appendChild(canvasSphere[2]);
+	li.appendChild(canvasSphere[3]);
+	li.appendChild(canvasSphere[4]);
+	li.appendChild(canvasSphere[5]);
+	//canvasSphere2.addEventListener('click',applySphereMaterial);
+	//canvasSphere2.className='materialPreview';
 	//canvasSphere2.className='button';
 	//a.style.backgroundImage=canvasSphere
 
@@ -135,21 +215,7 @@ function initInterface(){
 	});
 }
 
-function applyBlur(b) {
-	stackBoxBlurCanvasRGBA( canvasSphere, canvasSphere3, 0, 0, 512, 512, b, 2 );
-	applySphereMaterial();
-}
 
-function applySphereMaterial() {
-	// preview
-	ctxSphere2.drawImage(canvasSphere3, 0, 0);
-	// three texture
-	var tx = new THREE.Texture(canvasSphere3);
-	tx.anisotropy = MaxAnistropy;
-	material.uniforms.tMatCap.value=tx;
-	envMaterial.map = tx;
-	tx.needsUpdate = true;
-}
 
 function isPowerOfTwo(x){return(x&(x-1))==0;}
 

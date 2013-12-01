@@ -31,6 +31,7 @@
 		<div class="block">
 			<h2>Material map</h2>
 			<p class="input"><span id="blurtxt">Blur : 1</span> <input type="range" min="1" max="50" value="1" id="blurValueInput"/></p>
+			<p class="input"><span id="linetxt">Line : 40</span> <input type="range" min="1" max="100" value="40" id="lineValueInput"/></p>
 			<ul class="list" id="materialList">
 			</ul>
 		</div>
@@ -149,14 +150,14 @@ function initLight(){
 }
 
 function initMaterial(){
-	var tx = new THREE.Texture(canvasSphere3);
+	/*var tx = new THREE.Texture(canvasSphere[1]);
 	tx.anisotropy = MaxAnistropy;
-	tx.needsUpdate = true;
+	tx.needsUpdate = true;*/
 
 	material=new THREE.ShaderMaterial({
 		uniforms:{
-			tNormal:{type:'t', value:tx},
-			tMatCap:{ type:'t', value:tx},
+			tNormal:{type:'t', value:txt},
+			tMatCap:{ type:'t', value:txt},
 			time:{ type:'f',value:0},
 			bump:{type:'f',value:0},
 			noise:{ type:'f',value:.04},
@@ -186,7 +187,7 @@ function initMaterial(){
 		shininess:50, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:tx, 
+		envMap:txt, 
 	    combine: THREE.MixOperation,
 		skinning:true,
 		normalMap:material.uniforms.tNormal.value,
@@ -204,7 +205,7 @@ function initMaterial(){
 		shininess:50, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:tx, 
+		envMap:txt, 
 	    combine: THREE.MixOperation,
 		normalMap:material.uniforms.tNormal.value,
 		normalScale:{x:0,y:0},
