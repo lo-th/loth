@@ -11,7 +11,7 @@ var canvasSphere3, ctxSphere3;
 
 var canvasNormal;
 
-
+var normalReapeat = 1, normalScale=0;
 var modelSize = 20;
 var scaleset;
 var scaletxt;
@@ -455,15 +455,18 @@ function adjustNormalMap(img){
 	material.uniforms.tNormal.value.needsUpdate=true;
 	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
 	material.uniforms.useNormal.value=1.;
+	if(normalScale==0)normalScale = 1;
 
 	materialAnim.normalMap=material.uniforms.tNormal.value;
-	materialAnim.normalScale.y = materialAnim.normalScale.x = 1;
+	materialAnim.normalScale.y = materialAnim.normalScale.x = normalScale;
 	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+	materialMorph.normalMap.repeat.set( normalReapeat, normalReapeat )
 	materialAnim.normalMap.needsUpdate=true;
 
 	materialMorph.normalMap=material.uniforms.tNormal.value;
-	materialMorph.normalScale.y = materialMorph.normalScale.x = 1;
+	materialMorph.normalScale.y = materialMorph.normalScale.x = normalScale;
 	materialMorph.normalMap.wrapS=materialMorph.normalMap.wrapT=THREE.RepeatWrapping;
+	materialMorph.normalMap.repeat.set( normalReapeat, normalReapeat )
 	materialMorph.normalMap.needsUpdate=true;
 }
 
@@ -475,6 +478,7 @@ document.getElementById('screenBlendingBtn').addEventListener('click',function(e
 	e.preventDefault();
 });
 document.getElementById('normalValueInput').addEventListener('change',function(e){
+	normalScale = this.value/100;
 	material.uniforms.normalScale.value=this.value/100;
 	materialAnim.normalScale.y = materialAnim.normalScale.x = this.value/100;
 	materialMorph.normalScale.y = materialMorph.normalScale.x = this.value/100;
@@ -482,6 +486,7 @@ document.getElementById('normalValueInput').addEventListener('change',function(e
 });
 
 document.getElementById('normalRepeatInput').addEventListener('change',function(e){
+	normalReapeat = this.value;
 	material.uniforms.normalRepeat.value=this.value;
 	materialAnim.normalMap.repeat.set( this.value, this.value );
 	materialAnim.normalMap.needsUpdate = true;
