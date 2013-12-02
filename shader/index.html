@@ -31,21 +31,27 @@
 			</ul>
 		</div>
 		<div class="block">
-			<h2>Material map</h2>
+			<h2>Environment map</h2>
+			<div id="EnvMap"><div id="mh0"></div><div id="mh1"></div><div id="mh2"></div><div id="mh3"></div></div>
+			<div id="grad0"><div id="cc0"></div><div id="cc1"></div><div id="cc2"></div><div id="cc3"></div></div>
+			<div id="grad1"><div id="cc4"></div><div id="cc5"></div><div id="cc6"></div><div id="cc7"></div></div>
+			<div id="grad2"><div id="cc8"></div><div id="cc9"></div><div id="cc10"></div><div id="cc11"></div></div>
+
+			<div id="colorChoose">
+				<div id="ddcolor0"><div id="ddselect0"></div></div>
+				<div id="ddcolor1"><div id="ddselect1"></div></div>
+				<div id="ddcolor2"><div id="ddselect2"></div></div>
+				<div id="ddcolor3"><div id="ddselect3"></div></div>
+			    <div id="finalColor"></div>
+			</div>
+
 			<!--<p class="input"><span id="blurtxt">Blur : 1</span> <input type="range" min="1" max="50" value="1" id="blurValueInput"/></p>-->
 			<p class="input"><span id="linetxt">Line : 10</span> <input type="range" min="1" max="100" value="10" id="lineValueInput"/></p>
 			<p class="input"><span id="alphatxt">Alpha : 50</span> <input type="range" min="0" max="100" value="50" id="alphaValueInput"/></p>
-			<div id="map">
-				<div id="mh0"></div>
-				<div id="mh1"></div>
-				<div id="mh2"></div>
-				<div id="mh3"></div>
-			</div>
-			<div id="grad0"></div>
-			<div id="grad1"></div>
-			<div id="grad2"></div>
-				
+
 			
+
+
 			<ul class="list" id="materialList">
 			</ul>
 		</div>
@@ -191,7 +197,6 @@ function initMaterial(){
 	});
 	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
 	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
-
 
 	envMaterial = new THREE.MeshBasicMaterial( {map: material.uniforms.tMatCap.value} );
 
