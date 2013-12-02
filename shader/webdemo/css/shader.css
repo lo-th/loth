@@ -30,6 +30,7 @@ body{color:#fff;font-family:tahoma,sans-serif;font-size:11px;background-color:#2
 	border:1px solid #010101;
 	width:256px;
 	height:256px;
+	margin-top: -5px;
 }
 
 #grad0, #grad1, #grad2{
@@ -54,6 +55,7 @@ body{color:#fff;font-family:tahoma,sans-serif;font-size:11px;background-color:#2
 	cursor:pointer;
 }
 #mh0, #mh1{
+	pointer-events:none;
 	position:absolute;
 	margin-left:-64px;
 	margin-top:-64px;
@@ -90,6 +92,7 @@ li{list-style-type:none}
 #options h1{margin-bottom:10px;font-size:14px}
 #credits p{margin-bottom:5px}
 .unselectable{ -o-user-select:none; -ms-user-select:none; -khtml-user-select:none; -webkit-user-select:none; -moz-user-select: none;}
+.selectable{ -o-user-select:text; -ms-user-select:text; -khtml-user-select:text; -webkit-user-select:text; -moz-user-select: text;}
 .button{
 	display:inline-block;
 	padding:2px 6px;
@@ -190,4 +193,86 @@ a:visited { color: #f0efd1; text-decoration:none}
 	border:1px solid #010101;
 	width:64px;
 	height:64px;
+}
+
+
+#EnvMapPreset{
+	position:relative;
+	margin-top:10px;
+	margin-bottom:2px;
+	height: 40px;
+	width: 256px;
+	display:block;
+}
+
+#EnvMapPrev, #EnvMapNext, #EnvMapText{
+	padding:8px 0px;
+	position:absolute;
+	-webkit-border-radius: 10px;
+    border-radius: 10px;
+	border:1px solid #010101;
+	background-color: #111;
+	text-align:center;
+	font-size:14px;
+	text-decoration:none;
+	cursor:pointer;
+}
+#EnvMapPrev:hover, #EnvMapNext:hover, #EnvMapText:hover{
+	border:1px solid #666666;
+	background-color: #222;
+}
+#EnvMapPrev{
+	width:40px;
+}
+
+#EnvMapNext{
+	width:40px;
+	right:0px;
+}
+
+#EnvMapText{
+	width:150px;
+	left:53px;
+}
+
+
+#showFinalPreset{
+	position:relative;
+	margin-top:10px;
+	margin-bottom:2px;
+	height: 12px;
+	width: 256px;
+	display:block;
+	padding:4px 4px;
+	-webkit-border-radius: 10px;
+    border-radius: 10px;
+	border:1px solid #010101;
+	background-color: #111;
+	text-align:center;
+	font-size:11px;
+	text-decoration:none;
+	cursor:pointer;
+}
+#showFinalPreset:hover{
+	border:1px solid #666666;
+	background-color: #222;
+}
+
+#finalPreset{
+	font-size:9px;
+	position:relative;
+	padding:10px 10px;
+	display:block;
+	width:256px;
+	height:0px;
+	border-radius: 10px;
+	border:1px solid #010101;
+	background-color: #111;
+	text-align:left;
+	visibility:hidden;
+}
+
+#finalPreset.active{
+	height:360px;
+	visibility:visible;
 }

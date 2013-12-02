@@ -12,7 +12,7 @@ var canvasSphere3, ctxSphere3;
 var canvasNormal;
 
 var normalReapeat = 1, normalScale=0;
-var currentColor;
+var currentColor = -1;
 var modelSize = 20;
 var scaleset;
 var scaletxt;
@@ -39,11 +39,73 @@ var grads = [];
 var txt;
 
 var GRD = {
-	line:10, 
-	alpha:0.5,
-	range:[0.1,0.3,0.8,1 ,  0.1,0.5,0.95,1,  0.1,0.5,0.95,1],
-	position:[128,50, 128,128,   128,200, 128,128],
-	color:[ [0,0,0,1], [60,60,60,1], [60,60,60,1], [0,0,0,1] ,  [255,255,255,1], [180,180,180,1], [60,60,60,0.5], [0,0,0,0] ,  [0,0,0,1], [20,20,20,0.5], [30,30,30,0.1], [0,0,0,0]]
+	line:10, alpha:0.5,
+	ranging:{ 
+		r0:0.1,r1:0.3,r2:0.8,r3:1,
+		r4:0.1,r5:0.5,r6:0.95,r7:1,
+		r8:0.1,r9:0.5,r10:0.95,r11:1
+	},
+	positions:{ 
+		p0:128, p1:50, p2:128, p3:128,
+		p4:128, p5:200, p6:128, p7:128 
+	},
+	colors:{ 
+		r0:0 ,   v0:0 ,   b0:0 ,   a0:1,
+		r1:60,   v1:60,   b1:60,   a1:1,
+		r2:60,   v2:60,   b2:60,   a2:1,
+		r3:0 ,   v3:0,    b3:0,    a3:1,
+
+		r4:255,  v4:255,  b4:255,  a4:1,
+		r5:180,  v5:180,  b5:180,  a5:1,
+		r6:60,   v6:60,   b6:60,   a6:0.5,
+		r7:0,    v7:0,    b7:0,    a7:0 ,
+
+		r8:0,    v8:0,    b8:0,    a8:1,
+		r9:20,   v9:20,   b9:20,   a9:0.5, 
+		r10:30,  v10:30,  b10:30,  a10:0.1,
+		r11:0,   v11:0,   b11:0,   a11:0
+	}
+}
+
+var currentShader = 0;
+
+var tweenner = [];
+ 
+function tweenToPreset(obj){
+	tweenner[0] = TweenLite.to(GRD, 4, { line:obj.line, alpha:obj.alpha});
+	tweenner[1] = TweenLite.to(GRD.positions, 4, {
+		p0:obj.positions.p0, p1:obj.positions.p1, p2:obj.positions.p2, p3:obj.positions.p3,
+		p4:obj.positions.p4, p5:obj.positions.p5, p6:obj.positions.p6, p7:obj.positions.p7,
+		onUpdate: placeHelper
+	});
+	tweenner[2] = TweenLite.to(GRD.ranging, 4, {
+		r0:obj.ranging.r0, r1:obj.ranging.r1, r2:obj.ranging.r2, r3:obj.ranging.r3,
+		r4:obj.ranging.r4, r5:obj.ranging.r5, r6:obj.ranging.r6, r7:obj.ranging.r7,
+		r8:obj.ranging.r8, r9:obj.ranging.r9, r10:obj.ranging.r10, r11:obj.ranging.r11,
+		onUpdate: placeColors
+	});
+	tweenner[3] = TweenLite.to(GRD.colors, 4, {
+		r0:obj.colors.r0, v0:obj.colors.v0, b0:obj.colors.b0, a0:obj.colors.a0,
+		r1:obj.colors.r1, v1:obj.colors.v1, b1:obj.colors.b1, a1:obj.colors.a1,
+		r2:obj.colors.r2, v2:obj.colors.v2, b2:obj.colors.b2, a2:obj.colors.a2,
+		r3:obj.colors.r3, v3:obj.colors.v3, b3:obj.colors.b3, a3:obj.colors.a3,
+		r4:obj.colors.r4, v4:obj.colors.v4, b4:obj.colors.b4, a4:obj.colors.a4,
+		r5:obj.colors.r5, v5:obj.colors.v5, b5:obj.colors.b5, a5:obj.colors.a5,
+		r6:obj.colors.r6, v6:obj.colors.v6, b6:obj.colors.b6, a6:obj.colors.a6,
+		r7:obj.colors.r7, v7:obj.colors.v7, b7:obj.colors.b7, a7:obj.colors.a7,
+		r8:obj.colors.r8, v8:obj.colors.v8, b8:obj.colors.b8, a8:obj.colors.a8,
+		r9:obj.colors.r9, v9:obj.colors.v9, b9:obj.colors.b9, a1:obj.colors.a9,
+		r10:obj.colors.r10, v10:obj.colors.v10, b10:obj.colors.b10, a2:obj.colors.a10,
+		r11:obj.colors.r11, v11:obj.colors.v11, b11:obj.colors.b11, a3:obj.colors.a11,
+		onUpdate: updateAll
+	});
+}
+
+
+function updateAll(){
+	//tweenTime++;
+	drawSphereGradian();
+	//document.getElementById('title').innerHTML = parseInt(GRD.test.x)  +"/"+tweenTime+ "  //  "+ GRD.ranging['r'+1];
 }
 
 function drawColors(){
@@ -80,7 +142,7 @@ function drawColors(){
 
 function placeColors(){
 	for(var i=0;i!==12; i++){
-		cac[i].style.left = 256*GRD.range[i]+'px';
+		cac[i].style.left = parseInt(256*GRD.ranging['r'+i])+'px';
 	}
 }
 
@@ -94,7 +156,7 @@ function setActiveColor(){
 function getColorsRange(){
 	setActiveColor();
 	for(var i=0;i!==12; i++){
-		GRD.range[i] = (parseInt((cac[i].style.left).replace('px', ''))/256).toFixed(2);
+		GRD.ranging['r'+i] = (parseInt((cac[i].style.left).replace('px', ''))/256).toFixed(2);
 	}
 	drawHelper2();
 	drawSphereGradian();
@@ -164,8 +226,8 @@ function drawHelper(){
 function drawHelper2(){
 	ctxh[0].clearRect(0, 0, 128, 128);
 	ctxh[1].clearRect(0, 0, 128, 128);
-	var r0 = GRD.range[4]*128;
-	var r1 = GRD.range[8]*128;
+	var r0 = GRD.ranging['r'+4]*128;
+	var r1 = GRD.ranging['r'+8]*128;
 	
 	ctxh[0].beginPath();
     ctxh[0].arc(64, 64, r0, 0, 2 * Math.PI, false);
@@ -181,36 +243,40 @@ function drawHelper2(){
 }
 
 function placeHelper(){
-	mh[0].style.left = mh[2].style.left = GRD.position[0]+'px' ;
-	mh[0].style.top = mh[2].style.top = GRD.position[1]+'px' ;
-	mh[1].style.left = mh[3].style.left = GRD.position[4]+'px' ;
-	mh[1].style.top = mh[3].style.top = GRD.position[5]+'px' ;
+	mh[0].style.left = mh[2].style.left = parseInt(GRD.positions['p'+0])+'px' ;
+	mh[0].style.top = mh[2].style.top = parseInt(GRD.positions['p'+1])+'px' ;
+	mh[1].style.left = mh[3].style.left = parseInt(GRD.positions['p'+4])+'px' ;
+	mh[1].style.top = mh[3].style.top = parseInt(GRD.positions['p'+5])+'px' ;
 }
 
 function drawSphereGradian(){
 	var i;
+	var color;
 	ctxs[0].clearRect(0, 0, 256, 256);
 	ctxs[1].clearRect(0, 0, 256, 256);
 	grads[0] = ctxs[0].createLinearGradient(0,0,0,256);
 	grads[5] = ctxs[0].createLinearGradient(0,0,256,0);
 	grads[3] = ctxs[0].createLinearGradient(0,0,256,0);
 	grads[4] = ctxs[0].createLinearGradient(0,0,256,0);
-	grads[1] = ctxs[0].createRadialGradient(GRD.position[0],GRD.position[1],GRD.range[4]*128,GRD.position[2],GRD.position[3],GRD.range[7]*128);
-	grads[2] = ctxs[0].createRadialGradient(GRD.position[4],GRD.position[5],GRD.range[8]*128,GRD.position[6],GRD.position[7],GRD.range[11]*128);
+	grads[1] = ctxs[0].createRadialGradient(parseInt(GRD.positions['p'+0]),parseInt(GRD.positions['p'+1]),parseInt(GRD.ranging['r'+4]*128),parseInt(GRD.positions['p'+2]),parseInt(GRD.positions['p'+3]),parseInt(GRD.ranging['r'+7]*128));
+	grads[2] = ctxs[0].createRadialGradient(parseInt(GRD.positions['p'+4]),parseInt(GRD.positions['p'+5]),parseInt(GRD.ranging['r'+8]*128),parseInt(GRD.positions['p'+6]),parseInt(GRD.positions['p'+7]),parseInt(GRD.ranging['r'+11]*128));
 
 	for(i=0; i!==4; i++){
-		grads[0].addColorStop(GRD.range[i],'rgba('+GRD.color[i][0]+','+GRD.color[i][1]+','+GRD.color[i][2]+','+GRD.color[i][3]+')');
-		grads[5].addColorStop(GRD.range[i],'rgba('+GRD.color[i][0]+','+GRD.color[i][1]+','+GRD.color[i][2]+','+GRD.color[i][3]+')');
+		color = 'rgba('+parseInt(GRD.colors['r'+i])+','+parseInt(GRD.colors['v'+i])+','+parseInt(GRD.colors['b'+i])+','+parseFloat(GRD.colors['a'+i]).toFixed(2)+')';
+		grads[0].addColorStop(parseFloat(GRD.ranging['r'+i]).toFixed(2), color);
+		grads[5].addColorStop(parseFloat(GRD.ranging['r'+i]).toFixed(2), color);
     }
 
 	for(i=0; i!==4; i++){
-		grads[1].addColorStop(GRD.range[i+4],'rgba('+GRD.color[i+4][0]+','+GRD.color[i+4][1]+','+GRD.color[i+4][2]+','+GRD.color[i+4][3]+')');
-		grads[3].addColorStop(GRD.range[i+4],'rgba('+GRD.color[i+4][0]+','+GRD.color[i+4][1]+','+GRD.color[i+4][2]+','+GRD.color[i+4][3]+')');
+		color = 'rgba('+parseInt(GRD.colors['r'+(i+4)])+','+parseInt(GRD.colors['v'+(i+4)])+','+parseInt(GRD.colors['b'+(i+4)])+','+parseFloat(GRD.colors['a'+(i+4)]).toFixed(2)+')';
+		grads[1].addColorStop(parseFloat(GRD.ranging['r'+(i+4)]).toFixed(2), color);
+		grads[3].addColorStop(parseFloat(GRD.ranging['r'+(i+4)]).toFixed(2), color);
     }
 
 	for(i=0; i!==4; i++){
-		grads[2].addColorStop(GRD.range[i+8],'rgba('+GRD.color[i+8][0]+','+GRD.color[i+8][1]+','+GRD.color[i+8][2]+','+GRD.color[i+8][3]+')');
-		grads[4].addColorStop(GRD.range[i+8],'rgba('+GRD.color[i+8][0]+','+GRD.color[i+8][1]+','+GRD.color[i+8][2]+','+GRD.color[i+8][3]+')');
+		color = 'rgba('+parseInt(GRD.colors['r'+(i+8)])+','+parseInt(GRD.colors['v'+(i+8)])+','+parseInt(GRD.colors['b'+(i+8)])+','+parseFloat(GRD.colors['a'+(i+8)]).toFixed(2)+')';
+		grads[2].addColorStop(parseFloat(GRD.ranging['r'+(i+8)]).toFixed(2), color);
+		grads[4].addColorStop(parseFloat(GRD.ranging['r'+(i+8)]).toFixed(2), color);
     }
     
     ctxs[0].fillStyle = grads[0];
@@ -223,6 +289,10 @@ function drawSphereGradian(){
 	ctxs[0].fillRect(0, 0, 256, 256);
 
 	//______________linear gradian
+	ctxs[3].clearRect(0, 0, 256, 20);
+	ctxs[4].clearRect(0, 0, 256, 20);
+	ctxs[5].clearRect(0, 0, 256, 20);
+
 	ctxs[3].fillStyle = grads[5];
 	ctxs[3].fillRect(0, 0, 256, 20);
 
@@ -244,6 +314,7 @@ function drawSphereGradian(){
     ctxs[0].globalAlpha = GRD.alpha;
 
 	applySphereMaterial();
+	if(isShowfinalPreset) traceCurrent();
 }
 
 function applySphereMaterial() {
@@ -262,8 +333,63 @@ function applySphereMaterial() {
 	}
 }
 
+var finalPreset;
+var finalPresetButton;
+var isShowfinalPreset = false;
+
+function traceCurrent(){
+	var finalshade = "var Map_"+ShaderMapList[currentShader].name+" ={<br> name:'"+ShaderMapList[currentShader].name+"' ,line:"+GRD.line+", alpha:"+GRD.alpha+", <br>";
+	finalshade += " ranging:{<br>"+" r0:"+GRD.ranging.r0+", r1:"+GRD.ranging.r1+", r2:"+GRD.ranging.r2+", r3:"+GRD.ranging.r3+",<br>";
+	finalshade += " r4:"+GRD.ranging.r4+", r5:"+GRD.ranging.r5+", r6:"+GRD.ranging.r6+", r7:"+GRD.ranging.r7+",<br>";
+	finalshade += " r8:"+GRD.ranging.r8+", r9:"+GRD.ranging.r9+", r10:"+GRD.ranging.r10+", r11:"+GRD.ranging.r11+"<br>},<br>";
+	finalshade += " positions:{<br>"+" p0:"+GRD.positions.p0+", p1:"+GRD.positions.p1+", p2:"+GRD.positions.p2+", p3:"+GRD.positions.p3+",<br>";
+	finalshade += " p4:"+GRD.positions.p4+", p5:"+GRD.positions.p5+", p6:"+GRD.positions.p6+", p7:"+GRD.positions.p7+"<br>},<br>";
+
+	finalshade += " colors:{<br>"+" r0:"+GRD.colors.r0+", v0:"+GRD.colors.v0+", b0:"+GRD.colors.b0+", a0:"+GRD.colors.a0+",<br>";
+	finalshade += " r1:"+GRD.colors.r1+", v1:"+GRD.colors.v1+", b1:"+GRD.colors.b1+", a1:"+GRD.colors.a1+",<br>";
+	finalshade += " r2:"+GRD.colors.r2+", v2:"+GRD.colors.v2+", b2:"+GRD.colors.b2+", a2:"+GRD.colors.a1+",<br>";
+	finalshade += " r3:"+GRD.colors.r3+", v3:"+GRD.colors.v3+", b3:"+GRD.colors.b3+", a3:"+GRD.colors.a1+",<br>";
+
+	finalshade += " r4:"+GRD.colors.r4+", v4:"+GRD.colors.v4+", b4:"+GRD.colors.b4+", a4:"+GRD.colors.a4+",<br>";
+	finalshade += " r5:"+GRD.colors.r5+", v5:"+GRD.colors.v5+", b5:"+GRD.colors.b5+", a5:"+GRD.colors.a5+",<br>";
+	finalshade += " r6:"+GRD.colors.r6+", v6:"+GRD.colors.v6+", b6:"+GRD.colors.b6+", a6:"+GRD.colors.a6+",<br>";
+	finalshade += " r7:"+GRD.colors.r7+", v7:"+GRD.colors.v7+", b7:"+GRD.colors.b7+", a7:"+GRD.colors.a7+",<br>";
+
+	finalshade += " r8:"+GRD.colors.r8+", v8:"+GRD.colors.v8+", b8:"+GRD.colors.b8+", a8:"+GRD.colors.a8+",<br>";
+	finalshade += " r9:"+GRD.colors.r9+", v9:"+GRD.colors.v9+", b9:"+GRD.colors.b9+", a9:"+GRD.colors.a9+",<br>";
+	finalshade += " r10:"+GRD.colors.r10+", v10:"+GRD.colors.v10+", b10:"+GRD.colors.b10+", a10:"+GRD.colors.a10+",<br>";
+	finalshade += " r11:"+GRD.colors.r11+", v11:"+GRD.colors.v11+", b11:"+GRD.colors.b11+", a11:"+GRD.colors.a11+"<br>}};";
+	finalPreset.innerHTML = finalshade;
+}
 
 function initInterface(){
+	finalPresetButton=document.getElementById('showFinalPreset'); 
+	finalPreset=document.getElementById('finalPreset');
+
+	finalPresetButton.addEventListener('click',function(e){
+		if(isShowfinalPreset){isShowfinalPreset = false;  finalPreset.classList.remove('active');}
+		else {isShowfinalPreset=true; finalPreset.classList.add('active'); traceCurrent();}
+	});
+
+	bb0=document.getElementById('EnvMapText');
+	bb0.addEventListener('click',function(e){tweenToPreset(  ShaderMapList[currentShader] );});
+
+	bb1=document.getElementById('EnvMapNext');
+	bb1.addEventListener('click',function(e){
+		if(currentShader!==ShaderMapList.length-1) currentShader++;
+		else currentShader = 0;
+		bb0.innerHTML = ShaderMapList[currentShader].name;
+		tweenToPreset(  ShaderMapList[currentShader] );
+	});
+
+	bb2=document.getElementById('EnvMapPrev');
+	bb2.addEventListener('click',function(e){
+		if(currentShader!==0)currentShader--;
+		else currentShader = ShaderMapList.length-1;
+		bb0.innerHTML = ShaderMapList[currentShader].name;
+		tweenToPreset(  ShaderMapList[currentShader] );
+	});
+
 	modelList=document.getElementById('modelList');
 	scaleset = document.getElementById('scaleValueInput');
 	scaletxt = document.getElementById('scaletxt');
@@ -307,7 +433,7 @@ function initInterface(){
 		cac[i].appendChild(canvasColors[i]);
 		cac[i].name = i;
 		dragcc[i] = false;
-		cac[i].addEventListener( 'mousedown', function(e){ dragcc[this.name] = true; currentColor = this.name; getColorSelector(GRD.color[currentColor]);}, false );
+		cac[i].addEventListener( 'mousedown', function(e){ dragcc[this.name] = true; currentColor = this.name; getColorSelector();}, false );
 		cac[i].addEventListener( 'mouseout', function(e){ dragcc[this.name] = false; }, false );
 		cac[i].addEventListener( 'mouseup', function(e){ dragcc[this.name] = false; }, false );
 		cac[i].addEventListener( 'mousemove', function(e){
@@ -336,28 +462,28 @@ function initInterface(){
 	mh[2].appendChild(canvasHelper[2]);
 	mh[3].appendChild(canvasHelper[3]);
 
-	mh[2].addEventListener( 'mousedown', function(e){ drag2 = true; currentColor = 4; getColorSelector(GRD.color[currentColor]);}, false );
+	mh[2].addEventListener( 'mousedown', function(e){ drag2 = true; currentColor = 4; getColorSelector();}, false );
 	mh[2].addEventListener( 'mouseout', function(e){ drag2 = false; }, false );
 	mh[2].addEventListener( 'mouseup', function(e){ drag2 = false; }, false );
 	mh[2].addEventListener( 'mousemove', function(e){
 		var rect = canvasSphere[0].getBoundingClientRect();
 		if(drag2){
-			GRD.position[0] = (e.clientX-rect.left);
-			GRD.position[1] = (e.clientY-rect.top);
+			GRD.positions['p'+0] = parseInt(e.clientX-rect.left);
+			GRD.positions['p'+1] = parseInt(e.clientY-rect.top);
 			placeHelper();
 			drawSphereGradian();
 		}
 	} , false );
 
-	mh[3].addEventListener( 'mousedown', function(e){ drag3 = true; currentColor = 8; getColorSelector(GRD.color[currentColor]);}, false );
+	mh[3].addEventListener( 'mousedown', function(e){ drag3 = true; currentColor = 8; getColorSelector();}, false );
 	mh[3].addEventListener( 'mouseout', function(e){ drag3 = false; }, false );
 	mh[3].addEventListener( 'mouseup', function(e){ drag3 = false; }, false );
 	mh[3].addEventListener( 'mousemove', function(e){
 		
 		var rect = canvasSphere[0].getBoundingClientRect();
 		if(drag3){
-			GRD.position[4] = (e.clientX-rect.left);
-			GRD.position[5] = (e.clientY-rect.top);
+			GRD.positions['p'+4] = parseInt(e.clientX-rect.left);
+			GRD.positions['p'+5] = parseInt(e.clientY-rect.top);
 			placeHelper();
 			drawSphereGradian();
 		}
@@ -366,7 +492,7 @@ function initInterface(){
 var j;
 	//___________________________________________________
 	 
-	
+	/*
 	materialList=document.getElementById('materialList');
 	var li=document.createElement('li');
 	materialList.appendChild(li);
@@ -390,13 +516,13 @@ var j;
 	materialList.appendChild(createDropZone(function(){material.uniforms.tMatCap.value=new THREE.Texture(this);material.uniforms.tMatCap.value.needsUpdate=true;}));
 
 
-	normalList=document.getElementById('normalList');
+	
+*/
+	//_________________________________________________________
+normalList=document.getElementById('normalList');
 	for(j in normals){
 		normalList.appendChild(createNormalButton(normals[j].map, j));
 	}
-
-	//_________________________________________________________
-
 	normalList.appendChild(createNormalButton(null, 0));
 	normalList.appendChild(createDropZone(function(){adjustNormalMap(this);}));
 
@@ -708,23 +834,31 @@ function initColorSelector(){
 	}
 }
 
-function drawColorSelector(c){
+function drawColorSelector(){
+	var c= GRD.colors;
+	var n= currentColor;
+
 	var ctx = ddOutCanvas.getContext("2d");
 	ctx.clearRect(0, 0, 64, 64);
-	ctx.fillStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+','+c[3]+')';
+	ctx.fillStyle = 'rgba('+c['r'+n]+','+c['v'+n]+','+c['b'+n]+','+c['a'+n]+')';
 	ctx.fillRect(0, 0, 64, 64);
 	drawSphereGradian();
 }
 
-function getColorSelector(c){
+function getColorSelector(){
+	var c= GRD.colors;
+	var n= currentColor;
+
 	setActiveColor();
 	var ctx = ddOutCanvas.getContext("2d");
 	ctx.clearRect(0, 0, 64, 64);
-	ctx.fillStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+','+c[3]+')';
+	ctx.fillStyle = 'rgba('+c['r'+n]+','+c['v'+n]+','+c['b'+n]+','+c['a'+n]+')';
 	ctx.fillRect(0, 0, 64, 64);
 	for(var i=0;i!==4; i++){
-		if(i===3) ddSel[i].style.left = (c[i]*187.5).toFixed(0)+'px';
-		else ddSel[i].style.left = (c[i]/1.36).toFixed(0)+'px';
+		if(i===0) ddSel[i].style.left = (c['r'+n]/1.36).toFixed(0)+'px';
+		if(i===1) ddSel[i].style.left = (c['v'+n]/1.36).toFixed(0)+'px';
+		if(i===2) ddSel[i].style.left = (c['b'+n]/1.36).toFixed(0)+'px';
+		if(i===3) ddSel[i].style.left = (c['a'+n]*187.5).toFixed(0)+'px';
 	}
 }
 
@@ -732,10 +866,12 @@ function moveColorSelector(n, px){
 	var rect = ddcolors[n].getBoundingClientRect();
 	if( ddDrag[n]){
 		ddSel[n].style.left = (px-rect.left)+'px';
-		if(currentColor){
-			if(n===3) GRD.color[currentColor][n] = ((px-rect.left)/187.5).toFixed(2);
-			else GRD.color[currentColor][n] = ((px-rect.left)*1.36).toFixed(0);
-			drawColorSelector(GRD.color[currentColor]);
+		if(currentColor!==-1){
+			if(n===0) GRD.colors['r'+currentColor] = ((px-rect.left)*1.36).toFixed(0);
+			if(n===1) GRD.colors['v'+currentColor] = ((px-rect.left)*1.36).toFixed(0);
+			if(n===2) GRD.colors['b'+currentColor] = ((px-rect.left)*1.36).toFixed(0);
+			if(n===3) GRD.colors['a'+currentColor] = ((px-rect.left)/187.5).toFixed(2);
+			drawColorSelector();
 		}
 	}
 }

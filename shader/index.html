@@ -32,6 +32,11 @@
 		</div>
 		<div class="block">
 			<h2>Environment map</h2>
+			<div id="EnvMapPreset">
+			    <div id="EnvMapPrev">&#8249;&#8249;</div>
+			    <div id="EnvMapText">Default</div>
+			    <div id="EnvMapNext">&#8250;&#8250;</div>
+			</div>
 			<div id="EnvMap"><div id="mh0"></div><div id="mh1"></div><div id="mh2"></div><div id="mh3"></div></div>
 			<div id="grad0"><div id="cc0"></div><div id="cc1"></div><div id="cc2"></div><div id="cc3"></div></div>
 			<div id="grad1"><div id="cc4"></div><div id="cc5"></div><div id="cc6"></div><div id="cc7"></div></div>
@@ -44,16 +49,11 @@
 				<div id="ddcolor3"><div id="ddselect3"></div></div>
 			    <div id="finalColor"></div>
 			</div>
-
-			<!--<p class="input"><span id="blurtxt">Blur : 1</span> <input type="range" min="1" max="50" value="1" id="blurValueInput"/></p>-->
 			<p class="input"><span id="linetxt">Line : 10</span> <input type="range" min="1" max="100" value="10" id="lineValueInput"/></p>
 			<p class="input"><span id="alphatxt">Alpha : 50</span> <input type="range" min="0" max="100" value="50" id="alphaValueInput"/></p>
-
-			
-
-
-			<ul class="list" id="materialList">
-			</ul>
+			<div id="showFinalPreset">Display Map Setting</div>
+			<div id="finalPreset" class="selectable"></div>
+			<!--<ul class="list" id="materialList"> </ul>-->
 		</div>
 		<div class="block">
 			<h2>Normal map</h2>
@@ -102,8 +102,10 @@
 
 <script src="webdemo/js/CameraLoth.js"></script>
 <script src="webdemo/js/tweenLite.js"></script>
+<script src="webdemo/js/tweenMax.min.js"></script>
 <script src="webdemo/js/FastBlur.js"></script>
 <script src="webdemo/js/ShaderInterface.js"></script>
+<script src="webdemo/js/ShaderPreset.js"></script>
 
 <script>'use strict'
 var container=document.getElementById('container');
