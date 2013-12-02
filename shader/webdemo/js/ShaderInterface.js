@@ -730,10 +730,16 @@ modelButtons.forEach(function(el){
 			case'panthere':f=true;  mod="panthere"; size=1; break;
 		}
 if(f){
+	showLoader(true);
+	clearContent();
+	
+	setTimeout(function(){
 	currentModel = mod;
 	loadSeaFile(AssetsFolder + "models/"+mod+".sea", size);
 	el.classList.add('active');
-    //setTimeout(function(){f(function(g){  });},250);
+}
+	,250);
+    //f(function(g){  });}
   }
 //}});
 })});

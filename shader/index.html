@@ -303,8 +303,7 @@ var animMeshs = [];
 var meshPositions = [];
 
 function loadSeaFile(file, s){
-	showLoader(true);
-	clearContent();
+	
 	meshs = [];
 	animMeshs = [];
 	meshPositions = [];
@@ -322,8 +321,8 @@ function loadSeaFile(file, s){
 			//meshs[i].geometry.verticesNeedUpdate=true;
 			//meshs[i].geometry.normalsNeedUpdate=true;
 
-			meshs[i].geometry.buffersNeedUpdate = true;
-			meshs[i].geometry.uvsNeedUpdate=true;
+			//meshs[i].geometry.buffersNeedUpdate = true;
+			//meshs[i].geometry.uvsNeedUpdate=true;
 
 			/*meshs[i].geometry.computeCentroids();
 			meshs[i].geometry.computeFaceNormals();
@@ -354,8 +353,8 @@ function loadSeaFile(file, s){
 					linkList+="___"+meshs[i].animations[j].name+"<br>";
 
 				}
-				//meshs[i].JITCompile = false;
-				//meshs[i].interpolationType = THREE.AnimationHandler.LINEAR;
+				meshs[i].JITCompile = false;
+				meshs[i].interpolationType = THREE.AnimationHandler.LINEAR;
 				//animMeshs.push(meshs[i]);
 				//if(meshs[i].currentAnimation)
 				//	meshs[i].play(meshs[i].currentAnimation);
