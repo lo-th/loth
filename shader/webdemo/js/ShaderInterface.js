@@ -94,9 +94,9 @@ function tweenToPreset(obj){
 		r6:obj.colors.r6, v6:obj.colors.v6, b6:obj.colors.b6, a6:obj.colors.a6,
 		r7:obj.colors.r7, v7:obj.colors.v7, b7:obj.colors.b7, a7:obj.colors.a7,
 		r8:obj.colors.r8, v8:obj.colors.v8, b8:obj.colors.b8, a8:obj.colors.a8,
-		r9:obj.colors.r9, v9:obj.colors.v9, b9:obj.colors.b9, a1:obj.colors.a9,
-		r10:obj.colors.r10, v10:obj.colors.v10, b10:obj.colors.b10, a2:obj.colors.a10,
-		r11:obj.colors.r11, v11:obj.colors.v11, b11:obj.colors.b11, a3:obj.colors.a11,
+		r9:obj.colors.r9, v9:obj.colors.v9, b9:obj.colors.b9, a9:obj.colors.a9,
+		r10:obj.colors.r10, v10:obj.colors.v10, b10:obj.colors.b10, a10:obj.colors.a10,
+		r11:obj.colors.r11, v11:obj.colors.v11, b11:obj.colors.b11, a11:obj.colors.a11,
 		onUpdate: updateAll
 	});
 }
@@ -347,8 +347,8 @@ function traceCurrent(){
 
 	finalshade += " colors:{<br>"+" r0:"+GRD.colors.r0+", v0:"+GRD.colors.v0+", b0:"+GRD.colors.b0+", a0:"+GRD.colors.a0+",<br>";
 	finalshade += " r1:"+GRD.colors.r1+", v1:"+GRD.colors.v1+", b1:"+GRD.colors.b1+", a1:"+GRD.colors.a1+",<br>";
-	finalshade += " r2:"+GRD.colors.r2+", v2:"+GRD.colors.v2+", b2:"+GRD.colors.b2+", a2:"+GRD.colors.a1+",<br>";
-	finalshade += " r3:"+GRD.colors.r3+", v3:"+GRD.colors.v3+", b3:"+GRD.colors.b3+", a3:"+GRD.colors.a1+",<br>";
+	finalshade += " r2:"+GRD.colors.r2+", v2:"+GRD.colors.v2+", b2:"+GRD.colors.b2+", a2:"+GRD.colors.a2+",<br>";
+	finalshade += " r3:"+GRD.colors.r3+", v3:"+GRD.colors.v3+", b3:"+GRD.colors.b3+", a3:"+GRD.colors.a3+",<br>";
 
 	finalshade += " r4:"+GRD.colors.r4+", v4:"+GRD.colors.v4+", b4:"+GRD.colors.b4+", a4:"+GRD.colors.a4+",<br>";
 	finalshade += " r5:"+GRD.colors.r5+", v5:"+GRD.colors.v5+", b5:"+GRD.colors.b5+", a5:"+GRD.colors.a5+",<br>";
