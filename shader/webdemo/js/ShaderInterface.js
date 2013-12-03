@@ -363,6 +363,10 @@ function traceCurrent(){
 }
 
 function initInterface(){
+	document.getElementById('ssao').addEventListener('click',function(e){initComposer()});
+
+
+
 	finalPresetButton=document.getElementById('showFinalPreset'); 
 	finalPreset=document.getElementById('finalPreset');
 
@@ -732,7 +736,7 @@ modelButtons.forEach(function(el){
 if(f){
 	showLoader(true);
 	clearContent();
-	
+
 	setTimeout(function(){
 	currentModel = mod;
 	loadSeaFile(AssetsFolder + "models/"+mod+".sea", size);

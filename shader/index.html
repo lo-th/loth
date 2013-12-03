@@ -76,6 +76,7 @@
 			<a href="#" id="screenBlendingBtn" class="button">Screen Blending</a> 
 			<a href="#" id="antialiasingButton" class="button">Antialiasing</a>
 			<a href="#" id="fullscreenBtn" class="button">Fullscreen</a>
+			<a href="#" id="ssao" class="button">Ssao</a>
 			</p>
 		</div>
 		<div class="block">
@@ -106,6 +107,16 @@
 <script src="webdemo/js/FastBlur.js"></script>
 <script src="webdemo/js/ShaderInterface.js"></script>
 <script src="webdemo/js/ShaderPreset.js"></script>
+
+<script src="webdemo/js/shaders/CopyShader.js"></script>
+<script src="webdemo/js/shaders/SSAOShader.js"></script>
+<script src="webdemo/js/shaders/FXAAShader.js"></script>
+<script src="webdemo/js/shaders/ColorCorrectionShader.js"></script>
+
+<script src="webdemo/js/postprocessing/EffectComposer.js"></script>
+<script src="webdemo/js/postprocessing/RenderPass.js"></script>
+<script src="webdemo/js/postprocessing/MaskPass.js"></script>
+<script src="webdemo/js/postprocessing/ShaderPass.js"></script>
 
 <script>'use strict'
 var container=document.getElementById('container');
@@ -160,16 +171,49 @@ function init(){
 	onThreeChangeView(40, 60, 100);
 	loadSphere();
 	render();
+
+	//initComposer();
 }
 
+var gyro;
 function initLight(){
+	/*gyro = new THREE.Gyroscope();
+				scene.add( gyro );*/
+
 	ambient = new THREE.AmbientLight( 0xFFFFFF);
 	scene.add( ambient );
 
 	spotLight = new THREE.SpotLight( 0xffffff );
 	spotLight.intensity = 1;
+//	spotLight.castShadow = true;
 	spotLight.position.set(100,200,50);
 	scene.add( spotLight );
+
+	/*var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				dirLight.position.set( 1, 0.25, 1 );
+				scene.add( dirLight );
+
+				var dirLight2 = new THREE.DirectionalLight( 0xffffff );
+				dirLight2.position.set( 15, 200, 15 );
+
+				dirLight2.castShadow = true;
+				dirLight2.onlyShadow = true;
+				dirLight2.shadowCameraVisible = true;
+				dirLight2.shadowCameraNear = 10;
+				dirLight2.shadowCameraFar = 300;
+
+				dirLight2.shadowDarkness = 0.8;
+				dirLight2.shadowMapWidth = 2048;
+				dirLight2.shadowMapHeight = 2048;
+
+				var d = 200;
+				dirLight2.shadowCameraLeft = -d * 2;
+				dirLight2.shadowCameraRight = d * 2;
+				dirLight2.shadowCameraTop = d;
+				dirLight2.shadowCameraBottom = -d;
+
+				scene.add( dirLight2 );
+				gyro.add( dirLight2.target );*/
 }
 
 function initMaterial(){
@@ -282,12 +326,15 @@ function showLoader(show){
 function loadSphere(){
 	var loader = new THREE.SEA3D( true );
 	loader.onComplete = function( e ) {
+		var posY = -1000;
 		var geo = loader.meshes[0].geometry;
 		envSphere = new THREE.Mesh(geo, envMaterial);
 		scene.add(envSphere);
+		envSphere.position.set(0,posY,0);
 		cubeCamera = new THREE.CubeCamera( 0.1, 1.5, 128 );
 		cubeCamera.scale.set(-1,1,1);
-		cubeCamera.lookAt( new THREE.Vector3(0,0,5))
+		cubeCamera.position.set(0,posY,0);
+		cubeCamera.lookAt( new THREE.Vector3(0,posY,5))
 		scene.add( cubeCamera );
 		cubeCamera.updateCubeMap( renderer, scene );
 		materialAnim.envMap = cubeCamera.renderTarget;
@@ -317,6 +364,8 @@ function loadSeaFile(file, s){
 		var linkList ="";
 		for (i=0; i !== loader.meshes.length; i++){
 			meshs[i] = loader.meshes[i];
+			//meshs[i].matrixAutoUpdate = false;
+			//		meshs[i].updateMatrix();
 			//meshs[i].geometry.computeVertexNormals();
 			//meshs[i].geometry.verticesNeedUpdate=true;
 			//meshs[i].geometry.normalsNeedUpdate=true;
@@ -501,9 +550,21 @@ function setNoise(n){
 
 function onWindowResize(){
 	var s=CSSAntialias?2:1;
-	setCameraSize(s*window.innerWidth, s*window.innerHeight);
-	renderer.setSize(s*window.innerWidth,s*window.innerHeight);
-	sphereMaterial.uniforms.resolution.value.set(s*window.innerWidth,s*window.innerHeight);
+	var w = s*window.innerWidth;
+	var h = s*window.innerHeight;
+	setCameraSize(w, h);
+	renderer.setSize(w,h);
+	sphereMaterial.uniforms.resolution.value.set(w,h);
+	if (isPostProcess) {
+		depthTarget = new THREE.WebGLRenderTarget(w, h, renderTargetParametersRGBA );
+		colorTarget = new THREE.WebGLRenderTarget(w, h, renderTargetParametersRGB );
+		composer.reset( colorTarget );
+
+		ssao.uniforms[ 'size' ].value.set( w, h );
+		fxaa.uniforms[ 'resolution' ].value = new THREE.Vector2( 1/w, 1/h );
+		depthPassPlugin.renderTarget = depthTarget;
+		ssao.uniforms[ 'tDepth' ].value = depthTarget;
+	}
 }
 
 function render(){
@@ -513,22 +574,118 @@ function render(){
 	delta = clock.getDelta();
 	THREE.AnimationHandler.update( delta );
 
-	renderNoise+=(nRenderNoise-renderNoise)*.2;
-	setNoise(renderNoise);
-
-	renderer.render(scene,camera);
-
 	if(envSphere){
 		envSphere.rotation.y = (-camPos.horizontal)*ToRad;
 		envSphere.rotation.z = (-camPos.vertical-90)*ToRad;
-		envSphere.visible = true;
 		cubeCamera.updateCubeMap( renderer, scene );
-		envSphere.visible = false;
 	}
+
+	renderNoise+=(nRenderNoise-renderNoise)*.2;
+	setNoise(renderNoise);
+
+
+
+	//renderer.render(scene,camera);
+	if (isPostProcess) {
+					//renderer.render( scene, camera );
+
+					//scene.overrideMaterial = depthMaterial;
+				//	renderer.autoClear = false;
+				renderer.autoClear = false;
+				renderer.autoUpdateObjects = true;
+				renderer.shadowMapEnabled = true
+					depthPassPlugin.enabled = true;
+					//renderer.render( scene, camera, depthTarget, true );
+					renderer.render( scene, camera, composer.renderTarget2, true );
+
+					//console.log(renderer.info.render);
+
+					//scene.overrideMaterial = null;
+					renderer.shadowMapEnabled = false;
+				    depthPassPlugin.enabled = false;
+
+					composer.render(0.1);
+					renderer.autoClear = true;
+
+				} else {
+					renderer.render(scene,camera);
+				}
+
+	
 	requestAnimationFrame(render);
 }
 
 window.addEventListener('load',init);
+
+
+
+
+
+
+var depthPassPlugin, depthMaterial, ssao, fxaa, effectColor;
+var isPostProcess = false;
+var renderTargetParametersRGB, renderTargetParametersRGBA,colorTarget,depthTarget;
+
+function initComposer(){
+	var s=CSSAntialias?2:1;
+	var w = s*window.innerWidth;
+	var h = s*window.innerHeight;
+	renderTargetParametersRGB  = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+	renderTargetParametersRGBA = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat };
+	depthTarget = new THREE.WebGLRenderTarget( w, h, renderTargetParametersRGBA );
+	colorTarget = new THREE.WebGLRenderTarget( w, h, renderTargetParametersRGB );
+
+	//depthTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat } );
+	//depthTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { format: THREE.RGBAFormat } );
+
+	// depthMap
+	var depthShader = THREE.ShaderLib[ "depthRGBA" ];
+	var depthUniforms = THREE.UniformsUtils.clone( depthShader.uniforms );
+
+	depthMaterial = new THREE.ShaderMaterial( { fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms } );
+	depthMaterial.blending = THREE.NoBlending;
+
+	
+	effectColor = new THREE.ShaderPass( THREE.ColorCorrectionShader );
+	effectColor.uniforms[ 'mulRGB' ].value.set( 1.4, 1.4, 1.4 );
+	effectColor.uniforms[ 'powRGB' ].value.set( 1.2, 1.2, 1.2 );
+					
+	ssao = new THREE.ShaderPass( THREE.SSAOShader );
+	ssao.uniforms[ 'tDepth' ].value = depthTarget;
+	ssao.uniforms[ 'size' ].value.set( w, h );
+	ssao.uniforms[ 'cameraNear' ].value = camera.near;
+	ssao.uniforms[ 'cameraFar' ].value = camera.far;//550;
+	ssao.uniforms[ 'aoClamp' ].value = 0.5;//0.3;
+	//ssao.uniforms[ 'lumInfluence' ].value = 0.1;
+	ssao.material.defines = { "RGBA_DEPTH": true, "ONLY_AO_COLOR": "1.0, 0.7, 0.5" };
+
+
+
+	fxaa = new THREE.ShaderPass( THREE.FXAAShader );
+	fxaa.uniforms[ 'resolution' ].value = new THREE.Vector2( 1/w, 1/h );
+	//fxaa.renderToScreen = true;
+	
+	var effectCopy = new THREE.ShaderPass( THREE.CopyShader );
+	effectCopy.renderToScreen = true;
+
+
+	composer = new THREE.EffectComposer( renderer, colorTarget );
+	//composer.addPass( new THREE.RenderPass( scene, camera ) );
+	composer.addPass( ssao );
+	composer.addPass( effectColor );
+	composer.addPass( fxaa );
+	composer.addPass( effectCopy );
+
+
+	depthPassPlugin = new THREE.DepthPassPlugin();
+	depthPassPlugin.renderTarget = depthTarget;
+	renderer.addPrePlugin( depthPassPlugin );
+
+	isPostProcess = true;
+}
+
+
+
 </script>
 </body>
 </html>
