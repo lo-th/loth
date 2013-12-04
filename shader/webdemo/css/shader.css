@@ -124,9 +124,9 @@ li{list-style-type:none}
 .button.left:active,.button.middle:active,.button.right:active{top:0px}
 .button.big{font-size:16px;padding:7px 16px}
 /*
-#stats #fps { background: transparent !important }
-#stats #fps #fpsText { color: #888 !important }
-#stats #fps #fpsGraph { display: none }
+#stats #fps #ms { background: transparent !important }
+#stats #fps #fpsText #ms #msText{ color: #888 !important }
+#stats #fps #ms #fpsGraph #msGraph{ display: none }
 */
 input[type='range'] {
     -webkit-appearance: none !important;

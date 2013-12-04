@@ -28,6 +28,8 @@
 				<li><a href="#" class="button" data-value="vision">Vision</a></li>
 				<li><a href="#" class="button" data-value="dragon">Dragon</a></li>
 				<li><a href="#" class="button" data-value="panthere">Panthere</a></li>
+				<li><a href="#" class="button" data-value="droid">droid</a></li>
+				<li><a href="#" class="button" data-value="rat">rat</a></li>
 			</ul>
 		</div>
 		<div class="block">
@@ -516,6 +518,9 @@ function sea3dSpecial(size){
 			joint[2].rotation.y = 45*ToRad;
 			joint[3].rotation.y = 45*ToRad;
 			joint[4].rotation.y = -45*ToRad;
+		break;
+		case'droid':
+		    meshs[0].play("WaterSwim");
 		break;
 	}
 }
