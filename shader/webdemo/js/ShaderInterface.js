@@ -742,6 +742,7 @@ modelButtons.forEach(function(el){
 			case'panthere':f=true;  mod="panthere"; size=1; break;
 			case'droid':f=true;  mod="droid"; size=0.5; break;
 			case'rat':f=true;  mod="rat"; size=2; break;
+			case'spider':f=true;  mod="spider"; size=1; break;
 		}
 if(f){
 	showLoader(true);
