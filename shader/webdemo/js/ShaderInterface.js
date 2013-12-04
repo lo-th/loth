@@ -5,7 +5,7 @@ var normals=[{name:'243',map:'243-normal.jpg'},{name:'243',map:'wrinkle-normal.j
 {name:'worm temple',map:'worn-temple_n.jpg'},{name:'stone',map:'stone_n.jpg'},
 {name:'243',map:'metal1_normalmap.jpg'},{name:'rock wall',map:'rockwall_n.jpg'},
 {name:'243',map:'4918-normal.jpg'},{name:'crater',map:'crater_n.jpg'},{name:'243',map:'stone_wall_normal_map.jpg'},
-{name:'bone',map:'bone_n.jpg'},{name:'243',map:'242-normal.jpg'},{name:'243',map:'7146-normal.jpg'},{name:'243',map:'1324-normal.jpg'},
+{name:'bone',map:'bone_n.jpg'},{name:'243',map:'7146-normal.jpg'},{name:'243',map:'1324-normal.jpg'},
 {name:'243',map:'Rock_01_local.jpg'},{name:'243',map:'6624-normal.jpg'},
 {name:'sand',map:'sand_n.jpg'},{name:'arid',map:'arid_n.jpg'},{name:'water',map:'water_n.jpg'},{name:'metal',map:'metal_n.jpg'},{name:'lava',map:'lava_n.jpg'}];
 

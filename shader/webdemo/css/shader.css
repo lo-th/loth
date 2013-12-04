@@ -123,10 +123,11 @@ li{list-style-type:none}
 .button.right{-webkit-border-bottom-left-radius:0px;-webkit-border-top-left-radius:0px;border-bottom-left-radius:0px;border-top-left-radius:0px;border-top-left-radius:0px;border-bottom-left-radius:0px;margin-left:0px;border-left:none}
 .button.left:active,.button.middle:active,.button.right:active{top:0px}
 .button.big{font-size:16px;padding:7px 16px}
+/*
 #stats #fps { background: transparent !important }
 #stats #fps #fpsText { color: #888 !important }
 #stats #fps #fpsGraph { display: none }
-
+*/
 input[type='range'] {
     -webkit-appearance: none !important;
     -webkit-border-radius: 2px;
@@ -156,8 +157,6 @@ input[type='range']::-moz-range-thumb {
 }
 input[type='range']::-moz-range-track {
     -moz-appearance: none;
-    -moz-box-shadow: inset 0 0 5px #333;
-    -moz-border-radius: 2px;
     box-shadow: inset 0 0 5px #333;
     border-radius: 2px;
     border-color:#383838;

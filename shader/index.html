@@ -91,7 +91,7 @@
 <div id="loader" class="unselectable"><img src="webdemo/assets/ajax-loader.gif" alt="Loading..." id="loaderImg"></div>
 
 <script src="webdemo/js/three.min.js"></script>
-<script src="webdemo/js/stats.min.js"></script>
+<script src="webdemo/js/stats_loth.js"></script>
 <script src="webdemo/js/effects/spherical.js"></script>
 <script src="webdemo/js/Detector.js"></script>
 <script src="webdemo/js/ImprovedNoise.js"></script>
@@ -134,10 +134,14 @@ var materialTrans;
 var materialMorph;
 var noise=new ImprovedNoise();
 var MaxAnistropy;
+var stats;
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 function init(){
+	stats = new Stats();
+	document.body.appendChild( stats.domElement );
+
 	showLoader(true);
     initInterface();
 
@@ -568,6 +572,8 @@ function onWindowResize(){
 }
 
 function render(){
+	stats.begin();
+
 	spotLight.position.copy(camera.position);
 	spotLight.lookAt(center);
 
@@ -611,7 +617,7 @@ function render(){
 					renderer.render(scene,camera);
 				}
 
-	
+	stats.end();
 	requestAnimationFrame(render);
 }
 
