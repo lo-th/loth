@@ -12,7 +12,7 @@ var Stats = function () {
 	var container = document.createElement( 'div' );
 	container.id = 'stats';
 	container.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); setMode( ++ mode % 3 ) }, false );
-	container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer;position:absolute;bottom:10px;left:10px';
+	container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer;position:absolute;bottom:6px;left:10px';
 
 	var fpsDiv = document.createElement( 'div' );
 	fpsDiv.id = 'fps';
@@ -94,7 +94,7 @@ var Stats = function () {
 
 	var l02 = document.createElement( 'div' );
 	l02.id = 'l02';
-	l02.style.cssText = 'position:absolute;left:16px; bottom:1px;width:1px;height:15px;transform-origin: 0.5px 15px;-webkit-transform-origin: 0.5px 15px;-o-transform-origin 0.5px 15px;';
+	l02.style.cssText = 'position:absolute;left:16px; bottom:1px;width:1px;height:15px;transform-origin: 0.5px 15px;-webkit-transform-origin: 0.5px 15px;-o-transform-origin: 0.5px 15px;';
 	loDiv.appendChild( l02);
 
 	var l03 = document.createElement( 'div' );
