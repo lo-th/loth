@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>SEA3D webgl</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			margin: 0px;
+			background-color: #ff0000;
+			overflow: hidden;
+		}
+		#container canvas{position:absolute;left:0;top:0;width:100%;height:100%;bottom:0; right:0}
+	</style>
+</head>
+<body>
+<div id="container"></div>
+
+<script src="webdemo/js/three.min.js"></script>
+<script src="webdemo/js/CameraLoth.js"></script>
+
+<script>'use strict'
+var container=document.getElementById('container');
+
+window.addEventListener('load',init);
+
+var renderer, scene, cam, camera;
+
+function init(){
+	renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.physicallyBasedShading = true;
+	renderer.gammaOutput = true;
+	renderer.gammaInput = true;
+	container.appendChild(renderer.domElement);
+	scene = new THREE.Scene();
+	cam = new CameraLoth(container);
+
+	window.addEventListener('resize',resize,false);
+
+	var texture = THREE.ImageUtils.loadTexture( 'webdemo/assets/basemat.jpg');
+	var mat = new THREE.MeshBasicMaterial( {map:texture , side:THREE.BackSide} );
+	//var geo = new THREE.SphereGeometry(50,30,30)
+	var geo = new THREE.SphereGeometry(50,16,16, Math.PI/2, Math.PI*2, 0, Math.PI)
+	var sphere = new THREE.Mesh(geo, mat);
+
+/*	sphere.geometry.computeBoundingBox();
+	var bb = sphere.geometry.boundingBox;
+	var maxX = bb.maxX;
+	var maxY = bb.maxY;
+	var minX = bb.minX;
+	var minY = bb.minY;
+
+	var deltaX = maxX - minX;
+	var deltaY = maxY - minY;
+	var g = sphere.geometry;
+	var faceCount = sphere.geometry.faces.length;
+	var faceUvs;
+	var uvA = new THREE.Vector2( 0, 0 );
+	var uvB = new THREE.Vector2( 0, 0 );
+	var uvC = new THREE.Vector2( 0, 0 );
+	for( var faceIdx = 0; faceIdx < faceCount; ++faceIdx )
+	{
+	    var face = g.faces[ faceIdx ];
+	    var vtx = g.vertices[ face.a ];
+	   // uvA.set( ( vtx.x - minX ) / deltaX, ( vtx.y - minY ) / deltaY );
+	    uvA.set( ( vtx.x - minX ) / deltaX, (- ( vtx.y - minY ) + deltaY ) / deltaY );
+
+	    vtx = g.vertices[ face.b ];
+	    uvB.set( ( vtx.x - minX ) / deltaX, ( vtx.y - minY ) / deltaY );
+
+	    vtx = g.vertices[ face.c ];
+	    uvC.set( ( vtx.x - minX ) / deltaX, ( vtx.y - minY ) / deltaY );
+
+	    g.faceVertexUvs[ 0 ].push( [ uvA.clone(), uvB.clone(), uvC.clone() ] );
+	}
+	var geometry = sphere.geometry;
+geometry.faceUvs = [[]];
+geometry.faceVertexUvs = [[]];
+
+for (var f = 0; f < geometry.faces.length; f++) {
+
+    var faceuv = [
+        new THREE.Vector2(0, 1),
+        new THREE.Vector2(1, 1),
+        new THREE.Vector2(1, 0),
+        new THREE.Vector2(0, 0)
+    ];
+
+    geometry.faceUvs[0].push(new THREE.Vector2(0, 1));
+    geometry.faceVertexUvs[0].push(faceuv);
+}
+	sphere.geometry.buffersNeedUpdate = true;
+	sphere.geometry.uvsNeedUpdate=true;
+	sphere.geometry.computeFaceNormals();
+			sphere.geometry.computeVertexNormals();
+			sphere.geometry.computeMorphNormals();
+			sphere.geometry.computeTangents();
+	sphere.updateMatrix();
+	texture.needsUpdate = true;
+	mat.needsUpdate = true;
+*/
+	scene.add(sphere);
+
+	resize();
+	render();
+}
+
+function resize(){
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	setCameraSize(w, h);
+	renderer.setSize(w,h);
+}
+
+function render(){
+	renderer.render(scene,camera);
+	requestAnimationFrame(render);
+}
+
+
+</script>
+</body>
+</html>

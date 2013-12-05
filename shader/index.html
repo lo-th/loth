@@ -126,21 +126,23 @@
 <script>'use strict'
 var container=document.getElementById('container');
 var loader=document.getElementById('loader');
+var seaLoader;
 var currentModel="";
 var presets=[];
 var AssetsFolder = "webdemo/assets/";
 var delta, clock;
-var ambient,spotLight;
+var ambient,spotLight, sunLight;
 var renderer,composer, scene,camera,mesh,fov=120,nfov=45,sphereMaterial,material,materialAnim,start=Date.now(), content, cam;
 var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, optionsPinned=false;
 var cubeCamera, envSphere;
-var textureCube, envMaterial;
-var materialTrans;
-var materialMorph;
+var textureCube, envMaterial, materialMorph, materialTrans, groundMaterial;
+
 var noise=new ImprovedNoise();
 var MaxAnistropy;
 var stats;
 var meshInterface;
+var isSeaLoaded=false;
+var ground;
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
@@ -160,6 +162,7 @@ function init(){
     renderer.physicallyBasedShading = true;
 	renderer.gammaOutput = true;
 	renderer.gammaInput = true;
+	
 
 	MaxAnistropy = renderer.getMaxAnisotropy();
 	container.appendChild(renderer.domElement);
@@ -174,9 +177,12 @@ function init(){
 	sphere.scale.set(-1,1,1);
 	scene.add(sphere);
 
+	
+
 	// imported object container
 	content = new THREE.Object3D();
 	scene.add(content);
+	content.name = 'content';
 
 	window.addEventListener('resize',onWindowResize,false);
 	onWindowResize();
@@ -198,9 +204,32 @@ function initLight(){
 
 	spotLight = new THREE.SpotLight( 0xffffff );
 	spotLight.intensity = 1;
-//	spotLight.castShadow = true;
-	spotLight.position.set(100,200,50);
+	spotLight.castShadow = false;
+	spotLight.position.set(100,800,50);
 	scene.add( spotLight );
+	spotLight.lookAt(new THREE.Vector3(0,0,0));
+
+	sunLight = new THREE.DirectionalLight( 0xe6f3ff );
+	sunLight.position.set(100,800,-200);
+	sunLight.lookAt(new THREE.Vector3(0,0,0));
+				sunLight.intensity = 1.3;
+				sunLight.castShadow = true;
+
+				sunLight.shadowCameraNear = 100;
+				sunLight.shadowCameraFar = 1000;
+				
+				sunLight.shadowMapBias = 0.01;
+				sunLight.shadowMapDarkness = 0.5;
+				sunLight.shadowMapWidth =1024;
+				sunLight.shadowMapHeight =1024;
+				var lightSize = 130;
+				sunLight.shadowCameraLeft = -lightSize;
+				sunLight.shadowCameraRight = lightSize;
+				sunLight.shadowCameraTop = lightSize;
+				sunLight.shadowCameraBottom = -lightSize;
+
+			//	sunLight.shadowCameraVisible = true;
+				scene.add(sunLight);
 
 	/*var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
 				dirLight.position.set( 1, 0.25, 1 );
@@ -228,6 +257,19 @@ function initLight(){
 				scene.add( dirLight2 );
 				gyro.add( dirLight2.target );*/
 }
+
+function initShadow(){
+	renderer.shadowMapEnabled = true;
+	// ground
+	ground = new THREE.Mesh(new THREE.PlaneGeometry(10000,10000),groundMaterial);
+	ground.rotation.x = 90*ToRad;
+	scene.add(ground);
+	ground.castShadow = false;
+	ground.receiveShadow=true;
+
+	sunLight.castShadow = true;
+
+	}
 
 function initMaterial(){
 	/*var tx = new THREE.Texture(canvasSphere[1]);
@@ -270,6 +312,7 @@ function initMaterial(){
 		//refractionRatio:0.98,
 	    combine: THREE.MixOperation,
 		skinning:true,
+		morphTargets: false,
 		normalMap:material.uniforms.tNormal.value,
 		normalScale:{x:0,y:0}//,
 		//wrapping:THREE.ClampToEdgeWrapping,
@@ -277,8 +320,8 @@ function initMaterial(){
 		//metal:true
 	} ) 
 
-	materialAnim.normalMap.repeat.set( 1, 1 );
-	materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+	//materialAnim.normalMap.repeat.set( 1, 1 );
+	//materialAnim.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
 
 	materialMorph =  new THREE.MeshPhongMaterial( {
 		color: 0xffFFFF, 
@@ -287,20 +330,20 @@ function initMaterial(){
 		specular:0xffFFFF,
 		reflectivity:1,  
 		envMap:txt, 
-		refractionRatio:0.98,
+		//refractionRatio:0.98,
 	    combine: THREE.MixOperation,
 		skinning:false,
 		morphTargets: true,
 		//morphNormals: true,
 		normalMap:material.uniforms.tNormal.value,
-		normalScale:{x:0,y:0},
-		wrapping:THREE.ClampToEdgeWrapping,
-		shading:THREE.SmoothShading,
-		metal:true
+		normalScale:{x:0,y:0}
+		//wrapping:THREE.ClampToEdgeWrapping,
+		//shading:THREE.SmoothShading,
+		//metal:true
 	} ) 
 
-	materialMorph.normalMap.repeat.set( 1, 1 );
-	materialMorph.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+	//materialMorph.normalMap.repeat.set( 1, 1 );
+	//materialMorph.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
 
 	materialTrans =  new THREE.MeshPhongMaterial( {
 		//color: 0x000000, 
@@ -316,9 +359,10 @@ function initMaterial(){
 		shading:THREE.SmoothShading,
 		transparent:true,
 		opacity:0.6
-	} ) 
-	materialTrans.normalMap.repeat.set( 1, 1 );
-	materialTrans.normalMap.wrapS=materialAnim.normalMap.wrapT=THREE.RepeatWrapping;
+	} );
+
+	//materialTrans.normalMap.repeat.set( 1, 1 );
+	//materialTrans.normalMap.wrapS=materialTrans.normalMap.wrapT=THREE.RepeatWrapping;
 
 	sphereMaterial=new THREE.ShaderMaterial({
 		uniforms:{
@@ -329,6 +373,11 @@ function initMaterial(){
 		fragmentShader:sphere_fs,
 		side:THREE.BackSide
 	});
+
+	groundMaterial  =  new THREE.MeshBasicMaterial( {
+		color: 0xffFFFF, 
+		transparent:true, opacity:0.8, blending: THREE.MultiplyBlending
+	}); 
 }
 
 function showLoader(show){
@@ -337,10 +386,11 @@ function showLoader(show){
 }
 
 function loadSphere(){
-	var loader = new THREE.SEA3D( true );
-	loader.onComplete = function( e ) {
+
+	seaLoader = new THREE.SEA3D( true );
+	seaLoader.onComplete = function( e ) {
 		var posY = -1000;
-		var geo = loader.meshes[0].geometry;
+		var geo = seaLoader.meshes[0].geometry;
 		envSphere = new THREE.Mesh(geo, envMaterial);
 		scene.add(envSphere);
 		envSphere.position.set(0,posY,0);
@@ -355,7 +405,7 @@ function loadSphere(){
 
 		loadSeaFile(AssetsFolder + "models/dice.sea", 20);
 	}
-	loader.load( AssetsFolder + "models/sphere2.sea" );
+	seaLoader.load( AssetsFolder + "models/sphere2.sea" );
 }
 
 var meshs = [];
@@ -363,22 +413,30 @@ var animMeshs = [];
 var meshPositions = [];
 
 function loadSeaFile(file, s){
+	isSeaLoaded = false;
 	meshInterface.clear();
 	meshs = [];
 	animMeshs = [];
 	meshPositions = [];
 	
-	var loader = new THREE.SEA3D( true );
+	seaLoader = new THREE.SEA3D( true );
 
-	loader.onComplete = function( e ) {
+	seaLoader.onComplete = function( e ) {
 		showLoader(false);
 		var i, j;
 		var n=0;
 		var linkList ="";
-		 meshInterface.populate(loader.meshes);
+		 meshInterface.populate(seaLoader.meshes);
+		// var jj = seaLoader.getJointObject();
+		// document.getElementById('title').innerHTML = jj
 
-		for (i=0; i !== loader.meshes.length; i++){
-			meshs[i] = loader.meshes[i];
+		for (i=0; i !== seaLoader.meshes.length; i++){
+			//meshs[i] = loader.meshes[i];
+			meshs[i] = seaLoader.getMesh(seaLoader.meshes[i].name);//.clone();;
+
+			//meshs[i] = new THREE.Mesh(seaLoader.meshes[i].geometry, material);
+			//meshs[i].castShadow = true;
+	//meshs[i].receiveShadow=true;
 			//meshs[i].matrixAutoUpdate = false;
 			//		meshs[i].updateMatrix();
 			//meshs[i].geometry.computeVertexNormals();
@@ -388,8 +446,8 @@ function loadSeaFile(file, s){
 			//meshs[i].geometry.buffersNeedUpdate = true;
 			//meshs[i].geometry.uvsNeedUpdate=true;
 
-			/*meshs[i].geometry.computeCentroids();
-			meshs[i].geometry.computeFaceNormals();
+			//meshs[i].geometry.computeCentroids();
+			/*meshs[i].geometry.computeFaceNormals();
 			meshs[i].geometry.computeVertexNormals();
 			meshs[i].geometry.computeMorphNormals();
 			meshs[i].geometry.computeTangents();*/
@@ -398,7 +456,7 @@ function loadSeaFile(file, s){
 			//meshBox[i] = meshs[i].geometry.boundingBox;
 			
 			// original position
-			meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
+			//meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
 
 			//if(meshs[i].parent)linkList+=meshs[i].parent.name;
 
@@ -409,7 +467,8 @@ function loadSeaFile(file, s){
 
 				}
 			}*/
-			
+			meshs[i].material = material;
+			meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
 
 			// animation test
 			if(meshs[i].animations){//bones){
@@ -426,12 +485,14 @@ function loadSeaFile(file, s){
 				//if(meshs[i].currentAnimation)
 				//	meshs[i].play(meshs[i].currentAnimation);
 				//meshs[i].play('idle');
-			} else if(meshs[i].geometry.morphTargets.length!==0){ 
+			} 
+			if(meshs[i].geometry.morphTargets.length!==0){ 
 				meshs[i].material = materialMorph; 
-			} else {
+			} /*else {
 				meshs[i].material = material;
+				meshPositions[i] = [meshs[i].position.x, meshs[i].position.y, meshs[i].position.z];
 				//linkList+= meshs[i].name+"<br>";
-			}
+			}*/
 
 			
 		}
@@ -446,7 +507,8 @@ function loadSeaFile(file, s){
 			    meshs[i].setWeightByName("aah", 1);
 			}*/
 			//if(meshs[i].name[0]!=="_"){
-			if(!meshs[i].parent){
+				
+			if(meshs[i].parent==undefined){
 				//if(currentModel!=="head"){
 					meshs[i].scale.set(s,s,s);
 					meshs[i].position.set(meshs[i].position.x*s,meshs[i].position.y*s,meshs[i].position.z*s);
@@ -465,10 +527,12 @@ function loadSeaFile(file, s){
 
 		//document.getElementById('title').innerHTML = max*s*2;
 		//onChangeDistance( max*s*2*100);
+		isSeaLoaded = true;
 		sea3dSpecial(s);
 
 	}
-	loader.load( file );
+	seaLoader.container = null;//content;//scene;//;
+	seaLoader.load( file );
 }
 
 function sea3dSpecial(size){
@@ -516,15 +580,15 @@ function sea3dSpecial(size){
 		    for (i=0; i !== meshs.length; i++){
 				if(meshs[i].name == "bot_wheel_R"){wheels[0]=meshs[i]; wheels[1]=meshs[i].clone(); content.add(wheels[1]);}
 				if(meshs[i].name == "bot_wheel_L"){wheels[2]=meshs[i]; wheels[3]=meshs[i].clone(); content.add(wheels[3]);}
-				if(meshs[i].name == "_arm_joint_1"){joint[1]=meshs[i];}
-				if(meshs[i].name == "_arm_joint_2"){joint[2]=meshs[i];}
-				if(meshs[i].name == "_arm_joint_3"){joint[3]=meshs[i];}
-				if(meshs[i].name == "_arm_joint_4"){joint[4]=meshs[i];}
-				if(meshs[i].name == "_arm_joint_5"){joint[5]=meshs[i];}
+				if(meshs[i].name == "arm_joint_1"){joint[1]=meshs[i];}
+				if(meshs[i].name == "arm_joint_2"){joint[2]=meshs[i];}
+				if(meshs[i].name == "arm_joint_3"){joint[3]=meshs[i];}
+				if(meshs[i].name == "arm_joint_4"){joint[4]=meshs[i];}
+				if(meshs[i].name == "arm_joint_5"){joint[5]=meshs[i];}
 
 				//if(meshs[i].name == "rope_2_3_a"){joint[5]=meshs[i];}
-				if(meshs[i].name == "rope_2_3_a"){content.remove(meshs[i]);}
-				if(meshs[i].name == "rope_3_4_a"){content.remove(meshs[i]);}
+				if(meshs[i].name == "rope_2_3"){content.remove(meshs[i]);}
+				if(meshs[i].name == "rope_3_4"){content.remove(meshs[i]);}
 			}
 			wheels[0].position.set(-22.5, 5, -15.8);
 			wheels[2].position.set(-22.5, 5, 15.8);
@@ -537,14 +601,34 @@ function sea3dSpecial(size){
 		case'droid':
 		    meshs[0].play("WaterSwim");
 		break;
+		case'head':
+		    getMeshByName("Fake_neck").play("front");
+		    getMeshByName("skin_hi").setWeightByName("lookfront", 1);
+		    getMeshByName("skin_hi").setWeightByName("neck", 1);
+		    getMeshByName("skin_hi").setWeightByName("smileOpen", 1);
+
+		   //getMeshByName("Eye_L").geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( 90*ToRad ) );
+			//getMeshByName("Eye_R").geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( 90*ToRad ) );
+		break;
+		case'body':
+		    getMeshByName("Suit").play("walk");
+		    getMeshByName("Body").play("walk");
+		   // getMeshByName("skin_hi").setWeightByName("lookfront", 1);
+		    //getMeshByName("skin_hi").setWeightByName("neck", 1);
+		break;
+	}
+	
+}
+function getMeshByName(name){
+	for ( var i=0; i !== meshs.length; i++ ) {
+		if(meshs[i].name==name)return meshs[i];
 	}
 }
-
 function scaleContent(n){
 	if(content){
 		var obj, i;
 		for ( i=0; i !== meshs.length; i++ ) {
-			if(meshs[i].name[0]!=="_"){
+			if(meshs[i].parent.name=='content'&& meshPositions[i]){
 			    meshs[i].scale.set(n,n,n);
 			    meshs[i].position.set(meshPositions[i][0]*n,meshPositions[i][1]*n,meshPositions[i][2]*n);
 	        }
@@ -557,15 +641,32 @@ function clearContent(){
 		var obj, i, j;
 		for ( i = content.children.length - 1; i >= 0 ; i -- ) {
 	    	obj = content.children[ i ];
-	    	if(obj.animations)obj.stop();
+	    	
+	    	//if(obj.animations)obj.dispose();
 	    	// remove animation
 	    /*	if(obj.name[obj.name.length-1]=="a" && obj.name[obj.name.length-2]=="_"){
 	    		for ( j = obj.animations.length - 1; j >= 0 ; j -- ){obj.animations[j].stop();}
 	    	}*/
 	        // remove children
+	        if(obj.children.length > 0) for ( j = obj.children.length - 1; j >= 0 ; j -- ) {
+	        	obj.remove(obj.children[j]);
+	        	//obj.children[j].geometry.dispose();
+	        }
+			content.remove(obj);
+			//obj.dispose();
+
+			if(obj.geometry)obj.geometry.dispose();
+		}/*
+		for ( i = content.children.length - 1; i >= 0 ; i -- ) {
+	    	obj = content.children[ i ];
+	    	obj.geometry.dispose();
+	    	if(obj.animations)obj.stop();
+	    	// remove animation
+	    	
+	        // remove children
 	        if(obj.children.length > 0) for ( j = obj.children.length - 1; j >= 0 ; j -- ) {obj.remove(obj.children[j]);}
 			content.remove(obj);
-		}
+		}*/
 	}
 }
 
@@ -595,11 +696,11 @@ function onWindowResize(){
 function render(){
 	stats.begin();
 
-	spotLight.position.copy(camera.position);
-	spotLight.lookAt(center);
+	//spotLight.position.copy(camera.position);
+	//spotLight.lookAt(center);
 
 	delta = clock.getDelta();
-	THREE.AnimationHandler.update( delta );
+	if(isSeaLoaded)THREE.AnimationHandler.update( delta );
 
 	if(envSphere){
 		envSphere.rotation.y = (-camPos.horizontal)*ToRad;
