@@ -138,7 +138,7 @@ var seaLoader;
 var currentModel="";
 var presets=[];
 var AssetsFolder = "webdemo/assets/";
-var delta, clock;
+var clock = new THREE.Clock();
 var ambient,spotLight, sunLight;
 var renderer,composer, scene,camera,mesh,fov=120,nfov=45,sphereMaterial,material,materialAnim,start=Date.now(), content, cam;
 var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, optionsPinned=false;
@@ -169,13 +169,8 @@ function init(){
 	Ambience = new Ambience();
 	document.body.appendChild( Ambience.domElement );
 
-
-	
-
 	showLoader(true);
     initInterface();
-
-    clock = new THREE.Clock();
 
 	renderer=new THREE.WebGLRenderer({antialias:true});//,preserveDrawingBuffer:true});
     renderer.physicallyBasedShading = true;
@@ -715,12 +710,14 @@ function onWindowResize(){
 }
 
 function render(){
+	requestAnimationFrame( render, renderer.domElement );
+
 	stats.begin();
 
 	//spotLight.position.copy(camera.position);
 	//spotLight.lookAt(center);
 
-	delta = clock.getDelta();
+	var delta =  0.75 * clock.getDelta();
 	if(isSeaLoaded)THREE.AnimationHandler.update( delta );
 
 	if(envSphere){
@@ -761,7 +758,8 @@ function render(){
 				}
 
 	stats.end();
-	requestAnimationFrame(render);
+	//stats.update();
+	//requestAnimationFrame(render);
 }
 
 window.addEventListener('load',init);
