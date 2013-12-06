@@ -37,31 +37,6 @@
 			</ul>
 		</div>
 		<div class="block">
-			<!--<h2>Environment map</h2>
-			<div id="EnvMapPreset">
-			    <div id="EnvMapPrev">&#8249;&#8249;</div>
-			    <div id="EnvMapText">Default</div>
-			    <div id="EnvMapNext">&#8250;&#8250;</div>
-			</div>
-			<div id="EnvMap"><div id="mh0"></div><div id="mh1"></div><div id="mh2"></div><div id="mh3"></div></div>
-			<div id="grad0"><div id="cc0"></div><div id="cc1"></div><div id="cc2"></div><div id="cc3"></div></div>
-			<div id="grad1"><div id="cc4"></div><div id="cc5"></div><div id="cc6"></div><div id="cc7"></div></div>
-			<div id="grad2"><div id="cc8"></div><div id="cc9"></div><div id="cc10"></div><div id="cc11"></div></div>
-
-			<div id="colorChoose">
-				<div id="ddcolor0"><div id="ddselect0"></div></div>
-				<div id="ddcolor1"><div id="ddselect1"></div></div>
-				<div id="ddcolor2"><div id="ddselect2"></div></div>
-				<div id="ddcolor3"><div id="ddselect3"></div></div>
-			    <div id="finalColor"></div>
-			</div>
-			<p class="input"><span id="linetxt">Line : 10</span> <input type="range" min="1" max="100" value="10" id="lineValueInput"/></p>
-			<p class="input"><span id="alphatxt">Alpha : 50</span> <input type="range" min="0" max="100" value="50" id="alphaValueInput"/></p>
-			<div id="showFinalPreset">Display Map Setting</div>
-			<div id="finalPreset" class="selectable"></div>
-			-->
-		</div>
-		<div class="block">
 			<h2>Normal map</h2>
 			<ul class="list" id="normalList">
 			</ul>
@@ -143,7 +118,7 @@ var ambient,spotLight, sunLight;
 var renderer,composer, scene,camera,mesh,fov=120,nfov=45,sphereMaterial,material,materialAnim,start=Date.now(), content, cam;
 var renderNoise=.04,nRenderNoise=.04,CSSAntialias=false,useScreenBlend=false, optionsPinned=false;
 var cubeCamera, envSphere;
-var textureCube, envMaterial, materialMorph, materialTrans, groundMaterial;
+var textureCube, materialMorph, materialTrans, groundMaterial;
 
 var noise=new ImprovedNoise();
 var MaxAnistropy;
@@ -202,7 +177,8 @@ function init(){
 	onWindowResize();
 
 	onThreeChangeView(40, 60, 100);
-	loadSphere();
+
+	loadSeaFile(AssetsFolder + "models/dice.sea", 20);
 	render();
 
 	//initComposer();
@@ -315,7 +291,7 @@ function initMaterial(){
 	material.uniforms.tMatCap.value.wrapS=material.uniforms.tMatCap.value.wrapT=THREE.ClampToEdgeWrapping;
 	material.uniforms.tNormal.value.wrapS=material.uniforms.tNormal.value.wrapT=THREE.RepeatWrapping;
 
-	envMaterial = new THREE.MeshBasicMaterial( {map: material.uniforms.tMatCap.value} );
+	//envMaterial = new THREE.MeshBasicMaterial( {map: material.uniforms.tMatCap.value} );
 
 	materialAnim =  new THREE.MeshPhongMaterial( {
 		color: 0xffFFFF, 
@@ -394,34 +370,16 @@ function initMaterial(){
 		color: 0xffFFFF, 
 		transparent:true, opacity:0.8, blending: THREE.MultiplyBlending
 	}); 
+
+
+	// define Ambiante Colors
+	Ambience.begin(scene, [materialAnim, materialMorph, materialTrans], 1);
+
 }
 
 function showLoader(show){
 	if(show)loader.style.visibility = 'visible';
 	else loader.style.visibility = 'hidden';
-}
-
-function loadSphere(){
-
-	seaLoader = new THREE.SEA3D( true );
-	seaLoader.onComplete = function( e ) {
-		var posY = -1000;
-		var geo = seaLoader.meshes[0].geometry;
-		envSphere = new THREE.Mesh(geo, envMaterial);
-		scene.add(envSphere);
-		envSphere.position.set(0,posY,0);
-		cubeCamera = new THREE.CubeCamera( 0.1, 1.5, 128 );
-		cubeCamera.scale.set(-1,1,1);
-		cubeCamera.position.set(0,posY,0);
-		cubeCamera.lookAt( new THREE.Vector3(0,posY,5))
-		scene.add( cubeCamera );
-		cubeCamera.updateCubeMap( renderer, scene );
-		materialAnim.envMap = cubeCamera.renderTarget;
-		materialTrans.envMap = cubeCamera.renderTarget;
-
-		loadSeaFile(AssetsFolder + "models/dice.sea", 20);
-	}
-	seaLoader.load( AssetsFolder + "models/sphere2.sea" );
 }
 
 var meshs = [];
@@ -720,11 +678,13 @@ function render(){
 	var delta =  0.75 * clock.getDelta();
 	if(isSeaLoaded)THREE.AnimationHandler.update( delta );
 
-	if(envSphere){
+	Ambience.update((-camPos.horizontal)*ToRad, (-camPos.vertical-90)*ToRad, renderer, scene);
+
+	/*if(envSphere){
 		envSphere.rotation.y = (-camPos.horizontal)*ToRad;
 		envSphere.rotation.z = (-camPos.vertical-90)*ToRad;
 		cubeCamera.updateCubeMap( renderer, scene );
-	}
+	}*/
 
 	renderNoise+=(nRenderNoise-renderNoise)*.2;
 	setNoise(renderNoise);

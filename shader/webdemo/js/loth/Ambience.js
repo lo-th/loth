@@ -85,6 +85,65 @@ var Ambience = function () {
     	}
 	}
 
+	//--------------------------------------
+    // 3D SIDE
+    //--------------------------------------
+    var envSphere, envMaterial, cubeCamera;
+    var materials = [];
+
+    function loadSphere(sc, mats, N, PY, S){
+    	materials = mats;
+		var seaLoader = new THREE.SEA3D( true );
+		seaLoader.onComplete = function( e ) {
+			var posY = PY  || -1000 ;
+			var s = S || 1 ;
+			var geo = seaLoader.meshes[0].geometry;
+			envMaterial = new THREE.MeshBasicMaterial( {map:texture} );
+			envSphere = new THREE.Mesh(geo, envMaterial);
+			envSphere.scale.set(s,s,s);
+			envSphere.position.set(0,posY,0);
+			cubeCamera = new THREE.CubeCamera( 0.1, s*1.2, 128 );
+			cubeCamera.scale.set(-1,1,1);
+			cubeCamera.position.set(0,posY,0);
+			cubeCamera.lookAt( new THREE.Vector3(0,posY,5))
+			//cubeCamera.updateCubeMap( render, scene );
+
+			sc.add( envSphere );
+			sc.add( cubeCamera );
+
+			for(var i=0;i!==materials.length; i++){
+				materials[i].envMap = cubeCamera.renderTarget;
+				//materials[i].combine = THREE.MixOperation;
+				//materials[i].reflectivity = 1;
+			}
+
+			//materialAnim.envMap = cubeCamera.renderTarget;
+			//materialTrans.envMap = cubeCamera.renderTarget;
+			//sc=SC
+
+			
+		}
+		var n = N || 2;
+		seaLoader.load( "webdemo/assets/models/sphere"+n+".sea" );
+	}
+
+	var applyMaterial = function () {
+		// update texture
+		if(texture==null){
+			texture = new THREE.Texture(canvasSphere[0]);
+		   // texture.anisotropy = MaxAnistropy;
+		    texture.needsUpdate = true;
+		}
+		
+		// update material 
+		if(envMaterial){
+			texture.needsUpdate = true;
+			envMaterial.map = texture;
+			//if(material)material.uniforms.tMatCap.value=texture;
+			
+		}
+	}
+
     //--------------------------------------
     // SHADER PRESET
     //--------------------------------------
@@ -107,6 +166,7 @@ var Ambience = function () {
 	var finalPreset;
 	var finalPresetButton;
 	var isShowfinalPreset = false;
+	var currentColor = -1;
 
 
 	var ctxs=[];
@@ -260,16 +320,12 @@ var Ambience = function () {
 				grd[i].addEventListener( 'mouseout', function(e){e.preventDefault(); dragcc[8] = false;dragcc[9] = false;dragcc[10] = false;dragcc[11] = false; }, false );
 				grd[i].addEventListener( 'mouseup', function(e){e.preventDefault(); dragcc[8] = false;dragcc[9] = false;dragcc[10] = false;dragcc[11] = false; }, false );
 			}
-			//grd[i].addEventListener( 'mousedown', function(e){e.preventDefault(); moveCurrentColor(e); }, false );
 			grd[i].addEventListener( 'mousemove', function(e){e.preventDefault(); moveCurrentColor(e); } , false );
 		}
 
 		placeColors();
-
-
-
-
 	}
+
 	var moveCurrentColor = function (e){
 		var rect = canvasSphere[0].getBoundingClientRect();
 		var pos;
@@ -504,22 +560,6 @@ var Ambience = function () {
 		if(isShowfinalPreset) traceCurrent();
 	}
 
-	var applyMaterial = function () {
-		// update texture
-		if(texture==null){
-			texture = new THREE.Texture(canvasSphere[0]);
-		    texture.anisotropy = MaxAnistropy;
-		    texture.needsUpdate = true;
-		}
-		
-		// update material 
-		if(material && envMaterial){
-			texture.needsUpdate = true;
-			material.uniforms.tMatCap.value=texture;
-			envMaterial.map = texture;
-		}
-	}
-
 	var traceCurrent = function (){
 		var finalshade = "var Map_"+ShaderMapList[currentShader].name+" ={<br> name:'"+ShaderMapList[currentShader].name+"' ,line:"+GRD.line+", alpha:"+GRD.alpha+", <br>";
 		finalshade += " ranging:{<br>"+" r0:"+GRD.ranging.r0+", r1:"+GRD.ranging.r1+", r2:"+GRD.ranging.r2+", r3:"+GRD.ranging.r3+",<br>";
@@ -544,7 +584,6 @@ var Ambience = function () {
 		finalshade += " r11:"+GRD.colors.r11+", v11:"+GRD.colors.v11+", b11:"+GRD.colors.b11+", a11:"+GRD.colors.a11+"<br>}};";
 		finalPreset.innerHTML = finalshade;
 	}
-
 
 	//--------------------------------------
     // COLOR SELECTOR
@@ -690,8 +729,18 @@ var Ambience = function () {
 
 		domElement: container,
 
-		begin: function () {
+		begin: function ( sc, mats, n, py, s) {
+			loadSphere( sc, mats, n, py, s);
 		},
+
+		update: function(y, z, render, sc){
+			if(envSphere){
+				envSphere.rotation.y = y;
+				envSphere.rotation.z = z;
+				cubeCamera.updateCubeMap( render, sc );
+		    }
+		},
+
 		getTexture: function () {
 			return texture;
 		}
