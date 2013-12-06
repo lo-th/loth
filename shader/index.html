@@ -8,6 +8,8 @@
 </head>
 <body>
 <div id="container" class="unselectable"></div>
+
+
 <div id="title"  class="unselectable"> ... </div>
 <div id="bodyList"  class="unselectable"></div>
 <div id="options" class="unselectable">
@@ -35,7 +37,7 @@
 			</ul>
 		</div>
 		<div class="block">
-			<h2>Environment map</h2>
+			<!--<h2>Environment map</h2>
 			<div id="EnvMapPreset">
 			    <div id="EnvMapPrev">&#8249;&#8249;</div>
 			    <div id="EnvMapText">Default</div>
@@ -57,7 +59,7 @@
 			<p class="input"><span id="alphatxt">Alpha : 50</span> <input type="range" min="0" max="100" value="50" id="alphaValueInput"/></p>
 			<div id="showFinalPreset">Display Map Setting</div>
 			<div id="finalPreset" class="selectable"></div>
-			<!--<ul class="list" id="materialList"> </ul>-->
+			-->
 		</div>
 		<div class="block">
 			<h2>Normal map</h2>
@@ -91,8 +93,10 @@
 		    3d format SEA3D <br></p>
 		</div>
 	</div>
+
 </div>
 <div id="loader" class="unselectable"><img src="webdemo/assets/ajax-loader.gif" alt="Loading..." id="loaderImg"></div>
+<div id="menu" class="unselectable"></div>
 
 <script src="webdemo/js/three.min.js"></script>
 <script src="webdemo/js/stats_loth.js"></script>
@@ -123,8 +127,12 @@
 <script src="webdemo/js/postprocessing/MaskPass.js"></script>
 <script src="webdemo/js/postprocessing/ShaderPass.js"></script>
 
+<script src="webdemo/js/loth/Ambience.js"></script>
+<script src="webdemo/js/loth/Models.js"></script>
+
 <script>'use strict'
 var container=document.getElementById('container');
+
 var loader=document.getElementById('loader');
 var seaLoader;
 var currentModel="";
@@ -144,6 +152,9 @@ var meshInterface;
 var isSeaLoaded=false;
 var ground;
 
+var Ambience;
+var Models;
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 function init(){
@@ -152,6 +163,14 @@ function init(){
 
 	meshInterface = new MeshInterface();
 	document.body.appendChild( meshInterface.domElement );
+
+	Models = new Models();
+	document.body.appendChild( Models.domElement )
+	Ambience = new Ambience();
+	document.body.appendChild( Ambience.domElement );
+
+
+	
 
 	showLoader(true);
     initInterface();
@@ -276,10 +295,12 @@ function initMaterial(){
 	tx.anisotropy = MaxAnistropy;
 	tx.needsUpdate = true;*/
 
+	var envTexture = Ambience.getTexture();
+
 	material=new THREE.ShaderMaterial({
 		uniforms:{
-			tNormal:{type:'t', value:txt},
-			tMatCap:{ type:'t', value:txt},
+			tNormal:{type:'t', value:envTexture},
+			tMatCap:{ type:'t', value:envTexture},
 			time:{ type:'f',value:0},
 			bump:{type:'f',value:0},
 			noise:{ type:'f',value:.04},
@@ -307,7 +328,7 @@ function initMaterial(){
 		shininess:1, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:txt, 
+		envMap:envTexture, 
 		//lightMap:THREE.ImageUtils.loadTexture(AssetsFolder+'matcap/jeepster_skinmat2.jpg', THREE.SphericalReflectionMapping()),//txt,
 		//refractionRatio:0.98,
 	    combine: THREE.MixOperation,
@@ -329,7 +350,7 @@ function initMaterial(){
 		shininess:1, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:txt, 
+		envMap:envTexture, 
 		//refractionRatio:0.98,
 	    combine: THREE.MixOperation,
 		skinning:false,
@@ -351,7 +372,7 @@ function initMaterial(){
 		shininess:50, 
 		specular:0xffFFFF,
 		reflectivity:1,  
-		envMap:txt, 
+		envMap:envTexture, 
 	    combine: THREE.MixOperation,
 		normalMap:material.uniforms.tNormal.value,
 		normalScale:{x:0,y:0},
