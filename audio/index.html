@@ -18,7 +18,7 @@
 		</style> 
 	</head>
 	<body>
-	<div id="info">hello</div>
+	<div id="info">hello xx</div>
  <!--<audio controls>
  <source src="cta.mp3" type="audio/mpeg">
   <source src="http://173.239.76.148:8032/;" type="audio/mpeg">
@@ -32,13 +32,14 @@ Your browser does not support the audio element.
 
   var audio = document.createElement('audio');//new Audio();
   //var audio = new Audio();
-  audio.src = "http://173.239.76.148:8032/;";
+  
  // audio.addEventListener('canplay', ff, false);
   audio.play();
 
   audio.onloadeddata = function(){
   	document.getElementById("info").innerHTML += "<br>Sound Launch XX";
   }
+  audio.src = "http://173.239.76.148:8032/;";
 
   audio.oncanplay = function(){
   	document.getElementById("info").innerHTML += "<br>Sound Launch";
