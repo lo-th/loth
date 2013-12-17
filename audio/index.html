@@ -30,11 +30,15 @@ Your browser does not support the audio element.
   audio.addEventListener('AudioAvailable', audioAvailableFunction, false);
   audio.addEventListener('loadedmetadata', loadedMetadataFunction, false);*/
 
+  //var audio = document.createElement('audio');//new Audio();
   var audio = new Audio();
   audio.src = "http://173.239.76.148:8032/;";
  // audio.addEventListener('canplay', ff, false);
   audio.play();
 
+  audio.onloadeddata = function(){
+  	document.getElementById("info").innerHTML += "<br>Sound Launch XX";
+  }
 
   audio.oncanplay = function(){
   	document.getElementById("info").innerHTML += "<br>Sound Launch";
