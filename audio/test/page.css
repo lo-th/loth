@@ -1,0 +1,136 @@
+body, html {
+	background-color : rgb(40,40,40);
+}
+
+#main {
+	width : 800px;
+}
+
+h3 {
+  margin-top : 0;
+}
+a {
+ color : white;
+}
+
+#links {
+	margin-top : 50px;
+}
+
+#links a {
+  color : white;
+  text-decoration : none;
+}
+#links a:hover {
+  text-decoration : underline;
+}
+#credits, #credits a {
+  font-family : arial;
+  font-size : 10px;
+  color : rgb(120,120,120);
+}
+#credits {
+	margin-top : 10px;
+}
+
+#audio-container {
+	height : 65px;
+	margin-bottom : 10px;
+}
+
+#audio-container audio {
+	height : 65px;
+	width : 100%;
+}
+
+
+#presetlist ul {
+	margin : 0;
+	padding : 0;
+	margin-left : 10px;
+}
+
+#presetlist ul a {
+	color : white;
+	text-decoration : none;
+	display : inline-block;
+	width : 100%;
+}
+
+#presetlist ul a:hover {
+	background-color : #666;
+}
+
+
+#presetlist ul li {
+	display : inline-block;
+	width : 110px;
+	height : 18px;
+	vertical-align : top;
+}
+
+
+#presetlist a.active {
+	background-color : rgb(60,60,60);
+}
+
+
+#presetctr {
+	width : 892px;
+	height : 360px;
+	margin-top : 15px;
+	border : 1px solid black;
+	display : none;
+	overflow : hidden;
+	-moz-box-sizing : border-box;
+	box-sizing : border-box;
+	-webkit-box-sizing : border-box;
+}
+
+
+textarea#vizcode {
+	width : 890px;
+	height : 358px;
+	border : none;
+	margin : 0;
+	padding : 5px;
+	background-color : rgb(20,20,20);
+	color : rgb(200,200,200);
+	-moz-box-sizing : border-box;
+	box-sizing : border-box;
+	-webkit-box-sizing : border-box;
+
+}
+
+
+#sm2-controls {
+	display : none;
+	font-style : italic;
+}
+
+#sm2-controls button, #code-controls button {
+	height : 25px;
+	width : 100px;
+	background-color : rgb(60,60,60);
+	border : 1px solid rgb(120,120,120);
+	margin-right : 10px;
+	color : white;
+}
+
+#sm2-controls button:hover, #code-controls button:hover {
+	background-color : rgb(80,80,80);
+}
+
+#sm2-controls button:active,#code-controls button:active {
+	background-color : rgb(40,40,40);
+}
+
+#code-controls {
+	margin-top : 10px;
+}
+
+#code-controls button.hide, #code-controls button.reload {
+	display : none;
+}
+
+

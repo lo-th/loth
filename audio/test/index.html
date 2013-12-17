@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="description" content="Music visualizations with JavaScript and HTML5 audio.">
+
+<title>All this is done in HTML5 by the way.</title>
+
+<link type="text/css" rel="stylesheet" href="page.css">
+<link type="text/css" rel="stylesheet" href="pocket.css">
+
+<link type='application/rss+xml' rel='alternate' id="rss-link" href='http://feeds2.feedburner.com/nihilogic'  title='Nihilogic' /> 
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="dsp.js"></script>
+<script type="text/javascript" src="pocket.js"></script>
+<script type="text/javascript" src="pocket.api.js"></script>
+<script type="text/javascript" src="pocket.audio.js"></script>
+
+<script type="text/javascript" src="pixastic.custom.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="pre3d/pre3d.js"></script>
+<script type="text/javascript" src="pre3d/pre3d_path_utils.js"></script>
+<script type="text/javascript" src="pre3d/pre3d_shape_utils.js"></script>
+<script>
+
+function clearDebug() {
+	$("#consolelog").html("");
+}
+
+function debug() {
+	var el = $("#consolelog").get(0);
+	if (!el) return;
+	el.innerHTML += Array.prototype.join.call(arguments, ", ") + "<br/>";
+}
+
+function init() {
+	var width = 400;
+	var height = 400;
+	var cssWidth = 512;
+	var cssHeight = 512;
+
+	var screenElement = $("#screen").get(0);
+	var audioElement = $("#audio").get(0);
+	var scriptElement = $("#vizcode").get(0);
+
+	Pocket.init(screenElement, audioElement, scriptElement, {w:width, h:height, watchHash : true});
+
+	$(document).keydown(function(e) {
+		if (e.keyCode == 178) {
+			if (typeof soundManager != "undefined")
+				soundManager.togglePause("pocketsound");
+			else
+				audioElement.pause();
+		}
+		if (e.keyCode == 179) {
+			if (typeof soundManager != "undefined")
+				soundManager.togglePause("pocketsound");
+			else
+				audioElement.play();
+		}
+	});
+
+	$("#sm2-controls button.start").click(function() {
+		soundManager.play("pocketsound");
+	});
+	$("#sm2-controls button.stop").click(function() {
+		soundManager.stop("pocketsound");
+	});
+
+	$("#code-controls button.show").click(function() {
+		$("#presetctr").show();
+		$("#code-controls button").show();
+		$(this).hide();
+	});
+	$("#code-controls button.hide").click(function() {
+		$("#presetctr").hide();
+		$("#code-controls button").hide();
+		$("#code-controls button.show").show();
+	});
+
+	$("#code-controls button.reload").click(function() {
+		Pocket.loadCode($("#vizcode").val());
+	});
+
+
+	$("#vizcode").keyup(function(e) {
+		if (e.keyCode == 119) {
+			Pocket.loadCode($(this).val());
+		}
+	});
+
+	$("#presetlist a").click(function(e) {
+		$("#presetlist a").removeClass("active");
+		$(this).addClass("active").blur();
+
+	});
+
+	var $links = $("#presetlist a");
+
+	var checkKeyNextPrevious = function(e) {
+		if (e.which == 37 || e.which == 39) { // left | right {
+			for (var i=0;i<$links.size();i++) {
+				var cur = $links[i];
+				if (document.location.hash == $(cur).attr("href")) {
+					var prev = i > 0 ? $links[i-1] : $links.last();
+					var next = i < $links.size()-1 ? $links[i+1] : $links[0];
+					document.location.hash = (e.which == 37 ? $(prev).attr("href") : $(next).attr("href"));
+					return;
+				}
+			}
+		}
+	}
+
+	var updateScreenSize = function() {
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+		var m = Math.min(w,h);
+
+		$("#screencanvas, #processcanvas, #screen").width(m).height(m);
+		$("#screen")
+			.css("position", "absolute")
+			.css("left", (w - m) / 2)
+			.css("top", (h - m) / 2);
+	}
+
+	var enlarge = function() {
+		$("#screen").unbind("click", enlarge);
+		$(".page-elements").hide();
+		$("body, html").css("backgroundColor", "rgb(0,0,0)");
+
+		updateScreenSize();
+
+		$("#screen").click(reset);
+		$(document).bind("keyup", checkKeyNextPrevious);
+		$(window).bind("resize", updateScreenSize);
+	};
+
+	var reset = function() {
+		$(".page-elements").show();
+		$("body, html").css("backgroundColor", "");
+
+		$("#screencanvas, #processcanvas, #screen").width(cssWidth).height(cssHeight);
+		$("#screen").css("position", "static");
+		$("#screen").unbind("click", reset);
+		$("#screen").click(enlarge);
+		$(document).unbind("keyup", checkKeyNextPrevious);
+		$(window).unbind("resize", updateScreenSize);
+	}
+
+
+	$("#screen").click(enlarge);
+}
+
+$(document).ready(init);
+
+</script>
+
+</head>
+
+<body>
+
+
+<div id="main">
+
+<div id="ctr">
+	<div id="background"></div>
+
+	<div id="screen">
+		<canvas id="processcanvas"></canvas>
+	</div>
+
+	<div id="output" class="page-elements">
+		<h3>Pocket Full of HTML5</h3>
+		<em>Experiments with HTML5 &lt;canvas&gt; and &lt;audio&gt;</em><br/><br/>
+		This project uses the new HTML5 Audio Data API. At the moment, only <a href="http://www.mozilla.com/en-US/firefox/all-beta.html">Firefox 4 beta</a> supports this.<br/>
+		<br/>
+		Click the visualization area to toggle "fullscreen" mode.<br/><br/>
+
+		<div id="sm2-controls" class="sm2-fallback">
+			Your browser does not support the new HTML5 Audio Data API, falling back to SoundManager2 (Flash) audio.<br/><br/>
+			<button class="start">Start</button>
+			<button class="stop">Stop</button>
+			<br/><br/>
+		</div>
+		<div id="audio-container">
+		    <audio controls="true" id="audio" src="../cta.mp3"></audio><br />
+			<!--<audio controls="true" id="audio" src="music/liquid jazz.ogg"></audio><br />
+			<audio controls="true" id="audio" src="music/03-venetian_snares-oengyilkos_vasarnap-obc"></audio><br />-->
+			<!--<audio controls="true" id="audio" src="music/04_Wisp-Me.ogg"></audio><br />-->
+		</div>
+
+		Status: <div id="status"></div>
+
+		<br/><br/>
+		<div id="log"></div>
+		<div id="presetlist">
+			<ul>
+				<li><a href="presets/star.js">Star</a></li>
+				<li><a href="#presets/web.js">Web</a></li>
+				<li><a href="#presets/360.js">Three-sixty</a></li>
+				<li><a href="#presets/circular.js">Circular</a></li>
+				<!--<li><a href="#presets/points.js">Points</a></li>
+				<li><a href="#presets/xorflower.js">XOR Flower</a></li>
+				<li><a href="#presets/struggle.js">Struggle</a></li>
+				<li><a href="#presets/spectrum.js">Spectrum</a></li>
+				<li><a href="#presets/void.js">Void</a></li>
+				<li><a href="#presets/lhc.js">Collider</a></li>
+				<li><a href="#presets/halftone.js">Halftone</a></li>
+				<li><a href="#presets/colormunch.js">Color Munch</a></li>
+				<li><a href="#presets/plasma2.js">Plasma</a></li>
+				<li><a href="#presets/colorspiral.js">Color Spiral</a></li>
+				<li><a href="#presets/tunnel.js">Tunnel</a></li>
+				<li><a href="#presets/cranked.js">Cranked</a></li>
+				<li><a href="#presets/waveform.js">Waveform</a></li>
+				<li><a href="#presets/waveformdeform.js">Wave(de)form</a></li>
+				<li><a href="#presets/fft.js">FFT</a></li>
+				<li><a href="#presets/fft2.js">FFT2</a></li>
+				<li><a href="#presets/mario.js">Mario</a></li>
+				<li><a href="#presets/pre3d_spinring.js">Pre3D Spin Ring</a></li>
+				<li><a href="#presets/pre3d_colorscube.js">Pre3D Colorscube</a></li>
+				<li><a href="#presets/pre3d_eq.js">Pre3D EQ</a></li>-->
+			</ul>
+		</div>
+
+		<div id="links">[<a href="http://blog.nihilogic.dk/2010/03/pocket-full-of-html5.html">Read the blog</a>]&nbsp;&nbsp;&nbsp;&nbsp;[<a href="http://feeds2.feedburner.com/nihilogic">Subscribe to the feed</a>]</div>
+	</div>
+
+	<div class="page-elements">
+		<div id="code-controls">
+			<button class="show">Show code</button>
+			<button class="hide">Hide code</button>
+			<button class="reload">Reload code</button>
+		</div>
+		<div id="presetctr">
+			<textarea id="vizcode" nowrap wrap="off"></textarea>
+		</div>
+		<div id="credits">An experiment by <a href="http://blog.nihilogic.dk/">Jacob Seidelin</a>. Music by <a href="http://www.generalfuzz.net/">General Fuzz</a> available under a Creative Commons BY-ND license</div>
+	</div>
+</div>
+
+
+</div>
+
+<div id="consolelog"></div>
+<!--
+<div style='position:absolute;bottom:25px;left:5px;'>
+	<div style='display:inline-block;position:relative;left:12px;top:12px;'>
+		<g:plusone size='medium'></g:plusone>
+	</div>
+	<div style='display:inline-block;position:relative;left:12px;top:12px;'>
+		<a class='twitter-share-button' data-count='horizontal' data-via='jseidelin' href='http://twitter.com/share'>Tweet</a>
+	</div>
+</div>
+
+<script src='https://apis.google.com/js/plusone.js' type='text/javascript'></script>
+<script src='http://platform.twitter.com/widgets.js' type='text/javascript'></script>
+-->
+
+</body>
+</html>
+

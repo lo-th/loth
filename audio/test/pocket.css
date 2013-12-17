@@ -1,0 +1,103 @@
+
+div#screen {
+	width : 512px;
+	height : 512px;
+	border : 1px solid black;
+	margin : 10px;
+	background-color : black;
+	float : left;
+	overflow : hidden;
+	-moz-box-sizing : border-box;
+	box-sizing : border-box;
+	-webkit-box-sizing : border-box;
+	position : relative;
+}
+
+#background {
+	position : absolute;
+	left : 0px;
+	top : 0px;
+}
+
+#screencanvas {
+	width : 512px;
+	height : 512px;
+	position : absolute;
+	z-index : 1;
+}
+
+#processcanvas {
+	width : 512px;
+	height : 512px;
+	position : absolute;
+	z-index : 1;
+}
+
+div#inputlayer {
+	width : 512px;
+	height : 512px;
+	position : absolute;
+	z-index : 3;
+}
+
+div#output {
+	width : 360px;
+	height : 512px;
+	margin-left : 20px;
+	display : inline-block;
+	color : white;
+	font-family : arial;
+	font-size : 12px;
+	padding : 5px;
+	overflow : hidden;
+	-moz-box-sizing : border-box;
+	box-sizing : border-box;
+	-webkit-box-sizing : border-box;
+	/*
+	border : 1px solid black;
+	background-color : black;
+	*/
+	border : 1px dashed rgb(60,60,60);
+}
+
+#status {
+	display : inline;
+}
+
+.status-error {
+	color : rgb(255,128,128);
+}
+
+.status-ok {
+	color : rgb(128,255,128);
+}
+
+div#screen {
+  margin : 0px;
+}
+
+body {
+  margin : 0;
+}
+
+#main {
+  width : 100%;
+  text-align : center;
+}
+
+#ctr {
+  width : 942px;
+  top : 0;
+  margin : 20px auto 0 auto;
+  text-align : left;
+}
+
+#consolelog {
+  position : absolute;
+  margin : 10px;
+  top : 0px;
+  left : 0px;
+  font-family : lucida console;
+  color : lightgrey;
+  font-size : 12px;
+}
